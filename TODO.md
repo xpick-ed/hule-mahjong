@@ -9,10 +9,12 @@
 - 絕招：換牌、偷看、好運；提示：打哪張會聽、聽哪幾張剩幾張
 - 瀏覽器實測：手機橫向 844×390、電腦 1280×800、直拿提示轉橫；機器人在畫面上打完一整場東風圈沒有錯誤
 
-**Doing（2026-09-26）：** 配音。edge-tts＋ffmpeg 流程從 grandma 搬來（`scripts/gen_voices.py`，加了修掉句尾靜音）。
-試聽頁：https://claude.ai/artifact/VVKuAp2iWGgWzpDV1HY9xY（美玲姐、林伯、二舅、阿嬤，各 A／B 兩種聲音）。
-等使用者選好 A／B，再把 12 個角色的報牌（34 種牌）、喊牌、台詞全部生成、接進遊戲。
-台語：edge-tts 沒有台語聲音，要真人錄或另找台語 TTS。
+**Doing（2026-09-26）：** 配音接上了。12 個角色＋你（女聲／男聲）都有報牌（34 種牌）、吃碰槓胡、全部台詞，共 691 句。
+- 使用者選的：美玲姐 A、林伯 A、二舅 A、阿嬤 B，其他人照同樣思路配（設定在 `scripts/voice-lines.ts`）
+- 流程：`npx tsx scripts/voice-lines.ts` → `.venv-voice/bin/python scripts/gen_voices.py` → `.venv-voice/bin/python scripts/voice_sprites.py`
+- 每個角色打包成一個音檔（public/voice/，共 3.9 MB，一場只載 4 個約 1.1 MB），WebAudio 切片播放
+- 設定可關配音、換你的聲音；試玩版已更新（https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL）
+- 台語：edge-tts 沒有台語聲音，要真人錄或另找台語 TTS
 
 **Next:**
 1. 真人試玩：節奏（電腦出牌速度）、難度（`npm run sim` 平均只有 1.6 台，電腦太愛小胡）、台詞頻率

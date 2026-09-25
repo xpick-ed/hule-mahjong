@@ -1,11 +1,12 @@
 import { create } from 'zustand'
-import { CHARACTERS, line, type LineKey } from './engine/characters'
+import { CHARACTERS, type LineKey } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
 import type { ClaimDecision, HandEvent } from './engine/table'
 import type { Kind } from './engine/tiles'
 import { buzz, setSoundEnabled, sfx } from './sfx'
+import { preloadVoices, setVoiceEnabled, speak } from './voice'
 
 const MATCH_KEY = 'hule.match.v2'
 const PROGRESS_KEY = 'hule.progress.v2'
@@ -40,6 +41,10 @@ export interface Progress {
 
 export interface Settings {
   sound: boolean
+  /** 角色配音（報牌、喊牌、台詞） */
+  voice: boolean
+  /** 你自己報牌、喊牌的聲音 */
+  myVoice: 'f' | 'm'
   fast: boolean
   hints: boolean
 }
@@ -88,13 +93,15 @@ interface UI {
   setSettings(s: Partial<Settings>): void
   setSkin(id: string): void
   showToast(msg: string): void
-  say(seat: number, key: LineKey, chance?: number): void
+  /** 讓對手講一句（泡泡＋配音），有講就回傳 true */
+  say(seat: number, key: LineKey, chance?: number): boolean
   processEvents(): void
 }
 
 const defaultProgress: Progress = { cleared: 0, skins: ['mint'], skin: 'mint', wins: 0, matches: 0 }
-const settings0 = { sound: true, fast: false, hints: true, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
+const settings0: Settings = { sound: true, voice: true, myVoice: 'f', fast: false, hints: true, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
 setSoundEnabled(settings0.sound)
+setVoiceEnabled(settings0.voice)
 
 export function savedMatch(): M.MatchState | null {
   const m = load<M.MatchState>(MATCH_KEY)
@@ -102,6 +109,15 @@ export function savedMatch(): M.MatchState | null {
 }
 
 let bubbleKey = 1
+
+/** 這個座位用哪個聲音：你是 me-f／me-m，對手是角色 id */
+function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string {
+  return seat === 0 ? `me-${my}` : m.chars[seat]
+}
+
+function preloadFor(m: M.MatchState, my: Settings['myVoice']) {
+  preloadVoices([0, 1, 2, 3].map((s) => voiceOf(m, s, my)))
+}
 
 export const useUI = create<UI>((set, get) => {
   const apply = (fn: (m: M.MatchState) => M.MatchState, extra: Partial<UI> = {}): M.MatchState | null => {
@@ -163,6 +179,7 @@ export const useUI = create<UI>((set, get) => {
       const match = M.newMatch(newSeed(), stage)
       save(MATCH_KEY, match)
       set({ match, screen: 'match', sel: null, mode: null, chiOpen: false, bubbles: {}, moods: {}, callout: null, seenEvent: 0, menu: false })
+      preloadFor(match, get().settings.myVoice)
       sfx.shuffle()
       // 開場：隨便一個對手打招呼
       const seat = 1 + Math.floor(Math.random() * 3)
@@ -173,6 +190,7 @@ export const useUI = create<UI>((set, get) => {
       const match = savedMatch()
       if (!match) return
       set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN })
+      preloadFor(match, get().settings.myVoice)
     },
     toHome() {
       set({ screen: 'home', menu: false, mode: null })
@@ -256,8 +274,14 @@ export const useUI = create<UI>((set, get) => {
     setSettings(s) {
       const settings = { ...get().settings, ...s }
       setSoundEnabled(settings.sound)
+      setVoiceEnabled(settings.voice)
       save(SETTINGS_KEY, settings)
       set({ settings })
+      const m = get().match
+      if (m && s.myVoice) {
+        preloadFor(m, settings.myVoice)
+        window.setTimeout(() => speak(`me-${settings.myVoice}`, 'call.pon'), 300)
+      }
     },
     setSkin(id) {
       const p = { ...get().progress, skin: id }
@@ -270,16 +294,19 @@ export const useUI = create<UI>((set, get) => {
 
     say(seat, key, chance = 1) {
       const m = get().match
-      if (!m || seat === 0 || Math.random() > chance) return
-      const ch = CHARACTERS[m.chars[seat]]
-      const text = line(ch, key, Math.random())
-      if (!text) return
+      if (!m || seat === 0 || Math.random() > chance) return false
+      const ls = CHARACTERS[m.chars[seat]].lines[key]
+      if (!ls?.length) return false
+      const i = Math.floor(Math.random() * ls.length)
+      const text = ls[i]
+      speak(m.chars[seat], `line.${key}.${i}`)
       set({ bubbles: { ...get().bubbles, [seat]: { text, key: bubbleKey++ } } })
       const k = bubbleKey - 1
       window.setTimeout(() => {
         const b = get().bubbles[seat]
         if (b && b.key === k) set({ bubbles: { ...get().bubbles, [seat]: undefined } })
       }, 2600)
+      return true
     },
 
     /** 看新的牌局事件：放音效、讓角色講話、換表情 */
@@ -304,9 +331,12 @@ export const useUI = create<UI>((set, get) => {
 
   function react(e: HandEvent, m: M.MatchState) {
     const say = get().say
+    const my = get().settings.myVoice
+    const voice = (seat: number, key: string) => speak(voiceOf(m, seat, my), key)
     switch (e.t) {
       case 'discard':
         if (e.seat !== 0) sfx.discard()
+        voice(e.seat, `tile.${e.tile.kind}`)
         break
       case 'draw':
         if (e.seat === 0) sfx.draw()
@@ -319,13 +349,14 @@ export const useUI = create<UI>((set, get) => {
       case 'kong':
         callout(e.seat, { chi: '吃', pon: '碰', kong: '槓' }[e.t])
         sfx.call(e.t)
-        say(e.seat, e.t, 0.75)
+        // 有講台詞（「碰！這張我等很久了」）就不另外喊，不然只喊一聲「碰！」
+        if (!say(e.seat, e.t, 0.6)) voice(e.seat, `call.${e.t}`)
         break
       case 'ankan':
       case 'kakan':
         callout(e.seat, '槓')
         sfx.call('kong')
-        say(e.seat, 'kong', 0.75)
+        if (!say(e.seat, 'kong', 0.6)) voice(e.seat, 'call.kong')
         break
       case 'ting':
         say(e.seat, 'ting', 0.45)
@@ -335,7 +366,7 @@ export const useUI = create<UI>((set, get) => {
         sfx.hu()
         buzz(40)
         mood(e.seat, 'happy')
-        if (e.seat !== 0) say(e.seat, e.from === null ? 'tsumo' : 'ron')
+        if (!say(e.seat, e.from === null ? 'tsumo' : 'ron')) voice(e.seat, e.from === null ? 'call.tsumo' : 'call.hu')
         if (e.from !== null) {
           mood(e.from, 'sad')
           window.setTimeout(() => say(e.from!, 'dealIn', 0.8), 900)

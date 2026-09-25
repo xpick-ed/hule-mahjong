@@ -26,6 +26,11 @@ export function unlockAudio() {
   ac()
 }
 
+/** 給配音用：共用同一個 AudioContext（iOS 只解鎖一次） */
+export function audioContext(): AudioContext | null {
+  return ac()
+}
+
 interface ToneOpts {
   type?: OscillatorType
   gain?: number

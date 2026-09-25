@@ -7,7 +7,7 @@
   *.lines.json     台詞：{ "lineId": { "who": "meiling", "text": "…" } }
                    可選欄位：tts（實際唸的字，跟字幕不同時用）、rate、pitch（覆蓋角色設定）、
                    fx（額外效果，接在角色效果後面）
-寫（--out，預設 public/voice/）：
+寫（--out，預設 voice-build/clips/，之後由 voice_sprites.py 打包進 public/voice/）：
   <lineId>.mp3
   manifest.json    { lineId: { file, who, text, dur, hash } }
   cast.json
@@ -39,7 +39,8 @@ import edge_tts
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "voice"
-OUT = ROOT / "public" / "voice"
+OUT = ROOT / "voice-build" / "clips"
+BITRATE = "40k"
 
 # 改了效果的定義就把這個數字 +1，所有台詞會重新生成
 FX_VERSION = 4
@@ -175,7 +176,7 @@ async def render(line_id: str, line: dict, cast: dict, tmp: pathlib.Path, sem: a
     af = build_filter(prof["fx"], "scream" in prof["fx"])
     await asyncio.to_thread(
         run,
-        ["ffmpeg", "-y", "-v", "error", "-i", str(raw), "-af", af, "-ac", "1", "-ar", "24000", "-c:a", "libmp3lame", "-b:a", "64k", str(dest)],
+        ["ffmpeg", "-y", "-v", "error", "-i", str(raw), "-af", af, "-ac", "1", "-ar", "24000", "-c:a", "libmp3lame", "-b:a", BITRATE, str(dest)],
     )
     return {"file": dest.name, "who": line["who"], "text": line["text"], "dur": duration(dest), "hash": line_hash(prof)}
 
@@ -185,7 +186,7 @@ async def main() -> None:
     ap.add_argument("--force", action="store_true", help="全部重新生成")
     ap.add_argument("--only", help="只重生這個角色 id 的台詞")
     ap.add_argument("--data", help="台詞與角色設定的資料夾（預設 voice/）")
-    ap.add_argument("--out", help="輸出資料夾（預設 public/voice/）")
+    ap.add_argument("--out", help="輸出資料夾（預設 voice-build/clips/）")
     args = ap.parse_args()
     global DATA, OUT
     if args.data:
@@ -221,7 +222,7 @@ async def main() -> None:
             todo.append(k)
 
     print(f"台詞 {len(lines)} 句，要生成 {len(todo)} 句")
-    sem = asyncio.Semaphore(4)
+    sem = asyncio.Semaphore(6)
     with tempfile.TemporaryDirectory() as t:
         tmp = pathlib.Path(t)
         results = await asyncio.gather(*(render(k, lines[k], cast, tmp, sem) for k in todo), return_exceptions=True)

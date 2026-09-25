@@ -5,3 +5,10 @@
 
 /index.html
   Cache-Control: no-cache
+
+# 配音：檔名帶雜湊，內容不會變；index.json 每次都要問新版
+/voice/*.mp3
+  Cache-Control: public, max-age=31536000, immutable
+
+/voice/index.json
+  Cache-Control: no-cache

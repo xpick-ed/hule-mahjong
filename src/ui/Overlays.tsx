@@ -4,6 +4,7 @@ import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
 import { useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
+import { speak } from '../voice'
 import { cls, fmt, fmtSigned, Tile } from './bits'
 
 const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? '你' : CHARACTERS[m.chars[seat]].name)
@@ -114,6 +115,12 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
   const toHome = useUI((s) => s.toHome)
   const order = M.ranking(m)
   const first = order[0] === 0
+  const q = finalWord(m)
+  useEffect(() => {
+    if (q) speak(m.chars[q.seat], `line.${q.key}.0`)
+    // 只在結束畫面出現時講一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const stage = STAGES[m.stage]
   const hasNext = m.stage + 1 < STAGES.length
   return (
@@ -133,7 +140,11 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
             </li>
           ))}
         </ol>
-        {first && s0(m) && <p className="quote">「{s0(m)}」</p>}
+        {q && (
+          <p className="quote">
+            {nameOf(m, q.seat)}：「{q.text}」
+          </p>
+        )}
         <div className="final-actions">
           <button type="button" className="btn" onClick={toHome}>
             回首頁
@@ -153,13 +164,14 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
   )
 }
 
-/** 輸掉的對手最後講一句 */
-function s0(m: M.MatchState): string | null {
+/** 最後一句：你拿第一，墊底的對手認輸；你沒拿第一，第一名的對手得意一下 */
+function finalWord(m: M.MatchState): { seat: number; key: 'matchWin' | 'matchLose'; text: string } | null {
   const order = M.ranking(m)
-  const loser = order[order.length - 1]
-  if (loser === 0) return null
-  const ls = CHARACTERS[m.chars[loser]].lines.matchLose
-  return ls?.[0] ?? null
+  const seat = order[0] === 0 ? order[order.length - 1] : order[0]
+  if (seat === 0) return null
+  const key = order[0] === 0 ? 'matchLose' : 'matchWin'
+  const text = CHARACTERS[m.chars[seat]].lines[key]?.[0]
+  return text ? { seat, key, text } : null
 }
 
 function Sheet({ open, onClose, children, label }: { open: boolean; onClose: () => void; children: ReactNode; label: string }) {
@@ -193,6 +205,18 @@ export function Menu() {
           <span>音效</span>
           <button type="button" className="toggle" aria-pressed={settings.sound} onClick={() => setSettings({ sound: !settings.sound })}>
             {settings.sound ? '開' : '關'}
+          </button>
+        </label>
+        <label className="row">
+          <span>配音（報牌、喊牌、台詞）</span>
+          <button type="button" className="toggle" aria-pressed={settings.voice} onClick={() => setSettings({ voice: !settings.voice })}>
+            {settings.voice ? '開' : '關'}
+          </button>
+        </label>
+        <label className="row">
+          <span>你的聲音</span>
+          <button type="button" className="toggle on-both" onClick={() => setSettings({ myVoice: settings.myVoice === 'f' ? 'm' : 'f' })}>
+            {settings.myVoice === 'f' ? '女聲' : '男聲'}
           </button>
         </label>
         <label className="row">

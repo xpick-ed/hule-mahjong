@@ -11,3 +11,4 @@ dist-artifact
 .venv-voice
 voice-audition
 dist-voices
+voice-build

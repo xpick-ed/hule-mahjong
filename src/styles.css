@@ -1491,6 +1491,7 @@ button.mt {
   cursor: pointer;
 }
 
+.toggle.on-both,
 .toggle[aria-pressed='true'] {
   background: var(--ink);
   color: var(--bg);

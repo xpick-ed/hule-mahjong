@@ -1,0 +1,173 @@
+[
+ {
+  "id": "meiling",
+  "name": "美玲姐",
+  "voice": {
+   "voice": "zh-TW-HsiaoChenNeural",
+   "rate": "+12%",
+   "pitch": "+2Hz",
+   "fx": [
+    "bright"
+   ]
+  }
+ },
+ {
+  "id": "lin",
+  "name": "林伯",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-12%",
+   "pitch": "-10Hz",
+   "fx": [
+    "elder"
+   ]
+  }
+ },
+ {
+  "id": "kai",
+  "name": "阿凱",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+6%",
+   "pitch": "+6Hz",
+   "fx": [
+    "plain"
+   ]
+  }
+ },
+ {
+  "id": "wang",
+  "name": "王經理",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-4%",
+   "pitch": "-14Hz",
+   "fx": [
+    "smooth"
+   ]
+  }
+ },
+ {
+  "id": "xiaomei",
+  "name": "小美",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+4%",
+   "pitch": "+10Hz",
+   "fx": [
+    "bright"
+   ]
+  }
+ },
+ {
+  "id": "jie",
+  "name": "阿傑",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+18%",
+   "pitch": "+2Hz",
+   "fx": [
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "ama",
+  "name": "阿嬤",
+  "voice": {
+   "voice": "zh-TW-HsiaoChenNeural",
+   "rate": "-20%",
+   "pitch": "-22Hz",
+   "fx": [
+    "tremble",
+    "warm"
+   ]
+  }
+ },
+ {
+  "id": "erjiu",
+  "name": "二舅",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+10%",
+   "pitch": "-4Hz",
+   "fx": [
+    "hearty",
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "biaomei",
+  "name": "表妹",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+2%",
+   "pitch": "+2Hz",
+   "fx": [
+    "plain"
+   ]
+  }
+ },
+ {
+  "id": "queshen",
+  "name": "雀神",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-14%",
+   "pitch": "-20Hz",
+   "fx": [
+    "mystic"
+   ]
+  }
+ },
+ {
+  "id": "longge",
+  "name": "龍哥",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-6%",
+   "pitch": "-16Hz",
+   "fx": [
+    "gruff"
+   ]
+  }
+ },
+ {
+  "id": "coco",
+  "name": "Coco",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+14%",
+   "pitch": "+8Hz",
+   "fx": [
+    "bright",
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "me-f",
+  "name": "你（女聲）",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+0%",
+   "pitch": "+0Hz",
+   "fx": [
+    "plain"
+   ]
+  }
+ },
+ {
+  "id": "me-m",
+  "name": "你（男聲）",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+0%",
+   "pitch": "+0Hz",
+   "fx": [
+    "plain"
+   ]
+  }
+ }
+]
