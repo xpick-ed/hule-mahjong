@@ -8,6 +8,7 @@ import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
 import { tableSkin, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
+import { CutIn } from './Celebrate'
 import { HandEnd, MatchEnd } from './Overlays'
 
 /** 電腦的節奏：不是在等你的時候，隔一下就讓電腦動一步 */
@@ -41,7 +42,8 @@ export function MatchView() {
       <Opponent m={match} seat={1} side="right" />
       <MyArea m={match} />
       <Actions m={match} />
-      {match.phase === 'handEnd' && <HandEnd m={match} />}
+      {match.phase === 'handEnd' && <CutIn key={`cut${match.handNo}`} m={match} />}
+      {match.phase === 'handEnd' && <HandEnd key={`end${match.handNo}`} m={match} />}
       {match.phase === 'end' && <MatchEnd m={match} />}
     </div>
   )
@@ -154,6 +156,13 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
       <div className={cls('opp', side, h.turn === seat && h.phase !== 'over' && 'active')}>
         <button type="button" className={cls('avatar', mode === 'peek' && 'pickable')} onClick={() => peekAt(seat)} aria-label={`${ch.name}${mode === 'peek' ? '（點一下偷看）' : ''}`} disabled={mode !== 'peek'}>
           <Avatar look={ch.look} mood={mood ?? 'normal'} />
+          {h.turn === seat && h.phase === 'discard' && (
+            <span className="thinking" aria-hidden="true">
+              <i />
+              <i />
+              <i />
+            </span>
+          )}
           <span className="seat-wind">{WIND_CHAR[seatWind(h, seat)]}</span>
           {m.dealer === seat && <span className="dealer">莊</span>}
         </button>

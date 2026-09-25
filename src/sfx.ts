@@ -119,6 +119,18 @@ export const sfx = {
     ;[0, 2, 4, 5, 7, 9].forEach((i, k) => tone(penta(i + 3), 0.32, { type: 'triangle', gain: 0.16, delay: 0.05 + k * 0.065 }))
     ;[196, 294, 392].forEach((f) => tone(f, 1.4, { gain: 0.08, delay: 0.45, attack: 0.02 }))
   },
+  // 結算時台數一項一項跳出來，音一格一格往上爬
+  tick(i: number) {
+    tone(penta(i + 2), 0.12, { type: 'triangle', gain: 0.16 })
+    noise(0.03, { freq: 3000, q: 2, gain: 0.12 })
+  },
+  // 大牌演出：低音砸下來＋一串往上衝的音
+  bigWin() {
+    tone(70, 0.5, { gain: 0.55, slideTo: 40 })
+    noise(0.35, { freq: 500, q: 0.7, gain: 0.35 })
+    ;[0, 2, 4, 7, 9, 12].forEach((i, k) => tone(penta(i), 0.4, { type: 'square', gain: 0.06, delay: 0.08 + k * 0.06 }))
+    ;[0, 4, 7].forEach((i) => tone(392 * 2 ** (i / 12), 1.6, { type: 'triangle', gain: 0.1, delay: 0.5, attack: 0.02 }))
+  },
   exhausted() {
     tone(330, 0.5, { gain: 0.12, slideTo: 220 })
   },

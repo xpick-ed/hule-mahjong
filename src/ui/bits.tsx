@@ -12,6 +12,24 @@ export function fmtSigned(n: number): string {
   return n > 0 ? `+${fmt(n)}` : n < 0 ? `−${fmt(-n)}` : '0'
 }
 
+/** 數字從舊值滾到新值 */
+export function CountUp({ value, ms = 500, signed }: { value: number; ms?: number; signed?: boolean }) {
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    const t0 = performance.now()
+    let raf = 0
+    const from = 0
+    const tick = (t: number) => {
+      const k = Math.min(1, (t - t0) / ms)
+      setShown(Math.round(from + (value - from) * (1 - (1 - k) ** 3)))
+      if (k < 1) raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [value, ms])
+  return <>{signed ? fmtSigned(shown) : fmt(shown)}</>
+}
+
 interface TileProps {
   kind: Kind
   w: number

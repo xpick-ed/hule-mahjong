@@ -5,7 +5,9 @@ import { SKINS, STAGES } from '../engine/stages'
 import { useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
-import { cls, fmt, fmtSigned, Tile } from './bits'
+import { sfx } from '../sfx'
+import { cls, CountUp, fmt, Tile } from './bits'
+import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
 
 const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? '你' : CHARACTERS[m.chars[seat]].name)
 
@@ -24,16 +26,31 @@ function useDelay(ms: number) {
 }
 
 export function HandEnd({ m }: { m: M.MatchState }) {
-  const next = useUI((s) => s.nextHand)
-  const ready = useDelay(1300)
   const r = m.result
+  const big = r?.win ? bigHand(r.win.score) : null
+  const ready = useDelay(big ? CUT_IN_MS + 200 : 1300)
   if (!ready || !r) return null
+  return <HandEndPanel m={m} r={r} />
+}
+
+const tick = (i: number) => sfx.tick(i)
+
+function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
+  const next = useUI((s) => s.nextHand)
   const w = r.win
   const last = m.passes >= 3 && w && w.seat !== m.dealer
   const seats = [0, 1, 2, 3]
+  const items = w ? [...w.score.items, ...(r.dealerItems ?? []).map((x) => ({ ...x, dealer: true }))] : []
+  // 台數一項一項亮，亮完再亮每家輸贏
+  const { shown, all } = useStagger(items.length + 1, 350, 160, tick)
+  const done = shown > items.length
+  const taiSoFar = (w ? w.score.items : []).slice(0, shown).reduce((s, x) => s + x.tai, 0)
+  useEffect(() => {
+    if (done && r.deltas[0] !== 0) sfx.coin()
+  }, [done, r.deltas])
 
   return (
-    <div className="overlay">
+    <div className="overlay" onClick={all}>
       <div className="panel result" role="dialog" aria-label="這一局的結果">
         {w ? (
           <>
@@ -47,7 +64,10 @@ export function HandEnd({ m }: { m: M.MatchState }) {
                 <p>{w.from === null ? '三家都要付' : `${nameOf(m, w.from)}放槍`}</p>
               </div>
               <span className="total-tai">
-                <b>{w.score.total}</b>台{r.dealerItems ? <small>＋莊家台</small> : null}
+                <b key={taiSoFar} className="bump">
+                  {taiSoFar}
+                </b>
+                台{r.dealerItems ? <small>＋莊家台</small> : null}
               </span>
             </header>
             <div className="win-hand">
@@ -68,19 +88,13 @@ export function HandEnd({ m }: { m: M.MatchState }) {
               ))}
             </div>
             <ul className="tai-list">
-              {w.score.items.map((it, i) => (
-                <li key={i}>
+              {items.slice(0, shown).map((it, i) => (
+                <li key={i} className={cls('pop-in', 'dealer' in it && 'dealer-item', it.tai >= 4 && 'big')}>
                   {it.name}
                   <b>{it.tai}</b>
                 </li>
               ))}
-              {w.score.items.length === 0 && <li className="none">沒有台（只算底）</li>}
-              {r.dealerItems?.map((it, i) => (
-                <li key={`d${i}`} className="dealer-item">
-                  {it.name}
-                  <b>{it.tai}</b>
-                </li>
-              ))}
+              {items.length === 0 && <li className="none">沒有台（只算底）</li>}
             </ul>
           </>
         ) : (
@@ -92,13 +106,12 @@ export function HandEnd({ m }: { m: M.MatchState }) {
             </div>
           </header>
         )}
-        <div className="deltas">
+        <div className={cls('deltas', !done && 'waiting')}>
           {seats.map((s) => (
             <div key={s} className={cls('delta', r.deltas[s] > 0 && 'up', r.deltas[s] < 0 && 'down')}>
               <Face m={m} seat={s} size={26} />
               <span className="d-name">{nameOf(m, s)}</span>
-              <b>{fmtSigned(r.deltas[s])}</b>
-              <small>{fmt(m.points[s])}</small>
+              <b>{done ? <CountUp value={r.deltas[s]} signed ms={600} /> : '　'}</b>
             </div>
           ))}
         </div>
