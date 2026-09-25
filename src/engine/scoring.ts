@@ -1,88 +1,154 @@
-import { BOSSES } from './bosses'
-import { GODS, type Effect } from './gods'
-import { meldBase } from './items'
-import type { Meld } from './melds'
-import { detectPatterns, patternMult } from './patterns'
-import { faceChips, WINDS } from './tiles'
-import type { RoundState, RunState, ScoreResult, Step } from './types'
+// 台數計算。同一手牌如果有好幾種拆法，取台數最高的。
+// 莊家台（莊家 1 台＋連 n 拉 n）跟「誰付錢」有關，另外在 match.ts 算。
 
-/** 本圈風牌：東圈 z1、南圈 z2…（無盡模式循環） */
-export function roundWind(wind: number): string {
-  return WINDS[wind % 4]
+import { decompose, isLigu, toCounts, waits, type Decomp } from './analysis'
+import { cat, idx, isDragon, isFlower, isHonor, isSuited, isWind, KINDS, rank, type Kind, type Tile } from './tiles'
+
+export type MeldType = 'chow' | 'pung' | 'kong'
+
+export interface Meld {
+  type: MeldType
+  tiles: Tile[]
+  /** 暗槓 */
+  concealed?: boolean
+  /** 從誰那裡吃碰來的 */
+  from?: number
 }
 
-export function level(run: RunState, key: keyof RunState['levels']): number {
-  return run.levels[key] ?? 1
+export interface TaiItem {
+  name: string
+  tai: number
 }
 
-/**
- * 算這一手的分。kind = 'hu' 胡牌；'draw' 流局（只算已出的面子，台數固定 1）。
- * 會修改會成長的神明（例如太上老君），所以只能在引擎的動作裡呼叫。
- */
-export function scoreHand(run: RunState, round: RoundState, kind: 'hu' | 'draw'): ScoreResult {
-  const boss = round.boss ? BOSSES[round.boss] : null
-  const gods = run.gods.map((inst) => ({ inst, def: GODS[inst.id] }))
-  const steps: Step[] = []
-  let chips = 0
-  let mult = 1
-  let coins = 0
+export interface WinContext {
+  /** 手上的牌（含胡的那張） */
+  hand: readonly Tile[]
+  melds: readonly Meld[]
+  flowers: readonly Tile[]
+  winTile: Kind
+  tsumo: boolean
+  seatWind: number
+  roundWind: number
+  lastTile: boolean
+  afterKong: boolean
+  /** 天胡（莊家開局就胡）、地胡（閒家第一次摸牌就胡、之前沒人吃碰） */
+  heaven: boolean
+  earth: boolean
+  eightFlowers?: boolean
+}
 
-  const groups: { meld: Meld; i: number }[] = round.table.melds.map((meld, i) => ({ meld, i }))
-  if (round.table.eye) groups.push({ meld: round.table.eye, i: 4 })
+export interface WinScore {
+  items: TaiItem[]
+  total: number
+}
 
-  const applyGod = (uid: number, e: Effect, tileId?: number) => {
-    if (e.chips) chips += e.chips
-    if (e.mult) mult += e.mult
-    if (e.xmult) mult *= e.xmult
-    if (e.coins) coins += e.coins
-    steps.push({ t: 'god', uid, tileId, ...e, c: chips, m: mult })
+const WIND_KIND = ['z1', 'z2', 'z3', 'z4']
+const kindAt = (i: number) => KINDS[i]
+
+function common(ctx: WinContext): TaiItem[] {
+  const items: TaiItem[] = []
+  const closed = ctx.melds.every((m) => m.concealed)
+  if (closed && ctx.tsumo) items.push({ name: '門清自摸', tai: 3 })
+  else {
+    if (closed) items.push({ name: '門清', tai: 1 })
+    if (ctx.tsumo) items.push({ name: '自摸', tai: 1 })
+  }
+  const flowers = ctx.flowers.map((f) => rank(f.kind))
+  const own = flowers.filter((r) => (r - 1) % 4 === ctx.seatWind).length
+  if (own) items.push({ name: own > 1 ? `正花 ×${own}` : '正花', tai: own })
+  if ([1, 2, 3, 4].every((r) => flowers.includes(r))) items.push({ name: '春夏秋冬', tai: 2 })
+  if ([5, 6, 7, 8].every((r) => flowers.includes(r))) items.push({ name: '梅蘭竹菊', tai: 2 })
+  if (ctx.afterKong && ctx.tsumo) items.push({ name: '槓上開花', tai: 1 })
+  if (ctx.lastTile) items.push(ctx.tsumo ? { name: '海底撈月', tai: 1 } : { name: '河底撈魚', tai: 1 })
+  if (ctx.heaven) items.push({ name: '天胡', tai: 16 })
+  if (ctx.earth) items.push({ name: '地胡', tai: 16 })
+  return items
+}
+
+function suitItems(kinds: Kind[]): TaiItem[] {
+  const suits = new Set(kinds.filter(isSuited).map(cat))
+  const honor = kinds.some(isHonor)
+  if (suits.size === 0) return [{ name: '字一色', tai: 16 }]
+  if (suits.size === 1) return [honor ? { name: '混一色', tai: 4 } : { name: '清一色', tai: 8 }]
+  return []
+}
+
+interface G {
+  type: MeldType
+  kind: Kind
+  concealed: boolean
+}
+
+function groupItems(ctx: WinContext, d: Decomp, singleWait: boolean): TaiItem[] {
+  const items: TaiItem[] = []
+  const groups: G[] = [
+    ...ctx.melds.map((m) => ({ type: m.type, kind: m.tiles[0].kind, concealed: !!m.concealed })),
+    ...d.groups.map((g) => ({ type: g.type as MeldType, kind: kindAt(g.i), concealed: true })),
+  ]
+  const pairKind = kindAt(d.pair)
+  const triplets = groups.filter((g) => g.type !== 'chow')
+
+  if (groups.every((g) => g.type === 'chow') && !isHonor(pairKind) && ctx.flowers.length === 0 && !ctx.tsumo && !singleWait) {
+    items.push({ name: '平胡', tai: 2 })
+  }
+  if (triplets.length === 5) items.push({ name: '碰碰胡', tai: 4 })
+  if (ctx.melds.length === 5 && ctx.melds.every((m) => !m.concealed) && !ctx.tsumo) items.push({ name: '全求人', tai: 2 })
+
+  // 暗刻：手上的刻子＋暗槓；放槍胡的那張如果剛好湊成刻子，那組算明刻
+  let hidden = triplets.filter((g) => g.concealed).length
+  if (!ctx.tsumo && d.groups.some((g) => g.type === 'pung' && kindAt(g.i) === ctx.winTile)) hidden--
+  if (hidden >= 5) items.push({ name: '五暗刻', tai: 8 })
+  else if (hidden === 4) items.push({ name: '四暗刻', tai: 5 })
+  else if (hidden === 3) items.push({ name: '三暗刻', tai: 2 })
+
+  const dragons = triplets.filter((g) => isDragon(g.kind)).map((g) => g.kind)
+  if (dragons.length === 3) items.push({ name: '大三元', tai: 8 })
+  else if (dragons.length === 2 && isDragon(pairKind)) items.push({ name: '小三元', tai: 4 })
+  else for (const k of dragons) items.push({ name: `${{ z5: '紅中', z6: '青發', z7: '白板' }[k]}`, tai: 1 })
+
+  const winds = triplets.filter((g) => isWind(g.kind)).map((g) => g.kind)
+  if (winds.length === 4) items.push({ name: '大四喜', tai: 16 })
+  else if (winds.length === 3 && isWind(pairKind)) items.push({ name: '小四喜', tai: 8 })
+  else {
+    if (winds.includes(WIND_KIND[ctx.roundWind])) items.push({ name: '圈風', tai: 1 })
+    if (winds.includes(WIND_KIND[ctx.seatWind])) items.push({ name: '門風', tai: 1 })
+  }
+  return items
+}
+
+const sum = (items: TaiItem[]) => items.reduce((s, x) => s + x.tai, 0)
+
+/** 算一手胡牌的台數（不含莊家台） */
+export function scoreWin(ctx: WinContext): WinScore {
+  const base = common(ctx)
+  const allKinds = [...ctx.hand, ...ctx.melds.flatMap((m) => m.tiles)].map((t) => t.kind).filter((k) => !isFlower(k))
+
+  if (ctx.eightFlowers) {
+    const items = [{ name: '八仙過海', tai: 8 }, ...base.filter((x) => x.name !== '門清' && x.name !== '門清自摸')]
+    return { items, total: sum(items) }
   }
 
-  for (const { meld, i } of groups) {
-    const meldOff = boss?.debuffMeld?.(meld.type) ?? false
-    const base = meldOff ? 0 : meldBase(meld.type, level(run, meld.type))
-    chips += base
-    steps.push({ t: 'meld', i, chips: base, debuff: meldOff || undefined, c: chips, m: mult })
+  const n = 5 - ctx.melds.length
+  const c = toCounts(ctx.hand)
+  // 胡之前聽幾種牌（獨聽）
+  const before = toCounts(ctx.hand)
+  before[idx(ctx.winTile)]--
+  const singleWait = waits(before, n).length === 1
 
-    for (const tile of meld.tiles) {
-      if (meldOff || boss?.debuffTile?.(tile)) {
-        steps.push({ t: 'tile', id: tile.id, chips: 0, debuff: true, c: chips, m: mult })
-        continue
-      }
-      const fc = faceChips(tile.kind)
-      chips += fc
-      const jade = tile.enh === 'jade' ? 2 : 0
-      mult += jade
-      steps.push({ t: 'tile', id: tile.id, chips: fc, mult: jade || undefined, c: chips, m: mult })
-      for (const g of gods) {
-        const e = g.def.onTile?.(tile)
-        if (e) applyGod(g.inst.uid, e, tile.id)
-      }
-    }
+  const candidates: TaiItem[][] = []
+  for (const d of decompose(c, n)) {
+    candidates.push([...base, ...groupItems(ctx, d, singleWait), ...suitItems(allKinds)])
   }
+  if (n === 5 && isLigu(c)) candidates.push([...base, { name: '嚦咕嚦咕', tai: 8 }, ...suitItems(allKinds)])
+  let best = candidates[0] ?? base
+  for (const cand of candidates) if (sum(cand) > sum(best)) best = cand
+  if (singleWait && !best.some((x) => x.name === '平胡')) best = [...best, { name: '獨聽', tai: 1 }]
+  return { items: best, total: sum(best) }
+}
 
-  const patterns: ScoreResult['patterns'] = []
-  if (kind === 'hu' && round.table.eye) {
-    const hits = detectPatterns({
-      melds: round.table.melds,
-      eye: round.table.eye,
-      flowers: round.flowers.length,
-      roundWind: roundWind(round.wind),
-      lastWasKong: round.lastWasKong,
-      discardsThisHand: round.discardsThisHand,
-    })
-    for (const h of hits) {
-      const add = patternMult(h.id, level(run, h.id)) * h.count
-      mult += add
-      patterns.push({ id: h.id, count: h.count, mult: add })
-      steps.push({ t: 'pattern', id: h.id, count: h.count, mult: add, c: chips, m: mult })
-    }
-    const ctx = { run, round, melds: round.table.melds, eye: round.table.eye, patterns: hits }
-    for (const g of gods) {
-      const e = g.def.onHand?.(ctx, g.inst)
-      if (e) applyGod(g.inst.uid, e)
-    }
-  }
-
-  return { kind, steps, chips, mult, score: Math.floor(chips * mult), patterns, coins }
+/** 莊家台：莊家 1 台＋連 n 拉 n */
+export function dealerItems(streak: number): TaiItem[] {
+  const items = [{ name: '莊家', tai: 1 }]
+  if (streak > 0) items.push({ name: `連${streak}拉${streak}`, tai: 2 * streak })
+  return items
 }
