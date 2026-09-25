@@ -86,48 +86,49 @@ function penta(i: number, base = 392): number {
 
 export const sfx = {
   select() {
-    noise(0.035, { freq: 4200, q: 2.5, gain: 0.18 })
+    noise(0.035, { freq: 4200, q: 2.5, gain: 0.16 })
   },
-  place() {
-    noise(0.05, { freq: 1900, q: 3, gain: 0.45 })
-    noise(0.04, { freq: 2800, q: 3, gain: 0.25, delay: 0.05 })
-  },
+  // 打牌：牌碰桌面的「喀」
   discard() {
-    noise(0.22, { freq: 700, q: 0.6, gain: 0.25, filter: 'lowpass' })
+    noise(0.05, { freq: 1900, q: 3, gain: 0.5 })
+    noise(0.04, { freq: 2900, q: 3, gain: 0.25, delay: 0.045 })
+    tone(210, 0.06, { type: 'triangle', gain: 0.12 })
   },
-  seal() {
-    tone(90, 0.3, { gain: 0.6, slideTo: 45 })
-    noise(0.12, { freq: 300, q: 0.8, gain: 0.5 })
+  draw() {
+    noise(0.03, { freq: 3200, q: 2, gain: 0.14 })
   },
-  gong() {
-    ;[110, 222, 329, 447].forEach((f, k) => tone(f, 2.4, { gain: 0.22 / (k + 1), attack: 0.01 }))
+  flower() {
+    ;[0, 2, 4].forEach((i, k) => tone(penta(i + 7), 0.18, { type: 'triangle', gain: 0.1, delay: k * 0.05 }))
   },
-  chip(i: number) {
-    tone(penta(i), 0.14, { type: 'triangle', gain: 0.2 })
+  shuffle() {
+    for (let k = 0; k < 7; k++) noise(0.05, { freq: 1500 + k * 180, q: 2, gain: 0.18, delay: k * 0.045 })
   },
-  mult(i: number) {
-    tone(penta(i, 196), 0.22, { type: 'square', gain: 0.07 })
-    tone(penta(i, 392), 0.18, { type: 'triangle', gain: 0.12 })
+  call(kind: 'chi' | 'pon' | 'kong') {
+    const base = { chi: 2, pon: 4, kong: 6 }[kind]
+    tone(penta(base), 0.12, { type: 'square', gain: 0.07 })
+    tone(penta(base + 3), 0.22, { type: 'triangle', gain: 0.16, delay: 0.07 })
+    noise(0.06, { freq: 1800, q: 2, gain: 0.3 })
   },
-  xmult() {
-    tone(130, 0.45, { type: 'sawtooth', gain: 0.09, slideTo: 390 })
-    noise(0.2, { freq: 1200, q: 1, gain: 0.2 })
+  hu() {
+    tone(90, 0.3, { gain: 0.5, slideTo: 45 })
+    ;[0, 2, 4, 5, 7, 9].forEach((i, k) => tone(penta(i + 3), 0.32, { type: 'triangle', gain: 0.16, delay: 0.05 + k * 0.065 }))
+    ;[196, 294, 392].forEach((f) => tone(f, 1.4, { gain: 0.08, delay: 0.45, attack: 0.02 }))
   },
-  debuff() {
-    tone(150, 0.12, { type: 'square', gain: 0.05 })
+  exhausted() {
+    tone(330, 0.5, { gain: 0.12, slideTo: 220 })
   },
-  total() {
-    ;[0, 2, 4].forEach((i, k) => tone(penta(i + 5), 0.3, { type: 'triangle', gain: 0.15, delay: k * 0.05 }))
+  magic() {
+    ;[0, 4, 7, 12].forEach((i, k) => tone(523 * 2 ** (i / 12), 0.25, { type: 'sine', gain: 0.1, delay: k * 0.05 }))
   },
   coin() {
     tone(1567, 0.14, { type: 'triangle', gain: 0.14 })
     tone(2093, 0.22, { type: 'triangle', gain: 0.12, delay: 0.06 })
   },
   win() {
-    ;[0, 1, 2, 3, 4, 5].forEach((i, k) => tone(penta(i + 5), 0.3, { type: 'triangle', gain: 0.16, delay: k * 0.07 }))
+    ;[0, 1, 2, 3, 4, 5, 7].forEach((i, k) => tone(penta(i + 5), 0.3, { type: 'triangle', gain: 0.16, delay: k * 0.07 }))
   },
   lose() {
-    tone(220, 1.1, { gain: 0.25, slideTo: 98 })
+    tone(220, 1.1, { gain: 0.22, slideTo: 98 })
   },
   error() {
     tone(170, 0.1, { type: 'square', gain: 0.05 })
