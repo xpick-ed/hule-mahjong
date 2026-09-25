@@ -1,11 +1,14 @@
 import { memo } from 'react'
 import { cat, CN_NUM, flowerChar, honorChar, rank, type Kind } from '../engine/tiles'
 
-// 牌面全用 SVG 畫，viewBox 60×82。顏色跟真的麻將牌一樣：藍、紅、綠三色。
-const RED = '#b8352b'
-const GREEN = '#2d7a4f'
-const NAVY = '#23456e'
-const INK = '#1f2433'
+// 牌面全用 SVG 畫，viewBox 60×82。顏色跟真的麻將牌一樣：藍、紅、綠三色，
+// 用 CSS 變數讓不同主題換色（--t-red、--t-green、--t-blue、--t-ink、--t-face、--t-gold）。
+const RED = 'var(--t-red, #b8352b)'
+const GREEN = 'var(--t-green, #2d7a4f)'
+const NAVY = 'var(--t-blue, #23456e)'
+const INK = 'var(--t-ink, #1f2433)'
+const FACE = 'var(--t-face, #f6efdc)'
+const GOLD = 'var(--t-gold, #d9a93f)'
 const C = { n: NAVY, r: RED, g: GREEN } as const
 type Col = keyof typeof C
 
@@ -105,8 +108,8 @@ function Stick({ x, y, h, c }: { x: number; y: number; h: number; c: string }) {
   return (
     <g>
       <rect x={x - 3.3} y={y - h / 2} width={6.6} height={h} rx={3.3} fill={c} />
-      <rect x={x - 3.3} y={y - 0.8} width={6.6} height={1.6} fill="#f6efdc" />
-      <rect x={x - 1} y={y - h / 2 + 2.5} width={1.3} height={h / 2 - 4} rx={0.6} fill="#f6efdc" opacity={0.45} />
+      <rect x={x - 3.3} y={y - 0.8} width={6.6} height={1.6} fill={FACE} />
+      <rect x={x - 1} y={y - h / 2 + 2.5} width={1.3} height={h / 2 - 4} rx={0.6} fill={FACE} opacity={0.45} />
     </g>
   )
 }
@@ -116,10 +119,10 @@ function Bird() {
     <g>
       <path d="M22 54 L12 74 M27 56 L24 76 M32 56 L38 75" stroke={GREEN} strokeWidth={3.2} strokeLinecap="round" />
       <path d="M31 22 C43 24 49 38 42 49 C37 57 25 59 20 52 C15 45 20 36 29 34 Z" fill={GREEN} />
-      <path d="M26 40 C31 38 37 41 39 46" stroke="#f6efdc" strokeWidth={1.4} fill="none" opacity={0.7} />
+      <path d="M26 40 C31 38 37 41 39 46" stroke={FACE} strokeWidth={1.4} fill="none" opacity={0.7} />
       <circle cx={30} cy={19} r={6.5} fill={RED} />
-      <circle cx={31.5} cy={18} r={1.3} fill="#f6efdc" />
-      <path d="M24.5 18 L17 17 L24.5 22 Z" fill="#d9a93f" />
+      <circle cx={31.5} cy={18} r={1.3} fill={FACE} />
+      <path d="M24.5 18 L17 17 L24.5 22 Z" fill={GOLD} />
     </g>
   )
 }

@@ -1,0 +1,801 @@
+/* 視覺風格提案：同一張牌桌，三種主題。 */
+
+body {
+  margin: 0;
+  background: #222;
+  display: grid;
+  gap: 24px;
+  justify-content: center;
+  padding: 0;
+}
+
+.mock {
+  position: relative;
+  width: 844px;
+  height: 390px;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- 共用骨架 ---------- */
+
+.strip {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 12px;
+}
+
+.icon-btn {
+  width: 30px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+.round-info {
+  font-weight: 900;
+  font-size: 14px;
+}
+
+.round-info small {
+  font-weight: 700;
+  font-size: 11px;
+  margin-left: 8px;
+  color: var(--muted);
+}
+
+.left-count {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.left-count b {
+  font-family: var(--num);
+  font-size: 16px;
+  color: var(--ink);
+  margin: 0 2px;
+}
+
+.table {
+  position: absolute;
+  left: 100px;
+  right: 100px;
+  top: 80px;
+  bottom: 96px;
+  border-radius: 22px;
+  background: var(--table);
+}
+
+.compass {
+  position: absolute;
+  left: calc(50% - 40px);
+  top: calc(50% - 40px);
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.compass > span {
+  position: absolute;
+  line-height: 1;
+}
+
+.c-top {
+  top: 6px;
+  left: 50%;
+  translate: -50% 0;
+}
+.c-bottom {
+  bottom: 6px;
+  left: 50%;
+  translate: -50% 0;
+}
+.c-left {
+  left: 7px;
+  top: 50%;
+  translate: 0 -50%;
+}
+.c-right {
+  right: 7px;
+  top: 50%;
+  translate: 0 -50%;
+}
+
+.c-center {
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-size: 24px;
+}
+
+.c-center small {
+  font-family: var(--num);
+  font-size: 15px;
+  margin-left: 1px;
+}
+
+.pond {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+
+.p-top,
+.p-me {
+  left: 50%;
+  translate: -50% 0;
+  width: calc(8 * 24px);
+  justify-content: center;
+}
+
+.p-top {
+  top: 10px;
+}
+
+.p-me {
+  bottom: 10px;
+}
+
+.p-left,
+.p-right {
+  top: 50%;
+  translate: 0 -50%;
+  width: calc(3 * 24px);
+}
+
+.p-left {
+  right: calc(50% + 50px);
+  justify-content: flex-end;
+}
+
+.p-right {
+  left: calc(50% + 50px);
+}
+
+/* 牌 */
+.mt {
+  --depth: 0.1;
+  position: relative;
+  display: inline-block;
+  flex: none;
+  width: var(--w);
+  height: calc(var(--w) * 1.36 + var(--w) * var(--depth));
+}
+
+.mt-face {
+  position: absolute;
+  inset: 0 0 calc(var(--w) * var(--depth)) 0;
+  display: block;
+  overflow: hidden;
+  border-radius: calc(var(--w) * 0.18);
+  background: var(--tile-face);
+}
+
+.tile-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: calc(var(--w) * 0.07) calc(var(--w) * 0.06);
+  box-sizing: border-box;
+}
+
+.tf {
+  font-family: var(--tile-font);
+  font-weight: 900;
+}
+
+.mb {
+  box-sizing: border-box;
+  display: block;
+  flex: none;
+  border-radius: 3px;
+  background: var(--back);
+}
+
+.backs {
+  position: absolute;
+  display: flex;
+  gap: 1px;
+}
+
+.top-backs {
+  top: 42px;
+  left: 50%;
+  translate: -38% 0;
+}
+
+.left-backs,
+.right-backs {
+  flex-direction: column;
+  top: 96px;
+}
+
+.left-backs {
+  left: 70px;
+}
+
+.right-backs {
+  right: 70px;
+}
+
+.player {
+  position: absolute;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.player.top {
+  top: 33px;
+  left: 50%;
+  translate: -268px 0;
+}
+
+.player.left,
+.player.right {
+  flex-direction: column;
+  gap: 4px;
+  top: 96px;
+  width: 60px;
+}
+
+.player.left {
+  left: 6px;
+}
+
+.player.right {
+  right: 6px;
+}
+
+.avatar {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex: none;
+}
+
+.face {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.face-bg {
+  fill: var(--face-bg);
+}
+
+.seat-wind,
+.dealer {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  border-radius: 6px;
+}
+
+.avatar .seat-wind {
+  right: -5px;
+  bottom: -3px;
+}
+
+.dealer {
+  left: -5px;
+  top: -3px;
+}
+
+.player-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.player.left .player-info,
+.player.right .player-info {
+  align-items: center;
+}
+
+.pname {
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.pscore {
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bubble {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 6px;
+  white-space: nowrap;
+  padding: 6px 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
+.side-melds {
+  position: absolute;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  width: 60px;
+}
+
+.left-melds {
+  left: 6px;
+  top: 196px;
+}
+
+.meld {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.me {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8px;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.my-melds {
+  display: flex;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.hand {
+  display: flex;
+  gap: 2px;
+}
+
+.my-tag {
+  position: absolute;
+  left: 12px;
+  bottom: 62px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 4px;
+  border-radius: 999px;
+}
+
+.my-tag .seat-wind {
+  position: static;
+}
+
+.ting {
+  position: absolute;
+  left: 188px;
+  bottom: 76px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.claims {
+  position: absolute;
+  right: 118px;
+  bottom: 82px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.claim {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  font-family: var(--ui);
+  font-weight: 900;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.claim.pass {
+  width: 42px;
+  height: 42px;
+  font-size: 17px;
+}
+
+.claim.hu {
+  width: 64px;
+  height: 64px;
+  font-size: 32px;
+}
+
+/* ================= A 汽水 Pop ================= */
+
+.t-pop {
+  --bg: #ffe066;
+  --ink: #1d2a4a;
+  --muted: rgba(29, 42, 74, 0.62);
+  --table: #33c2a0;
+  --tile-face: #fffaf0;
+  --back: #ff8fa3;
+  --face-bg: #ffffff;
+  --t-red: #ef3d5c;
+  --t-green: #0f9e7a;
+  --t-blue: #3565e8;
+  --t-ink: #1d2a4a;
+  --t-face: #fffaf0;
+  --t-gold: #ffb020;
+  --ui: 'Chiron GoRound TC', system-ui, sans-serif;
+  --num: 'Bricolage Grotesque', system-ui, sans-serif;
+  --tile-font: 'Chiron GoRound TC', system-ui, sans-serif;
+}
+
+.t-pop .table {
+  box-shadow:
+    inset 0 0 0 8px #2aa98b,
+    inset 0 10px 24px rgba(0, 60, 50, 0.25),
+    0 6px 0 #1f8a70;
+}
+
+.t-pop .compass {
+  background: #fffaf0;
+  box-shadow: 0 4px 0 #d9cfb8;
+  color: var(--ink);
+}
+
+.t-pop .c-center {
+  color: #ef3d5c;
+}
+
+.t-pop .mt-face {
+  box-shadow:
+    0 calc(var(--w) * 0.1) 0 #ff8fa3,
+    0 calc(var(--w) * 0.1 + 2px) 5px rgba(29, 42, 74, 0.28);
+}
+
+.t-pop .mb {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+}
+
+.t-pop .avatar .face {
+  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.2);
+}
+
+.t-pop .seat-wind {
+  background: #1d2a4a;
+  color: #ffe066;
+}
+
+.t-pop .dealer {
+  background: #ef3d5c;
+  color: #fff;
+}
+
+.t-pop .bubble {
+  background: #ffffff;
+  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
+}
+
+.t-pop .bubble::before {
+  content: '';
+  position: absolute;
+  right: -6px;
+  top: 10px;
+  border: 6px solid transparent;
+  border-left-color: #fff;
+  border-right: 0;
+}
+
+.t-pop .mt.hot .mt-face {
+  box-shadow:
+    0 0 0 3px #ffb020,
+    0 calc(var(--w) * 0.1) 0 #ff8fa3;
+}
+
+.t-pop .mt.hot {
+  translate: 0 -4px;
+}
+
+.t-pop .my-tag,
+.t-pop .ting {
+  background: #ffffff;
+  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
+}
+
+.t-pop .claim {
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+}
+
+.t-pop .claim.pass {
+  background: #ffffff;
+  color: var(--ink);
+  box-shadow: 0 4px 0 #c9d2e3;
+}
+
+.t-pop .claim.chi {
+  background: #ffb020;
+  box-shadow: 0 5px 0 #d98a00;
+}
+
+.t-pop .claim.hu {
+  background: #ef3d5c;
+  box-shadow:
+    0 6px 0 #c22442,
+    0 0 0 6px rgba(239, 61, 92, 0.25);
+}
+
+/* ================= B 霓虹夜 Neon ================= */
+
+.t-neon {
+  --bg: #0c0e22;
+  --ink: #eceeff;
+  --muted: #8d90c4;
+  --table: #141735;
+  --tile-face: #eef0ff;
+  --back: #262a66;
+  --face-bg: #c9ccff;
+  --skin: #f3cbb0;
+  --t-red: #f0247a;
+  --t-green: #00a877;
+  --t-blue: #3150f0;
+  --t-ink: #15173a;
+  --t-face: #eef0ff;
+  --t-gold: #ffd23f;
+  --ui: 'Noto Sans TC', system-ui, sans-serif;
+  --num: 'Space Grotesk', system-ui, sans-serif;
+  --tile-font: 'Noto Sans TC', system-ui, sans-serif;
+}
+
+.t-neon .table {
+  background:
+    repeating-linear-gradient(0deg, transparent 0 23px, rgba(110, 120, 255, 0.09) 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, rgba(110, 120, 255, 0.09) 23px 24px),
+    #141735;
+  box-shadow:
+    inset 0 0 0 1.5px rgba(46, 242, 255, 0.55),
+    0 0 26px rgba(46, 242, 255, 0.18);
+}
+
+.t-neon .compass {
+  border: 1.5px solid #ff2e88;
+  box-shadow:
+    0 0 14px rgba(255, 46, 136, 0.55),
+    inset 0 0 12px rgba(255, 46, 136, 0.3);
+  color: #8d90c4;
+}
+
+.t-neon .c-center {
+  color: #ff5aa5;
+  text-shadow: 0 0 10px rgba(255, 46, 136, 0.9);
+}
+
+.t-neon .mt-face {
+  box-shadow:
+    0 calc(var(--w) * 0.1) 0 #6b5cff,
+    0 0 10px rgba(120, 100, 255, 0.45);
+}
+
+.t-neon .mb {
+  box-shadow:
+    inset 0 0 0 1px rgba(46, 242, 255, 0.6),
+    0 0 6px rgba(46, 242, 255, 0.25);
+}
+
+.t-neon .face {
+  box-shadow:
+    0 0 0 2px #2ef2ff,
+    0 0 12px rgba(46, 242, 255, 0.6);
+}
+
+.t-neon .seat-wind {
+  background: #2ef2ff;
+  color: #0c0e22;
+}
+
+.t-neon .dealer {
+  background: #ff2e88;
+  color: #fff;
+}
+
+.t-neon .round-info,
+.t-neon .pname {
+  letter-spacing: 0.04em;
+}
+
+.t-neon .bubble {
+  background: rgba(46, 242, 255, 0.1);
+  border: 1px solid rgba(46, 242, 255, 0.6);
+  color: #bff9ff;
+}
+
+.t-neon .mt.hot .mt-face {
+  box-shadow:
+    0 calc(var(--w) * 0.1) 0 #ff2e88,
+    0 0 0 2px #ff2e88,
+    0 0 16px rgba(255, 46, 136, 0.9);
+}
+
+.t-neon .my-tag,
+.t-neon .ting {
+  background: rgba(20, 23, 53, 0.9);
+  border: 1px solid rgba(141, 144, 196, 0.35);
+}
+
+.t-neon .ting {
+  color: #2ef2ff;
+}
+
+.t-neon .claim {
+  border-radius: 50%;
+  background: rgba(12, 14, 34, 0.85);
+  color: #eceeff;
+}
+
+.t-neon .claim.pass {
+  border: 1.5px solid rgba(141, 144, 196, 0.6);
+  color: #8d90c4;
+}
+
+.t-neon .claim.chi {
+  border: 2px solid #2ef2ff;
+  color: #2ef2ff;
+  box-shadow: 0 0 14px rgba(46, 242, 255, 0.5);
+  text-shadow: 0 0 8px rgba(46, 242, 255, 0.8);
+}
+
+.t-neon .claim.hu {
+  border: 0;
+  background: #ff2e88;
+  color: #fff;
+  box-shadow:
+    0 0 0 4px rgba(255, 46, 136, 0.3),
+    0 0 30px rgba(255, 46, 136, 0.9);
+}
+
+/* ================= C 粗框 Brutal ================= */
+
+.t-brutal {
+  --bg: #ff6a3d;
+  --ink: #111111;
+  --muted: rgba(17, 17, 17, 0.72);
+  --table: #2f5bff;
+  --tile-face: #ffffff;
+  --back: #ffd23f;
+  --face-bg: #ffffff;
+  --t-red: #f0321f;
+  --t-green: #009660;
+  --t-blue: #2449e8;
+  --t-ink: #111111;
+  --t-face: #ffffff;
+  --t-gold: #ffd23f;
+  --ui: 'Chiron Hei HK', system-ui, sans-serif;
+  --num: 'Bricolage Grotesque', system-ui, sans-serif;
+  --tile-font: 'Chiron Hei HK', system-ui, sans-serif;
+}
+
+.t-brutal .table {
+  border-radius: 14px;
+  border: 3px solid #111;
+  box-shadow: 6px 6px 0 #111;
+}
+
+.t-brutal .compass {
+  background: #ffd23f;
+  border: 2.5px solid #111;
+  border-radius: 10px;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.t-brutal .mt {
+  --depth: 0;
+}
+
+.t-brutal .mt-face {
+  border: 2px solid #111;
+  border-radius: calc(var(--w) * 0.12);
+  box-shadow: 2px 2px 0 #111;
+}
+
+.t-brutal .mb {
+  border: 1.5px solid #111;
+  border-radius: 2px;
+}
+
+.t-brutal .face {
+  border-radius: 10px;
+  outline: 2.5px solid #111;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.t-brutal .seat-wind {
+  background: #111;
+  color: #ffd23f;
+  border-radius: 4px;
+}
+
+.t-brutal .dealer {
+  background: #fff;
+  color: #111;
+  border: 2px solid #111;
+  border-radius: 4px;
+}
+
+.t-brutal .round-info {
+  font-size: 15px;
+}
+
+.t-brutal .bubble {
+  background: #fff;
+  border: 2.5px solid #111;
+  border-radius: 8px;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.t-brutal .mt.hot {
+  translate: 0 -4px;
+}
+
+.t-brutal .mt.hot .mt-face {
+  background: #ffd23f;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.t-brutal .my-tag,
+.t-brutal .ting {
+  background: #fff;
+  border: 2.5px solid #111;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.t-brutal .claim {
+  border: 2.5px solid #111;
+  border-radius: 12px;
+  box-shadow: 4px 4px 0 #111;
+  color: #111;
+}
+
+.t-brutal .claim.pass {
+  background: #fff;
+}
+
+.t-brutal .claim.chi {
+  background: #ffd23f;
+}
+
+.t-brutal .claim.hu {
+  background: #111;
+  color: #ffd23f;
+  box-shadow: 5px 5px 0 #f0321f;
+}
