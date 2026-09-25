@@ -52,23 +52,29 @@ export function Back({ w, h }: { w: number; h: number }) {
   return <span className="mb" style={{ width: w, height: h }} aria-hidden="true" />
 }
 
-/** 邏輯畫面：高度固定 390，寬度跟著螢幕比例（720–960 之間），整個等比縮放 */
+/** 邏輯畫面：高度固定 390，寬度跟著可用區域比例（720–960 之間），整個等比縮放。
+ *  可用區域 = 視窗扣掉瀏海、Home 指示條（safe-area），所以量 .viewport 本身的大小。 */
+function fit(vw: number, vh: number) {
+  const H = 390
+  const W = Math.round(Math.max(720, Math.min(960, (H * vw) / Math.max(1, vh))))
+  const scale = Math.min(vw / W, vh / H)
+  return { W, H, scale, portrait: vh > vw * 1.05 }
+}
+
 export function useStageSize() {
-  const calc = () => {
-    const vw = window.innerWidth
-    const vh = window.innerHeight
-    const H = 390
-    const W = Math.round(Math.max(720, Math.min(960, (H * vw) / vh)))
-    const scale = Math.min(vw / W, vh / H)
-    return { W, H, scale, portrait: vh > vw * 1.05 }
-  }
-  const [s, setS] = useState(calc)
+  const [s, setS] = useState(() => fit(window.innerWidth, window.innerHeight))
   useEffect(() => {
-    const on = () => setS(calc())
-    window.addEventListener('resize', on)
+    const el = document.querySelector('.viewport')
+    const on = () => {
+      const r = el?.getBoundingClientRect()
+      setS(fit(r?.width || window.innerWidth, r?.height || window.innerHeight))
+    }
+    on()
+    const ro = el ? new ResizeObserver(on) : null
+    if (el && ro) ro.observe(el)
     window.addEventListener('orientationchange', on)
     return () => {
-      window.removeEventListener('resize', on)
+      ro?.disconnect()
       window.removeEventListener('orientationchange', on)
     }
   }, [])
@@ -78,9 +84,11 @@ export function useStageSize() {
 export function Stage({ children }: { children: ReactNode }) {
   const { W, H, scale, portrait } = useStageSize()
   return (
-    <div className="viewport">
-      <div className="stage" style={{ width: W, height: H, transform: `translate(-50%, -50%) scale(${scale})`, '--W': `${W}px` } as CSSProperties}>
-        {children}
+    <>
+      <div className="viewport">
+        <div className="stage" style={{ width: W, height: H, transform: `translate(-50%, -50%) scale(${scale})`, '--W': `${W}px` } as CSSProperties}>
+          {children}
+        </div>
       </div>
       {portrait && (
         <div className="rotate" role="alert">
@@ -92,6 +100,6 @@ export function Stage({ children }: { children: ReactNode }) {
           <p>把手機轉橫來玩</p>
         </div>
       )}
-    </div>
+    </>
   )
 }

@@ -12,6 +12,7 @@
 **Next:**
 1. 真人試玩：節奏（電腦出牌速度）、難度（`npm run sim` 平均只有 1.6 台，電腦太愛小胡）、台詞頻率
 2. 部署：Cloudflare 的 wrangler 登入過期了，要重新 `npx wrangler login`；或開 GitHub repo 接 Cloudflare Pages
+   - 目前的試玩版放在 claude.ai：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL（`npm run artifact` 產生 dist-artifact/hule.html 再重新發佈）
 3. 新手教學：第一局帶一次（點兩下打牌、吃碰按鈕、聽牌提示）
 4. 手感：摸牌／打牌的飛行動畫、胡牌演出再華麗一點、電腦「思考中」的小動作
 5. 電腦版鍵盤：數字鍵選牌、空白鍵打出、Enter 胡
