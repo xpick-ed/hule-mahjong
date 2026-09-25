@@ -8,3 +8,6 @@ test-results
 .playwright-mcp
 shots
 dist-artifact
+.venv-voice
+voice-audition
+dist-voices

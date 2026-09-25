@@ -1,0 +1,101 @@
+[
+ {
+  "id": "meiling-A",
+  "name": "美玲姐 A",
+  "voice": {
+   "voice": "zh-TW-HsiaoChenNeural",
+   "rate": "+12%",
+   "pitch": "+2Hz",
+   "fx": [
+    "bright"
+   ]
+  }
+ },
+ {
+  "id": "meiling-B",
+  "name": "美玲姐 B",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+8%",
+   "pitch": "-6Hz",
+   "fx": [
+    "warm"
+   ]
+  }
+ },
+ {
+  "id": "lin-A",
+  "name": "林伯 A",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-12%",
+   "pitch": "-10Hz",
+   "fx": [
+    "elder"
+   ]
+  }
+ },
+ {
+  "id": "lin-B",
+  "name": "林伯 B",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-6%",
+   "pitch": "-18Hz",
+   "fx": [
+    "gruff"
+   ]
+  }
+ },
+ {
+  "id": "erjiu-A",
+  "name": "二舅 A",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+10%",
+   "pitch": "-4Hz",
+   "fx": [
+    "hearty",
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "erjiu-B",
+  "name": "二舅 B",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+4%",
+   "pitch": "-12Hz",
+   "fx": [
+    "drunk",
+    "hearty"
+   ]
+  }
+ },
+ {
+  "id": "ama-A",
+  "name": "阿嬤 A",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "-15%",
+   "pitch": "-14Hz",
+   "fx": [
+    "elder"
+   ]
+  }
+ },
+ {
+  "id": "ama-B",
+  "name": "阿嬤 B",
+  "voice": {
+   "voice": "zh-TW-HsiaoChenNeural",
+   "rate": "-20%",
+   "pitch": "-22Hz",
+   "fx": [
+    "tremble",
+    "warm"
+   ]
+  }
+ }
+]

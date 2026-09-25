@@ -1,0 +1,546 @@
+{
+ "meiling-A.tile.m1": {
+  "who": "meiling-A",
+  "text": "一萬"
+ },
+ "meiling-A.tile.p5": {
+  "who": "meiling-A",
+  "text": "五筒"
+ },
+ "meiling-A.tile.s7": {
+  "who": "meiling-A",
+  "text": "七條"
+ },
+ "meiling-A.tile.z1": {
+  "who": "meiling-A",
+  "text": "東風"
+ },
+ "meiling-A.tile.z5": {
+  "who": "meiling-A",
+  "text": "紅中"
+ },
+ "meiling-A.tile.z6": {
+  "who": "meiling-A",
+  "text": "發財"
+ },
+ "meiling-A.tile.z7": {
+  "who": "meiling-A",
+  "text": "白板"
+ },
+ "meiling-A.tile.m9": {
+  "who": "meiling-A",
+  "text": "九萬"
+ },
+ "meiling-A.call.chi": {
+  "who": "meiling-A",
+  "text": "吃！"
+ },
+ "meiling-A.call.pon": {
+  "who": "meiling-A",
+  "text": "碰！"
+ },
+ "meiling-A.call.kong": {
+  "who": "meiling-A",
+  "text": "槓！"
+ },
+ "meiling-A.call.hu": {
+  "who": "meiling-A",
+  "text": "胡啦！",
+  "rate": "+22%",
+  "pitch": "+10Hz"
+ },
+ "meiling-A.call.tsumo": {
+  "who": "meiling-A",
+  "text": "自摸！",
+  "rate": "+22%",
+  "pitch": "+10Hz"
+ },
+ "meiling-A.line.hello": {
+  "who": "meiling-A",
+  "text": "來來來，今天手氣一定很好！"
+ },
+ "meiling-A.line.ting": {
+  "who": "meiling-A",
+  "text": "欸，我好像快了喔～"
+ },
+ "meiling-A.line.dealIn": {
+  "who": "meiling-A",
+  "text": "唉唷，打錯了啦"
+ },
+ "meiling-B.tile.m1": {
+  "who": "meiling-B",
+  "text": "一萬"
+ },
+ "meiling-B.tile.p5": {
+  "who": "meiling-B",
+  "text": "五筒"
+ },
+ "meiling-B.tile.s7": {
+  "who": "meiling-B",
+  "text": "七條"
+ },
+ "meiling-B.tile.z1": {
+  "who": "meiling-B",
+  "text": "東風"
+ },
+ "meiling-B.tile.z5": {
+  "who": "meiling-B",
+  "text": "紅中"
+ },
+ "meiling-B.tile.z6": {
+  "who": "meiling-B",
+  "text": "發財"
+ },
+ "meiling-B.tile.z7": {
+  "who": "meiling-B",
+  "text": "白板"
+ },
+ "meiling-B.tile.m9": {
+  "who": "meiling-B",
+  "text": "九萬"
+ },
+ "meiling-B.call.chi": {
+  "who": "meiling-B",
+  "text": "吃！"
+ },
+ "meiling-B.call.pon": {
+  "who": "meiling-B",
+  "text": "碰！"
+ },
+ "meiling-B.call.kong": {
+  "who": "meiling-B",
+  "text": "槓！"
+ },
+ "meiling-B.call.hu": {
+  "who": "meiling-B",
+  "text": "胡啦！",
+  "rate": "+18%",
+  "pitch": "+2Hz"
+ },
+ "meiling-B.call.tsumo": {
+  "who": "meiling-B",
+  "text": "自摸！",
+  "rate": "+18%",
+  "pitch": "+2Hz"
+ },
+ "meiling-B.line.hello": {
+  "who": "meiling-B",
+  "text": "來來來，今天手氣一定很好！"
+ },
+ "meiling-B.line.ting": {
+  "who": "meiling-B",
+  "text": "欸，我好像快了喔～"
+ },
+ "meiling-B.line.dealIn": {
+  "who": "meiling-B",
+  "text": "唉唷，打錯了啦"
+ },
+ "lin-A.tile.m1": {
+  "who": "lin-A",
+  "text": "一萬"
+ },
+ "lin-A.tile.p5": {
+  "who": "lin-A",
+  "text": "五筒"
+ },
+ "lin-A.tile.s7": {
+  "who": "lin-A",
+  "text": "七條"
+ },
+ "lin-A.tile.z1": {
+  "who": "lin-A",
+  "text": "東風"
+ },
+ "lin-A.tile.z5": {
+  "who": "lin-A",
+  "text": "紅中"
+ },
+ "lin-A.tile.z6": {
+  "who": "lin-A",
+  "text": "發財"
+ },
+ "lin-A.tile.z7": {
+  "who": "lin-A",
+  "text": "白板"
+ },
+ "lin-A.tile.m9": {
+  "who": "lin-A",
+  "text": "九萬"
+ },
+ "lin-A.call.chi": {
+  "who": "lin-A",
+  "text": "吃。"
+ },
+ "lin-A.call.pon": {
+  "who": "lin-A",
+  "text": "碰。"
+ },
+ "lin-A.call.kong": {
+  "who": "lin-A",
+  "text": "槓。"
+ },
+ "lin-A.call.hu": {
+  "who": "lin-A",
+  "text": "胡了。",
+  "rate": "-2%",
+  "pitch": "-2Hz"
+ },
+ "lin-A.call.tsumo": {
+  "who": "lin-A",
+  "text": "自摸。",
+  "rate": "-2%",
+  "pitch": "-2Hz"
+ },
+ "lin-A.line.hello": {
+  "who": "lin-A",
+  "text": "慢慢打，不要急"
+ },
+ "lin-A.line.ting": {
+  "who": "lin-A",
+  "text": "嗯……差不多了"
+ },
+ "lin-A.line.dealIn": {
+  "who": "lin-A",
+  "text": "老了老了，眼睛不好"
+ },
+ "lin-B.tile.m1": {
+  "who": "lin-B",
+  "text": "一萬"
+ },
+ "lin-B.tile.p5": {
+  "who": "lin-B",
+  "text": "五筒"
+ },
+ "lin-B.tile.s7": {
+  "who": "lin-B",
+  "text": "七條"
+ },
+ "lin-B.tile.z1": {
+  "who": "lin-B",
+  "text": "東風"
+ },
+ "lin-B.tile.z5": {
+  "who": "lin-B",
+  "text": "紅中"
+ },
+ "lin-B.tile.z6": {
+  "who": "lin-B",
+  "text": "發財"
+ },
+ "lin-B.tile.z7": {
+  "who": "lin-B",
+  "text": "白板"
+ },
+ "lin-B.tile.m9": {
+  "who": "lin-B",
+  "text": "九萬"
+ },
+ "lin-B.call.chi": {
+  "who": "lin-B",
+  "text": "吃。"
+ },
+ "lin-B.call.pon": {
+  "who": "lin-B",
+  "text": "碰。"
+ },
+ "lin-B.call.kong": {
+  "who": "lin-B",
+  "text": "槓。"
+ },
+ "lin-B.call.hu": {
+  "who": "lin-B",
+  "text": "胡了。",
+  "rate": "+4%",
+  "pitch": "-10Hz"
+ },
+ "lin-B.call.tsumo": {
+  "who": "lin-B",
+  "text": "自摸。",
+  "rate": "+4%",
+  "pitch": "-10Hz"
+ },
+ "lin-B.line.hello": {
+  "who": "lin-B",
+  "text": "慢慢打，不要急"
+ },
+ "lin-B.line.ting": {
+  "who": "lin-B",
+  "text": "嗯……差不多了"
+ },
+ "lin-B.line.dealIn": {
+  "who": "lin-B",
+  "text": "老了老了，眼睛不好"
+ },
+ "erjiu-A.tile.m1": {
+  "who": "erjiu-A",
+  "text": "一萬"
+ },
+ "erjiu-A.tile.p5": {
+  "who": "erjiu-A",
+  "text": "五筒"
+ },
+ "erjiu-A.tile.s7": {
+  "who": "erjiu-A",
+  "text": "七條"
+ },
+ "erjiu-A.tile.z1": {
+  "who": "erjiu-A",
+  "text": "東風"
+ },
+ "erjiu-A.tile.z5": {
+  "who": "erjiu-A",
+  "text": "紅中"
+ },
+ "erjiu-A.tile.z6": {
+  "who": "erjiu-A",
+  "text": "發財"
+ },
+ "erjiu-A.tile.z7": {
+  "who": "erjiu-A",
+  "text": "白板"
+ },
+ "erjiu-A.tile.m9": {
+  "who": "erjiu-A",
+  "text": "九萬"
+ },
+ "erjiu-A.call.chi": {
+  "who": "erjiu-A",
+  "text": "吃！"
+ },
+ "erjiu-A.call.pon": {
+  "who": "erjiu-A",
+  "text": "碰！"
+ },
+ "erjiu-A.call.kong": {
+  "who": "erjiu-A",
+  "text": "槓！"
+ },
+ "erjiu-A.call.hu": {
+  "who": "erjiu-A",
+  "text": "胡啦！哈哈哈！",
+  "rate": "+20%",
+  "pitch": "+4Hz"
+ },
+ "erjiu-A.call.tsumo": {
+  "who": "erjiu-A",
+  "text": "自摸！乾杯！",
+  "rate": "+20%",
+  "pitch": "+4Hz"
+ },
+ "erjiu-A.line.hello": {
+  "who": "erjiu-A",
+  "text": "今年二舅要把紅包贏回來！"
+ },
+ "erjiu-A.line.ting": {
+  "who": "erjiu-A",
+  "text": "二舅聽牌了，誰敢放槍"
+ },
+ "erjiu-A.line.dealIn": {
+  "who": "erjiu-A",
+  "text": "欸，這張怎麼會有人要"
+ },
+ "erjiu-B.tile.m1": {
+  "who": "erjiu-B",
+  "text": "一萬"
+ },
+ "erjiu-B.tile.p5": {
+  "who": "erjiu-B",
+  "text": "五筒"
+ },
+ "erjiu-B.tile.s7": {
+  "who": "erjiu-B",
+  "text": "七條"
+ },
+ "erjiu-B.tile.z1": {
+  "who": "erjiu-B",
+  "text": "東風"
+ },
+ "erjiu-B.tile.z5": {
+  "who": "erjiu-B",
+  "text": "紅中"
+ },
+ "erjiu-B.tile.z6": {
+  "who": "erjiu-B",
+  "text": "發財"
+ },
+ "erjiu-B.tile.z7": {
+  "who": "erjiu-B",
+  "text": "白板"
+ },
+ "erjiu-B.tile.m9": {
+  "who": "erjiu-B",
+  "text": "九萬"
+ },
+ "erjiu-B.call.chi": {
+  "who": "erjiu-B",
+  "text": "吃！"
+ },
+ "erjiu-B.call.pon": {
+  "who": "erjiu-B",
+  "text": "碰！"
+ },
+ "erjiu-B.call.kong": {
+  "who": "erjiu-B",
+  "text": "槓！"
+ },
+ "erjiu-B.call.hu": {
+  "who": "erjiu-B",
+  "text": "胡啦！哈哈哈！",
+  "rate": "+14%",
+  "pitch": "-4Hz"
+ },
+ "erjiu-B.call.tsumo": {
+  "who": "erjiu-B",
+  "text": "自摸！乾杯！",
+  "rate": "+14%",
+  "pitch": "-4Hz"
+ },
+ "erjiu-B.line.hello": {
+  "who": "erjiu-B",
+  "text": "今年二舅要把紅包贏回來！"
+ },
+ "erjiu-B.line.ting": {
+  "who": "erjiu-B",
+  "text": "二舅聽牌了，誰敢放槍"
+ },
+ "erjiu-B.line.dealIn": {
+  "who": "erjiu-B",
+  "text": "欸，這張怎麼會有人要"
+ },
+ "ama-A.tile.m1": {
+  "who": "ama-A",
+  "text": "一萬"
+ },
+ "ama-A.tile.p5": {
+  "who": "ama-A",
+  "text": "五筒"
+ },
+ "ama-A.tile.s7": {
+  "who": "ama-A",
+  "text": "七條"
+ },
+ "ama-A.tile.z1": {
+  "who": "ama-A",
+  "text": "東風"
+ },
+ "ama-A.tile.z5": {
+  "who": "ama-A",
+  "text": "紅中"
+ },
+ "ama-A.tile.z6": {
+  "who": "ama-A",
+  "text": "發財"
+ },
+ "ama-A.tile.z7": {
+  "who": "ama-A",
+  "text": "白板"
+ },
+ "ama-A.tile.m9": {
+  "who": "ama-A",
+  "text": "九萬"
+ },
+ "ama-A.call.chi": {
+  "who": "ama-A",
+  "text": "吃啦。"
+ },
+ "ama-A.call.pon": {
+  "who": "ama-A",
+  "text": "碰啦！"
+ },
+ "ama-A.call.kong": {
+  "who": "ama-A",
+  "text": "槓！"
+ },
+ "ama-A.call.hu": {
+  "who": "ama-A",
+  "text": "胡啦！",
+  "rate": "-5%",
+  "pitch": "-6Hz"
+ },
+ "ama-A.call.tsumo": {
+  "who": "ama-A",
+  "text": "自摸！",
+  "rate": "-5%",
+  "pitch": "-6Hz"
+ },
+ "ama-A.line.hello": {
+  "who": "ama-A",
+  "text": "乖孫，阿嬤不會讓你喔"
+ },
+ "ama-A.line.ting": {
+  "who": "ama-A",
+  "text": "阿嬤要胡囉"
+ },
+ "ama-A.line.dealIn": {
+  "who": "ama-A",
+  "text": "哎唷，阿嬤老花了"
+ },
+ "ama-B.tile.m1": {
+  "who": "ama-B",
+  "text": "一萬"
+ },
+ "ama-B.tile.p5": {
+  "who": "ama-B",
+  "text": "五筒"
+ },
+ "ama-B.tile.s7": {
+  "who": "ama-B",
+  "text": "七條"
+ },
+ "ama-B.tile.z1": {
+  "who": "ama-B",
+  "text": "東風"
+ },
+ "ama-B.tile.z5": {
+  "who": "ama-B",
+  "text": "紅中"
+ },
+ "ama-B.tile.z6": {
+  "who": "ama-B",
+  "text": "發財"
+ },
+ "ama-B.tile.z7": {
+  "who": "ama-B",
+  "text": "白板"
+ },
+ "ama-B.tile.m9": {
+  "who": "ama-B",
+  "text": "九萬"
+ },
+ "ama-B.call.chi": {
+  "who": "ama-B",
+  "text": "吃啦。"
+ },
+ "ama-B.call.pon": {
+  "who": "ama-B",
+  "text": "碰啦！"
+ },
+ "ama-B.call.kong": {
+  "who": "ama-B",
+  "text": "槓！"
+ },
+ "ama-B.call.hu": {
+  "who": "ama-B",
+  "text": "胡啦！",
+  "rate": "-10%",
+  "pitch": "-14Hz"
+ },
+ "ama-B.call.tsumo": {
+  "who": "ama-B",
+  "text": "自摸！",
+  "rate": "-10%",
+  "pitch": "-14Hz"
+ },
+ "ama-B.line.hello": {
+  "who": "ama-B",
+  "text": "乖孫，阿嬤不會讓你喔"
+ },
+ "ama-B.line.ting": {
+  "who": "ama-B",
+  "text": "阿嬤要胡囉"
+ },
+ "ama-B.line.dealIn": {
+  "who": "ama-B",
+  "text": "哎唷，阿嬤老花了"
+ }
+}
