@@ -209,7 +209,7 @@ button.mt {
   flex: none;
   border-radius: 3px;
   background: var(--back);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 0 2px var(--back-ring, rgba(255, 255, 255, 0.55));
 }
 
 /* ---------- 按鈕 ---------- */
@@ -262,7 +262,93 @@ button.mt {
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 16px;
-  padding: 18px 18px 18px 22px;
+  padding: 50px 18px 16px 22px;
+}
+
+.home-top {
+  position: absolute;
+  top: 10px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+
+.rank-chip,
+.coin-chip,
+.top-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
+}
+
+.rank-chip b {
+  color: var(--red);
+}
+
+.rank-bar {
+  width: 60px;
+  height: 6px;
+  border-radius: 3px;
+  background: #eef1f7;
+  overflow: hidden;
+}
+
+.rank-bar i {
+  display: block;
+  height: 100%;
+  background: var(--red);
+}
+
+.rank-chip small {
+  font-family: var(--num);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.coin-chip {
+  font-family: var(--num);
+  font-size: 15px;
+}
+
+.coin-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--orange);
+  box-shadow:
+    inset 0 0 0 3px #ffd36b,
+    0 2px 0 var(--orange-edge);
+}
+
+.top-btn {
+  position: relative;
+  cursor: pointer;
+}
+
+.dot-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: var(--red);
+  color: #fff;
+  font-family: var(--num);
+  font-size: 11px;
 }
 
 .brand {
@@ -334,6 +420,7 @@ button.mt {
   align-items: flex-start;
   gap: 4px;
   height: 300px;
+  max-height: 100%;
   padding: 14px 12px 12px;
   border: 0;
   border-radius: 20px;
@@ -1399,8 +1486,30 @@ button.mt {
 }
 
 .final {
-  width: 460px;
+  width: 660px;
   text-align: center;
+}
+
+.final-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 14px;
+  align-items: start;
+  text-align: left;
+}
+
+.final-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.final-side .rewards {
+  margin-top: 0;
+}
+
+.final-side .final-actions {
+  margin-top: 0;
 }
 
 .final h2 {
@@ -1429,7 +1538,7 @@ button.mt {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 12px;
+  padding: 5px 12px;
   border-radius: 14px;
   background: #f4f6fa;
 }
@@ -1718,6 +1827,233 @@ button.mt {
 
 .deltas.waiting .delta b {
   opacity: 0;
+}
+
+/* 結束畫面的獎勵 */
+.rewards {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff7d6;
+  text-align: left;
+}
+
+.rewards ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rewards li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rewards li b {
+  font-family: var(--num);
+  color: var(--orange-edge);
+}
+
+.rewards li.mission-done {
+  color: #0f9e7a;
+}
+
+.rewards li small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rank-change {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rank-change.up {
+  color: var(--red);
+}
+
+.rank-change.down {
+  color: var(--muted);
+}
+
+/* 任務 */
+.missions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.missions li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #f4f6fa;
+}
+
+.missions li.done {
+  background: #e3f7ef;
+}
+
+.missions li.claimed {
+  opacity: 0.55;
+}
+
+.m-text {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.m-bar {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e7f0;
+  overflow: hidden;
+}
+
+.m-bar i {
+  display: block;
+  height: 100%;
+  background: #0f9e7a;
+}
+
+.m-text small {
+  grid-row: 1;
+  grid-column: 2;
+  font-family: var(--num);
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.btn.small {
+  min-height: 36px;
+  padding: 4px 14px;
+  font-size: 13px;
+}
+
+/* 商店 */
+.shop-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.shop-head .coin-chip {
+  background: #f4f6fa;
+  box-shadow: none;
+}
+
+.shop-sub {
+  margin: 10px 0 6px;
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.backs {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.back-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border: 0;
+  border-radius: 12px;
+  background: #f4f6fa;
+  cursor: pointer;
+}
+
+.back-item.on {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+
+.back-item:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.back-preview {
+  display: block;
+  width: 30px;
+  height: 42px;
+  border-radius: 5px;
+}
+
+.back-name {
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.back-item small {
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.supplies {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.supply {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: #f1ebff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.supply:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.supply b {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.supply small {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.supply span {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--purple-edge);
 }
 
 /* ---------- 動畫 ---------- */

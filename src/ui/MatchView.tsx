@@ -5,6 +5,7 @@ import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { canTsumo, need, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
+import { BACK } from '../progress'
 import { tableSkin, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
@@ -30,10 +31,15 @@ function useDriver(m: M.MatchState) {
 export function MatchView() {
   const match = useUI((s) => s.match)
   const skinId = useUI((s) => s.progress.skin)
+  const backId = useUI((s) => s.progress.back)
   if (!match) return null
   const skin = tableSkin(skinId)
+  const back = BACK[backId] ?? BACK.pink
   return (
-    <div className="match" style={{ '--table': skin.color, '--table-rim': skin.rim, '--table-edge': skin.edge } as CSSProperties}>
+    <div
+      className="match"
+      style={{ '--table': skin.color, '--table-rim': skin.rim, '--table-edge': skin.edge, '--back': back.bg, '--back-ring': back.ring } as CSSProperties}
+    >
       <Driver m={match} />
       <TopStrip m={match} />
       <TableCenter m={match} />

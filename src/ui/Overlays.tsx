@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
+import * as P from '../progress'
 import { useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
@@ -143,22 +144,27 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
         <p className="final-sub">
           {first ? `解鎖桌布「${stage.reward.name}」${hasNext ? `，下一關：${STAGES[m.stage + 1].name}` : ''}` : '拿第一才能過關，再挑戰一次吧'}
         </p>
-        <ol className="podium">
-          {order.map((s, i) => (
-            <li key={s} className={cls(s === 0 && 'is-me')}>
-              <span className="rank">{i + 1}</span>
-              <Face m={m} seat={s} size={32} />
-              <span className="d-name">{nameOf(m, s)}</span>
-              <b>{fmt(m.points[s])}</b>
-            </li>
-          ))}
-        </ol>
-        {q && (
-          <p className="quote">
-            {nameOf(m, q.seat)}：「{q.text}」
-          </p>
-        )}
-        <div className="final-actions">
+        <div className="final-grid">
+          <div>
+            <ol className="podium">
+              {order.map((s, i) => (
+                <li key={s} className={cls(s === 0 && 'is-me')}>
+                  <span className="rank">{i + 1}</span>
+                  <Face m={m} seat={s} size={30} />
+                  <span className="d-name">{nameOf(m, s)}</span>
+                  <b>{fmt(m.points[s])}</b>
+                </li>
+              ))}
+            </ol>
+            {q && (
+              <p className="quote">
+                {nameOf(m, q.seat)}：「{q.text}」
+              </p>
+            )}
+          </div>
+          <div className="final-side">
+            <Rewards />
+            <div className="final-actions">
           <button type="button" className="btn" onClick={toHome}>
             回首頁
           </button>
@@ -171,8 +177,43 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
               再打一場
             </button>
           )}
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function Rewards() {
+  const rw = useUI((s) => s.rewards)
+  if (!rw) return null
+  const before = P.rankOf(rw.rankBefore)
+  const after = P.rankOf(rw.rankAfter)
+  const up = after.i > before.i
+  const down = after.i < before.i
+  return (
+    <div className="rewards">
+      <ul>
+        {rw.r.lines.map((l, i) => (
+          <li key={i}>
+            {l.label}
+            <b>
+              +<CountUp value={l.coins} ms={700} />
+            </b>
+          </li>
+        ))}
+        {rw.finished.map((f) => (
+          <li key={f.id} className="mission-done">
+            任務完成：{f.text}
+            <small>回首頁領 +{f.reward}</small>
+          </li>
+        ))}
+      </ul>
+      <p className={cls('rank-change', up && 'up', down && 'down')}>
+        段位 {rw.r.rankDelta >= 0 ? `+${rw.r.rankDelta}` : `−${-rw.r.rankDelta}`}
+        {up ? `，升上${after.name}！` : down ? `，掉回${after.name}` : `（${after.name}）`}
+      </p>
     </div>
   )
 }
@@ -276,6 +317,100 @@ export function Menu() {
         )}
         <button type="button" className="btn primary" onClick={() => setMenu(false)}>
           繼續
+        </button>
+      </div>
+    </Sheet>
+  )
+}
+
+export function Missions() {
+  const open = useUI((s) => s.missions)
+  const progress = useUI((s) => s.progress)
+  const setMissions = useUI((s) => s.setMissions)
+  const claimMission = useUI((s) => s.claimMission)
+  const ids = progress.daily?.ids ?? []
+  return (
+    <Sheet open={open} onClose={() => setMissions(false)} label="今日任務">
+      <h3>今日任務</h3>
+      <p className="help-lead">每天換三個。完成後在這裡領金幣。</p>
+      <ul className="missions">
+        {ids.map((id) => {
+          const st = P.missionState(progress, id)
+          return (
+            <li key={id} className={cls(st.done && 'done', st.claimed && 'claimed')}>
+              <div className="m-text">
+                <span>{st.def.text}</span>
+                <span className="m-bar" aria-hidden="true">
+                  <i style={{ width: `${(st.n / st.def.goal) * 100}%` }} />
+                </span>
+                <small>
+                  {st.n}/{st.def.goal}
+                </small>
+              </div>
+              <button type="button" className="btn small" disabled={!st.done || st.claimed} onClick={() => claimMission(id)}>
+                {st.claimed ? '已領' : <>領 {st.def.reward}</>}
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <div className="sheet-actions">
+        <button type="button" className="btn primary" onClick={() => setMissions(false)}>
+          好
+        </button>
+      </div>
+    </Sheet>
+  )
+}
+
+export function Shop() {
+  const open = useUI((s) => s.shop)
+  const progress = useUI((s) => s.progress)
+  const { setShop, buyBack, equipBack, buySupply } = useUI.getState()
+  return (
+    <Sheet open={open} onClose={() => setShop(false)} label="商店">
+      <div className="shop-head">
+        <h3>商店</h3>
+        <span className="coin-chip">
+          <span className="coin-dot" aria-hidden="true" />
+          {fmt(progress.coins)}
+        </span>
+      </div>
+      <h4 className="shop-sub">牌背</h4>
+      <div className="backs">
+        {P.BACKS.map((b) => {
+          const owned = progress.backs.includes(b.id)
+          const on = progress.back === b.id
+          return (
+            <button
+              key={b.id}
+              type="button"
+              className={cls('back-item', on && 'on')}
+              onClick={() => (owned ? equipBack(b.id) : buyBack(b.id))}
+              disabled={!owned && progress.coins < b.price}
+            >
+              <span className="back-preview" style={{ background: b.bg, boxShadow: `inset 0 0 0 2px ${b.ring}` }} />
+              <span className="back-name">{b.name}</span>
+              <small>{on ? '使用中' : owned ? '換上' : `${fmt(b.price)} 金幣`}</small>
+            </button>
+          )
+        })}
+      </div>
+      <h4 className="shop-sub">絕招補給（下一場多一次）</h4>
+      <div className="supplies">
+        {P.SUPPLY.map((x) => (
+          <button key={x.id} type="button" className="supply" onClick={() => buySupply(x.id)} disabled={progress.coins < x.price}>
+            <b>{M.SKILLS[x.id].name} +1</b>
+            <small>{M.SKILLS[x.id].desc}</small>
+            <span>
+              {fmt(x.price)} 金幣{progress.bonus[x.id] ? `・已備 ${progress.bonus[x.id]}` : ''}
+            </span>
+          </button>
+        ))}
+      </div>
+      <div className="sheet-actions">
+        <button type="button" className="btn primary" onClick={() => setShop(false)}>
+          關閉
         </button>
       </div>
     </Sheet>

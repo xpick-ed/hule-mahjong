@@ -7,6 +7,8 @@ import type { ClaimDecision, HandEvent } from './engine/table'
 import type { Kind } from './engine/tiles'
 import { buzz, setSoundEnabled, sfx } from './sfx'
 import { preloadVoices, setVoiceEnabled, speak } from './voice'
+import * as P from './progress'
+import type { Progress } from './progress'
 
 const MATCH_KEY = 'hule.match.v2'
 const PROGRESS_KEY = 'hule.progress.v2'
@@ -30,14 +32,7 @@ function save(key: string, v: unknown) {
   }
 }
 
-export interface Progress {
-  /** 已經過了幾關（0 = 一關都還沒過） */
-  cleared: number
-  skins: string[]
-  skin: string
-  wins: number
-  matches: number
-}
+export type { Progress } from './progress'
 
 export interface Settings {
   sound: boolean
@@ -72,6 +67,10 @@ interface UI {
   callout: { seat: number; text: string; key: number } | null
   menu: boolean
   help: boolean
+  missions: boolean
+  shop: boolean
+  /** 上一場的獎勵（結束畫面用） */
+  rewards: { r: P.Rewards; rankBefore: number; rankAfter: number; finished: P.MissionDef[] } | null
   toast: { msg: string; key: number } | null
   /** 已經處理過的牌局事件編號（台詞、音效） */
   seenEvent: number
@@ -92,13 +91,18 @@ interface UI {
   setHelp(on: boolean): void
   setSettings(s: Partial<Settings>): void
   setSkin(id: string): void
+  setMissions(on: boolean): void
+  setShop(on: boolean): void
+  claimMission(id: string): void
+  buyBack(id: string): void
+  equipBack(id: string): void
+  buySupply(id: M.SkillId): void
   showToast(msg: string): void
   /** 讓對手講一句（泡泡＋配音），有講就回傳 true */
   say(seat: number, key: LineKey, chance?: number): boolean
   processEvents(): void
 }
 
-const defaultProgress: Progress = { cleared: 0, skins: ['mint'], skin: 'mint', wins: 0, matches: 0 }
 const settings0: Settings = { sound: true, voice: true, myVoice: 'f', fast: false, hints: true, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
 setSoundEnabled(settings0.sound)
 setVoiceEnabled(settings0.voice)
@@ -128,6 +132,7 @@ export const useUI = create<UI>((set, get) => {
       set({ match: next, sel: null, ...extra })
       save(MATCH_KEY, next)
       get().processEvents()
+      if (next.phase === 'handEnd' && match.phase === 'play') track(P.handMetrics(next))
       if (next.phase === 'end' && match.phase !== 'end') finishMatch(next)
       return next
     } catch (e) {
@@ -140,8 +145,21 @@ export const useUI = create<UI>((set, get) => {
     }
   }
 
+  const setProgress = (p: Progress) => {
+    save(PROGRESS_KEY, p)
+    set({ progress: p })
+  }
+
+  /** 任務計數；剛完成的任務跳提示 */
+  const track = (add: Partial<Record<P.Metric, number>>): P.MissionDef[] => {
+    const { p, finished } = P.bump(get().progress, add)
+    setProgress(p)
+    if (finished.length) window.setTimeout(() => get().showToast(`任務完成：${finished.map((f) => f.text).join('、')}`), 1600)
+    return finished
+  }
+
   const finishMatch = (m: M.MatchState) => {
-    const p = { ...get().progress }
+    let p = { ...get().progress }
     p.matches++
     const first = M.ranking(m)[0] === 0
     if (first) {
@@ -152,9 +170,15 @@ export const useUI = create<UI>((set, get) => {
         if (!p.skins.includes(reward)) p.skins = [...p.skins, reward]
       }
     }
-    save(PROGRESS_KEY, p)
+    const r = P.matchRewards(m)
+    const rankBefore = p.rankPts
+    p.coins += r.coins
+    p.rankPts = Math.max(0, p.rankPts + r.rankDelta)
+    const bumped = P.bump(p, P.matchMetrics(m))
+    p = bumped.p
+    setProgress(p)
     save(MATCH_KEY, null)
-    set({ progress: p })
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished } })
     if (first) sfx.win()
     else sfx.lose()
   }
@@ -162,7 +186,7 @@ export const useUI = create<UI>((set, get) => {
   return {
     screen: 'home',
     match: null,
-    progress: { ...defaultProgress, ...(load<Progress>(PROGRESS_KEY) ?? {}) },
+    progress: P.ensureDaily({ ...P.defaultProgress, ...(load<Progress>(PROGRESS_KEY) ?? {}) }),
     settings: settings0,
     sel: null,
     mode: null,
@@ -172,13 +196,22 @@ export const useUI = create<UI>((set, get) => {
     callout: null,
     menu: false,
     help: false,
+    missions: false,
+    shop: false,
+    rewards: null,
     toast: null,
     seenEvent: 0,
 
     startStage(stage) {
       const match = M.newMatch(newSeed(), stage)
+      // 商店買的絕招補給這一場用
+      const { bonus } = get().progress
+      if (bonus.swap || bonus.peek || bonus.lucky) {
+        for (const k of Object.keys(bonus) as M.SkillId[]) match.skills[k] += bonus[k]
+        setProgress({ ...get().progress, bonus: { swap: 0, peek: 0, lucky: 0 } })
+      }
       save(MATCH_KEY, match)
-      set({ match, screen: 'match', sel: null, mode: null, chiOpen: false, bubbles: {}, moods: {}, callout: null, seenEvent: 0, menu: false })
+      set({ match, screen: 'match', sel: null, mode: null, chiOpen: false, bubbles: {}, moods: {}, callout: null, seenEvent: 0, menu: false, rewards: null })
       preloadFor(match, get().settings.myVoice)
       sfx.shuffle()
       // 開場：隨便一個對手打招呼
@@ -193,7 +226,7 @@ export const useUI = create<UI>((set, get) => {
       preloadFor(match, get().settings.myVoice)
     },
     toHome() {
-      set({ screen: 'home', menu: false, mode: null })
+      set({ screen: 'home', menu: false, mode: null, progress: P.ensureDaily(get().progress) })
     },
 
     tapTile(id) {
@@ -203,6 +236,7 @@ export const useUI = create<UI>((set, get) => {
         if (apply((m) => M.useSkill(m, 'swap', id), { mode: null })) {
           sfx.magic()
           get().showToast('換好了')
+          track({ skill: 1 })
         }
         return
       }
@@ -248,11 +282,15 @@ export const useUI = create<UI>((set, get) => {
       if (apply((m) => M.useSkill(m, 'lucky'))) {
         sfx.magic()
         get().showToast('下一張會摸到好牌')
+        track({ skill: 1 })
       }
     },
     peekAt(seat) {
       if (get().mode !== 'peek') return
-      if (apply((m) => M.useSkill(m, 'peek', seat), { mode: null })) sfx.magic()
+      if (apply((m) => M.useSkill(m, 'peek', seat), { mode: null })) {
+        sfx.magic()
+        track({ skill: 1 })
+      }
     },
     setChiOpen(on) {
       set({ chiOpen: on })
@@ -284,9 +322,40 @@ export const useUI = create<UI>((set, get) => {
       }
     },
     setSkin(id) {
-      const p = { ...get().progress, skin: id }
-      save(PROGRESS_KEY, p)
-      set({ progress: p })
+      setProgress({ ...get().progress, skin: id })
+    },
+    setMissions(on) {
+      set({ missions: on, progress: P.ensureDaily(get().progress) })
+    },
+    setShop(on) {
+      set({ shop: on })
+    },
+    claimMission(id) {
+      const before = get().progress.coins
+      const p = P.claim(get().progress, id)
+      if (p.coins > before) {
+        setProgress(p)
+        sfx.coin()
+      }
+    },
+    buyBack(id) {
+      const p = get().progress
+      const b = P.BACK[id]
+      if (!b || p.backs.includes(id)) return
+      if (p.coins < b.price) return get().showToast('金幣不夠')
+      setProgress({ ...p, coins: p.coins - b.price, backs: [...p.backs, id], back: id })
+      sfx.coin()
+    },
+    equipBack(id) {
+      const p = get().progress
+      if (p.backs.includes(id)) setProgress({ ...p, back: id })
+    },
+    buySupply(id) {
+      const p = get().progress
+      const item = P.SUPPLY.find((x) => x.id === id)!
+      if (p.coins < item.price) return get().showToast('金幣不夠')
+      setProgress({ ...p, coins: p.coins - item.price, bonus: { ...p.bonus, [id]: p.bonus[id] + 1 } })
+      sfx.coin()
     },
     showToast(msg) {
       set({ toast: { msg, key: Date.now() } })

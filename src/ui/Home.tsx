@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import { STAGES } from '../engine/stages'
+import { claimable, rankOf } from '../progress'
 import { savedMatch, useUI } from '../store'
 import { Avatar } from './Avatar'
 import { cls, fmt, Tile } from './bits'
@@ -13,10 +14,34 @@ export function Home() {
   const resume = useUI((s) => s.resume)
   const setMenu = useUI((s) => s.setMenu)
   const setHelp = useUI((s) => s.setHelp)
+  const setMissions = useUI((s) => s.setMissions)
+  const setShop = useUI((s) => s.setShop)
   const saved = useMemo(() => savedMatch(), [])
+  const rank = rankOf(progress.rankPts)
+  const todo = claimable(progress)
 
   return (
     <div className="home">
+      <div className="home-top">
+        <span className="rank-chip" title={rank.next ? `再 ${rank.next.at - rank.pts} 點升${rank.next.name}` : '最高段位'}>
+          <b>{rank.name}</b>
+          <span className="rank-bar" aria-hidden="true">
+            <i style={{ width: `${Math.min(100, (rank.into / rank.span) * 100)}%` }} />
+          </span>
+          <small>{rank.next ? `${rank.into}/${rank.span}` : `${rank.pts}`}</small>
+        </span>
+        <span className="coin-chip" aria-label={`金幣 ${progress.coins}`}>
+          <span className="coin-dot" aria-hidden="true" />
+          {fmt(progress.coins)}
+        </span>
+        <button type="button" className="top-btn" onClick={() => setMissions(true)}>
+          今日任務
+          {todo > 0 && <span className="dot-count">{todo}</span>}
+        </button>
+        <button type="button" className="top-btn" onClick={() => setShop(true)}>
+          商店
+        </button>
+      </div>
       <section className="brand">
         <div className="fan" aria-hidden="true">
           {FAN.map((k, i) => (
