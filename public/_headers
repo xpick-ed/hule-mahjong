@@ -1,0 +1,7 @@
+# Cloudflare Pages 的快取設定
+# assets/ 的檔名有雜湊，內容永遠不變，可以快取一年；index.html 每次都要問新版
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/index.html
+  Cache-Control: no-cache
