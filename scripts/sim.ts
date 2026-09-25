@@ -21,6 +21,12 @@ const stat = {
   meFirst: 0,
   handsPerMatch: [] as number[],
   ms: 0,
+  byChar: new Map<string, { wins: number; tai: number[]; dealIns: number; hands: number }>(),
+}
+const charStat = (id: string) => {
+  let s = stat.byChar.get(id)
+  if (!s) stat.byChar.set(id, (s = { wins: 0, tai: [], dealIns: 0, hands: 0 }))
+  return s
 }
 
 const t0 = performance.now()
@@ -38,7 +44,12 @@ for (let i = 0; i < N; i++) {
         else stat.ron++
         stat.tai.push(w.score.total)
         for (const it of w.score.items) stat.names.set(it.name, (stat.names.get(it.name) ?? 0) + 1)
+        const cs = charStat(m.chars[w.seat])
+        cs.wins++
+        cs.tai.push(w.score.total)
+        if (w.from !== null) charStat(m.chars[w.from]).dealIns++
       }
+      for (const c of m.chars) charStat(c).hands++
       m = M.nextHand(m)
       continue
     }
@@ -82,3 +93,8 @@ console.log(
       .map(([k, v]) => `${k} ${pct(v, stat.tsumo + stat.ron)}`)
       .join('、'),
 )
+console.log('各角色：')
+for (const [id, s] of [...stat.byChar.entries()].sort()) {
+  const big = s.tai.filter((t) => t >= 4).length
+  console.log(`  ${id.padEnd(8)} 胡 ${pct(s.wins, s.hands).padStart(4)}  平均 ${avg(s.tai).toFixed(1)} 台  4 台以上 ${pct(big, s.wins).padStart(4)}  放槍 ${pct(s.dealIns, s.hands).padStart(4)}`)
+}

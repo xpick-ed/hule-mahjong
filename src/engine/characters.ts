@@ -97,7 +97,7 @@ export const CHARACTERS: Record<string, Character> = {
     name: '王經理',
     bio: '部門主管。只做大牌，放槍也要有面子。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#2b2b2b', shirt: '#2f4b7c', bg: '#e8ecf5', extras: ['tie', 'glasses'] },
-    style: { speed: 0.3, defense: 0.35, greed: 0.9, mistakes: 0.3 },
+    style: { speed: 0.3, defense: 0.35, greed: 0.8, mistakes: 0.3 },
     lines: {
       hello: ['今天不談公事，大家輕鬆打'],
       pon: ['碰，這就是決策力'],
@@ -218,7 +218,7 @@ export const CHARACTERS: Record<string, Character> = {
     name: '雀神',
     bio: '傳說中的雀神。話很少，幾乎不放槍。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#e8e8e8', shirt: '#1d2a4a', bg: '#dfe4ee', extras: ['sunglasses'] },
-    style: { speed: 0.5, defense: 1, greed: 0.6, mistakes: 0 },
+    style: { speed: 0.5, defense: 1, greed: 0.45, mistakes: 0 },
     lines: {
       hello: ['……開始吧。'],
       pon: ['碰。'],
