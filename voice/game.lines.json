@@ -239,6 +239,14 @@
   "who": "meiling",
   "text": "下次再找你們報仇！"
  },
+ "meiling.line.reply.0": {
+  "who": "meiling",
+  "text": "欸～你很囂張喔"
+ },
+ "meiling.line.reply.1": {
+  "who": "meiling",
+  "text": "好啦好啦，姐姐讓你"
+ },
  "lin.tile.m1": {
   "who": "lin",
   "text": "一萬"
@@ -451,6 +459,14 @@
   "who": "lin",
   "text": "後生可畏喔"
  },
+ "lin.line.reply.0": {
+  "who": "lin",
+  "text": "年輕人，沉住氣"
+ },
+ "lin.line.reply.1": {
+  "who": "lin",
+  "text": "呵呵，好好好"
+ },
  "kai.tile.m1": {
   "who": "kai",
   "text": "一萬"
@@ -655,6 +671,14 @@
  "kai.line.matchLose.0": {
   "who": "kai",
   "text": "回去調一下參數"
+ },
+ "kai.line.reply.0": {
+  "who": "kai",
+  "text": "嘴砲不影響機率"
+ },
+ "kai.line.reply.1": {
+  "who": "kai",
+  "text": "我記下來了"
  },
  "wang.tile.m1": {
   "who": "wang",
@@ -861,6 +885,14 @@
   "who": "wang",
   "text": "今天先讓你們贏"
  },
+ "wang.line.reply.0": {
+  "who": "wang",
+  "text": "年輕人很有衝勁嘛"
+ },
+ "wang.line.reply.1": {
+  "who": "wang",
+  "text": "這個態度我喜歡"
+ },
  "xiaomei.tile.m1": {
   "who": "xiaomei",
   "text": "一萬"
@@ -1065,6 +1097,14 @@
   "who": "xiaomei",
   "text": "下次我會更努力的！"
  },
+ "xiaomei.line.reply.0": {
+  "who": "xiaomei",
+  "text": "嗚嗚，不要兇我啦"
+ },
+ "xiaomei.line.reply.1": {
+  "who": "xiaomei",
+  "text": "好啦，我快一點"
+ },
  "jie.tile.m1": {
   "who": "jie",
   "text": "一萬"
@@ -1268,6 +1308,14 @@
  "jie.line.matchLose.0": {
   "who": "jie",
   "text": "輸了？不可能！再一場！"
+ },
+ "jie.line.reply.0": {
+  "who": "jie",
+  "text": "你才慢咧！"
+ },
+ "jie.line.reply.1": {
+  "who": "jie",
+  "text": "來啊，誰怕誰"
  },
  "ama.tile.m1": {
   "who": "ama",
@@ -1481,6 +1529,18 @@
   "who": "ama",
   "text": "乖孫長大了喔"
  },
+ "ama.line.reply.0": {
+  "who": "ama",
+  "text": "乖孫，對阿嬤講話要客氣"
+ },
+ "ama.line.reply.1": {
+  "who": "ama",
+  "text": "哎唷，嘴巴這麼甜"
+ },
+ "ama.line.skill.0": {
+  "who": "ama",
+  "text": "阿嬤看一下你的牌喔～"
+ },
  "erjiu.tile.m1": {
   "who": "erjiu",
   "text": "一萬"
@@ -1684,6 +1744,14 @@
  "erjiu.line.matchLose.0": {
   "who": "erjiu",
   "text": "明年……明年一定"
+ },
+ "erjiu.line.reply.0": {
+  "who": "erjiu",
+  "text": "小朋友，二舅教你做人"
+ },
+ "erjiu.line.reply.1": {
+  "who": "erjiu",
+  "text": "哈哈，有種！"
  },
  "biaomei.tile.m1": {
   "who": "biaomei",
@@ -1889,6 +1957,14 @@
   "who": "biaomei",
   "text": "我本來就只是湊人數的"
  },
+ "biaomei.line.reply.0": {
+  "who": "biaomei",
+  "text": "喔，好喔"
+ },
+ "biaomei.line.reply.1": {
+  "who": "biaomei",
+  "text": "你好吵喔"
+ },
  "queshen.tile.m1": {
   "who": "queshen",
   "text": "一萬"
@@ -2092,6 +2168,18 @@
  "queshen.line.matchLose.0": {
   "who": "queshen",
   "text": "……你，就是下一個雀神。"
+ },
+ "queshen.line.reply.0": {
+  "who": "queshen",
+  "text": "……哼。"
+ },
+ "queshen.line.reply.1": {
+  "who": "queshen",
+  "text": "話多的人，牌會亂。"
+ },
+ "queshen.line.skill.0": {
+  "who": "queshen",
+  "text": "……牌，過來。"
  },
  "longge.tile.m1": {
   "who": "longge",
@@ -2297,6 +2385,18 @@
   "who": "longge",
   "text": "江山代有人才出"
  },
+ "longge.line.reply.0": {
+  "who": "longge",
+  "text": "在我的館子，說話小心點"
+ },
+ "longge.line.reply.1": {
+  "who": "longge",
+  "text": "哼，嘴上功夫"
+ },
+ "longge.line.skill.0": {
+  "who": "longge",
+  "text": "換一張，手氣就回來了"
+ },
  "coco.tile.m1": {
   "who": "coco",
   "text": "一萬"
@@ -2501,6 +2601,18 @@
   "who": "coco",
   "text": "今天的精華就是你了"
  },
+ "coco.line.reply.0": {
+  "who": "coco",
+  "text": "聊天室說你好好笑"
+ },
+ "coco.line.reply.1": {
+  "who": "coco",
+  "text": "欸，這段我要剪起來"
+ },
+ "coco.line.skill.0": {
+  "who": "coco",
+  "text": "偷看一下下～聊天室不要說喔"
+ },
  "me-f.tile.m1": {
   "who": "me-f",
   "text": "一萬"
@@ -2661,6 +2773,22 @@
   "rate": "+10%",
   "pitch": "+8Hz"
  },
+ "me-f.taunt.hurry": {
+  "who": "me-f",
+  "text": "快一點啦！"
+ },
+ "me-f.taunt.thanks": {
+  "who": "me-f",
+  "text": "謝謝喔～"
+ },
+ "me-f.taunt.nice": {
+  "who": "me-f",
+  "text": "好牌！"
+ },
+ "me-f.taunt.ting": {
+  "who": "me-f",
+  "text": "你是不是聽了？"
+ },
  "me-m.tile.m1": {
   "who": "me-m",
   "text": "一萬"
@@ -2820,5 +2948,21 @@
   "text": "自摸！",
   "rate": "+10%",
   "pitch": "+8Hz"
+ },
+ "me-m.taunt.hurry": {
+  "who": "me-m",
+  "text": "快一點啦！"
+ },
+ "me-m.taunt.thanks": {
+  "who": "me-m",
+  "text": "謝謝喔～"
+ },
+ "me-m.taunt.nice": {
+  "who": "me-m",
+  "text": "好牌！"
+ },
+ "me-m.taunt.ting": {
+  "who": "me-m",
+  "text": "你是不是聽了？"
  }
 }

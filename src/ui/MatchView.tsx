@@ -1,7 +1,7 @@
-import { useEffect, useMemo, type CSSProperties } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { visible } from '../engine/ai'
 import { discardShanten, kindOf, shanten, toCounts, waits } from '../engine/analysis'
-import { CHARACTERS } from '../engine/characters'
+import { CHARACTERS, TAUNTS } from '../engine/characters'
 import * as M from '../engine/match'
 import { canTsumo, need, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
@@ -134,7 +134,15 @@ function TableCenter({ m }: { m: M.MatchState }) {
         </div>
       ))}
       {callout && (
-        <span key={callout.key} className={cls('callout', `at-${['bottom', 'right', 'top', 'left'][callout.seat]}`, callout.text.length > 1 && 'wide')}>
+        <span
+          key={callout.key}
+          className={cls(
+            'callout',
+            `at-${['bottom', 'right', 'top', 'left'][callout.seat]}`,
+            callout.text.length > 1 && 'wide',
+            Object.values(M.SKILLS).some((x) => x.name === callout.text) && 'skill',
+          )}
+        >
           {callout.text}
         </span>
       )}
@@ -205,6 +213,38 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
   )
 }
 
+/** 嗆聲：點一下跳出四句話，選一句講，對手會回嘴 */
+function TauntButton() {
+  const taunt = useUI((s) => s.taunt)
+  const [open, setOpen] = useState(false)
+  return (
+    <span className="taunt">
+      <button type="button" className="taunt-btn" aria-label="嗆聲" aria-expanded={open} onClick={() => setOpen(!open)}>
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M4 5h16v10H9l-5 4z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <span className="taunt-menu" role="menu">
+          {TAUNTS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                taunt(t.id)
+                setOpen(false)
+              }}
+            >
+              {t.text}
+            </button>
+          ))}
+        </span>
+      )}
+    </span>
+  )
+}
+
 function remaining(h: HandState, kinds: number[]): { kind: Kind; left: number }[] {
   const seen = visible(h, 0)
   return kinds.map((k) => ({ kind: kindOf(k), left: Math.max(0, 4 - seen[k]) }))
@@ -217,6 +257,7 @@ function MyArea({ m }: { m: M.MatchState }) {
   const tap = useUI((s) => s.tapTile)
   const mode = useUI((s) => s.mode)
   const hints = useUI((s) => s.settings.hints)
+  const myBubble = useUI((s) => s.bubbles[0])
   const { W } = useStageSize()
   const myTurn = M.waitingForYou(m) && h.phase === 'discard'
   const n = need(h, 0)
@@ -288,6 +329,12 @@ function MyArea({ m }: { m: M.MatchState }) {
         <MeBadge size={22} />
         <span className="pscore">{fmt(m.points[0])}</span>
         {m.dealer === 0 && <span className="dealer static">莊</span>}
+        <TauntButton />
+        {myBubble && (
+          <div key={myBubble.key} className="bubble from-me" role="status">
+            {myBubble.text}
+          </div>
+        )}
       </div>
 
       {selInfo && (

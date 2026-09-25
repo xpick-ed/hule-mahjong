@@ -9,19 +9,21 @@
 - 絕招：換牌、偷看、好運；提示：打哪張會聽、聽哪幾張剩幾張
 - 瀏覽器實測：手機橫向 844×390、電腦 1280×800、直拿提示轉橫；機器人在畫面上打完一整場東風圈沒有錯誤
 
-**Doing（2026-09-26）：** 配音接上了。12 個角色＋你（女聲／男聲）都有報牌（34 種牌）、吃碰槓胡、全部台詞，共 691 句。
-- 使用者選的：美玲姐 A、林伯 A、二舅 A、阿嬤 B，其他人照同樣思路配（設定在 `scripts/voice-lines.ts`）
-- 流程：`npx tsx scripts/voice-lines.ts` → `.venv-voice/bin/python scripts/gen_voices.py` → `.venv-voice/bin/python scripts/voice_sprites.py`
-- 每個角色打包成一個音檔（public/voice/，共 3.9 MB，一場只載 4 個約 1.1 MB），WebAudio 切片播放
-- 設定可關配音、換你的聲音；試玩版已更新（https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL）
-- 台語：edge-tts 沒有台語聲音，要真人錄或另找台語 TTS
+**Doing（2026-09-26）：** 照「配音 → 演出 → 進度 → 趣味」的計畫做完一輪：
+- 配音：12 角色＋你（女／男），報牌、喊牌、全部台詞、嗆聲、回嘴、用絕招，共 727 句
+- 演出：大牌全螢幕特寫、台數一項一項跳、輸贏滾動、牌飛進河、思考中
+- 電腦個性：愛做大牌的會做一色／碰碰胡，防守好的會讀聽牌（現物、筋）；雀神最強
+- 進度：金幣、段位、每日任務、商店（牌背、絕招補給）
+- 趣味：尾牙摸彩、過年紅包、雀神關對手用絕招、嗆聲＋回嘴
+- 測試 36 個全過；瀏覽器用機器人打完第一關、第四關整場沒有錯誤
+- 試玩版已更新：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL
 
 **Next:**
-1. 真人試玩：節奏（電腦出牌速度）、難度（`npm run sim` 平均只有 1.6 台，電腦太愛小胡）、台詞頻率
+1. 真人試玩：節奏、難度、台詞頻率、嗆聲會不會太吵
 2. 部署：Cloudflare 的 wrangler 登入過期了，要重新 `npx wrangler login`；或開 GitHub repo 接 Cloudflare Pages
    - 目前的試玩版放在 claude.ai：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL（`npm run artifact` 產生 dist-artifact/hule.html 再重新發佈）
 3. 新手教學：第一局帶一次（點兩下打牌、吃碰按鈕、聽牌提示）
-4. 手感：摸牌／打牌的飛行動畫、胡牌演出再華麗一點、電腦「思考中」的小動作
+4. 角色好感度：同一個角色打贏幾次解鎖故事、新台詞
 5. 電腦版鍵盤：數字鍵選牌、空白鍵打出、Enter 胡
 
 **Blockers:** 部署需要使用者登入 Cloudflare

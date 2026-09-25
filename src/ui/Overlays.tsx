@@ -107,6 +107,16 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
             </div>
           </header>
         )}
+        {r.extras?.length ? (
+          <div className="extras">
+            {r.extras.map((x, i) => (
+              <span key={i} className="extra">
+                {x.label}
+                {x.coins ? <b>+{x.coins} 金幣</b> : null}
+              </span>
+            ))}
+          </div>
+        ) : null}
         <div className={cls('deltas', !done && 'waiting')}>
           {seats.map((s) => (
             <div key={s} className={cls('delta', r.deltas[s] > 0 && 'up', r.deltas[s] < 0 && 'down')}>

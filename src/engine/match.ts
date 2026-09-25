@@ -1,9 +1,10 @@
 // 一場（東風圈）的流程：換莊、連莊、算錢、絕招、推動電腦出牌。
 // 每個動作拿舊的 MatchState、回傳新的一份；不合法丟 RuleError。
 
-import { chooseClaim, chooseSelf } from './ai'
+import { chooseClaim, chooseDiscard, chooseSelf } from './ai'
+import { shanten, toCounts } from './analysis'
 import { CHARACTERS } from './characters'
-import { hashSeed, randInt, shuffle } from './rng'
+import { hashSeed, pick, rand, randInt, shuffle } from './rng'
 import { dealerItems, type TaiItem } from './scoring'
 import { STAGES } from './stages'
 import * as T from './table'
@@ -26,6 +27,8 @@ export interface Payment {
 }
 
 export interface HandResult {
+  /** 關卡特別規則帶來的額外東西：過年紅包、尾牙摸彩 */
+  extras?: { label: string; coins?: number }[]
   win: T.WinInfo | null
   /** 莊家有關時才有（莊家胡、或莊家付錢） */
   dealerItems: TaiItem[] | null
@@ -58,6 +61,8 @@ export interface MatchState {
   skills: Record<SkillId, number>
   /** 偷看中的座位 */
   peek: number | null
+  /** 對手絕招剩幾次（座位 → 次數） */
+  aiSkills?: Record<number, number>
 }
 
 const fail = (msg: string): never => {
@@ -180,6 +185,7 @@ export function step(m: MatchState): MatchState {
   if (h.phase === 'discard' && h.turn !== 0) {
     return edit(m, (r) => {
       const seat = r.hand.turn
+      aiSkill(r, seat)
       const act = chooseSelf(r.hand, seat, styleOf(r, seat), r)
       if (act.type === 'tsumo') T.tsumo(r.hand, seat)
       else if (act.type === 'kong') T.selfKong(r.hand, seat, act.kind)
@@ -192,22 +198,57 @@ export function step(m: MatchState): MatchState {
   return m
 }
 
+/** 會用絕招的對手，在合適的時機用一下（每場有次數） */
+function aiSkill(m: MatchState, seat: number) {
+  const sk = CHARACTERS[m.chars[seat]].skill
+  if (!sk) return
+  m.aiSkills ??= {}
+  const left = m.aiSkills[seat] ?? sk.uses
+  if (left <= 0 || rand(m) > 0.35) return
+  const h = m.hand
+  const live = h.wall.length - T.RESERVE
+  const sh = shanten(toCounts(h.seats[seat].hand), T.need(h, seat))
+  let target: number | undefined
+  if (sk.id === 'lucky') {
+    if (sh > 1 || live > 45 || h.luckySeat === seat) return
+    h.luckySeat = seat
+  } else if (sk.id === 'swap') {
+    if (sh < 2 || live < 25) return
+    T.swapTile(h, m, seat, chooseDiscard(h, seat, styleOf(m, seat), m).id)
+  } else {
+    if (h.peekedBy?.[seat] || (h.seats[0].melds.length < 2 && live > 40)) return
+    h.peekedBy = h.peekedBy ?? [false, false, false, false]
+    h.peekedBy[seat] = true
+    target = 0
+  }
+  m.aiSkills[seat] = left - 1
+  T.emit(h, { t: 'skill', seat, id: sk.id, ...(target !== undefined ? { target } : {}) })
+}
+
 // ---------- 結算 ----------
 
 function settle(m: MatchState) {
   const h = m.hand
   const deltas = [0, 0, 0, 0]
   const payments: Payment[] = []
+  const extras: NonNullable<HandResult['extras']> = []
   let dItems: TaiItem[] | null = null
   if (h.win) {
     const w = h.win.seat
     const payers = h.win.from === null ? [0, 1, 2, 3].filter((s) => s !== w) : [h.win.from]
     const di = dealerItems(m.streak)
     const dt = di.reduce((s, x) => s + x.tai, 0)
+    const rule = STAGES[m.stage].rule
+    // 過年紅包：自摸三家都付兩倍
+    const mult = rule === 'newyear' && h.win.from === null ? 2 : 1
+    if (mult > 1) extras.push({ label: '過年紅包：自摸三家付兩倍' })
+    // 尾牙摸彩：你胡的牌裡有紅中就抽獎
+    const withRed = [...h.win.hand, ...h.seats[w].melds.flatMap((x) => x.tiles)].some((t) => t.kind === 'z5')
+    if (rule === 'raffle' && w === 0 && withRed) extras.push({ label: '尾牙摸彩', coins: pick(m, [100, 150, 200, 300, 500]) })
     for (const p of payers) {
       const involved = w === m.dealer || p === m.dealer
       const tai = h.win.score.total + (involved ? dt : 0)
-      const amount = m.base + tai * m.perTai
+      const amount = (m.base + tai * m.perTai) * mult
       deltas[p] -= amount
       deltas[w] += amount
       payments.push({ seat: p, amount, tai })
@@ -218,7 +259,7 @@ function settle(m: MatchState) {
     m.history.push({ winner: null, from: null, tai: 0 })
   }
   m.points = m.points.map((p, i) => p + deltas[i])
-  m.result = { win: h.win, dealerItems: dItems, payments, deltas, dealer: m.dealer, streak: m.streak }
+  m.result = { win: h.win, dealerItems: dItems, payments, deltas, dealer: m.dealer, streak: m.streak, ...(extras.length ? { extras } : {}) }
   m.phase = 'handEnd'
 }
 

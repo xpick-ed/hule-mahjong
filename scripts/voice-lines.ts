@@ -7,7 +7,7 @@
 // 台詞 id：<角色>.tile.<牌>、<角色>.call.<chi|pon|kong|hu|tsumo>、<角色>.line.<時機>.<第幾句>
 
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { CHARACTERS } from '../src/engine/characters'
+import { CHARACTERS, TAUNTS } from '../src/engine/characters'
 import { KINDS, tileName } from '../src/engine/tiles'
 
 interface Voice {
@@ -71,6 +71,8 @@ for (const [who, c] of Object.entries(CAST)) {
       ...(hype ? { rate: shift(c.voice.rate, 10, '%'), pitch: shift(c.voice.pitch, 8, 'Hz') } : {}),
     }
   })
+  // 你的嗆聲
+  if (who.startsWith('me-')) for (const t of TAUNTS) lines[`${who}.taunt.${t.id}`] = { who, text: t.text }
   const ch = CHARACTERS[who]
   if (!ch) continue
   for (const [key, ls] of Object.entries(ch.lines)) {

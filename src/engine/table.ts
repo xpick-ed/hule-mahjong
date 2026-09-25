@@ -45,6 +45,8 @@ export type HandEvent =
   | { t: 'win'; seat: number; from: number | null }
   | { t: 'exhausted' }
   | { t: 'ting'; seat: number }
+  /** 對手用了絕招（target：偷看的對象） */
+  | { t: 'skill'; seat: number; id: 'swap' | 'peek' | 'lucky'; target?: number }
 
 export interface HandState {
   wall: Tile[]
@@ -66,6 +68,8 @@ export interface HandState {
   luckySeat: number | null
   /** 這一局已經喊過聽牌的座位（台詞一局只講一次） */
   tingSaid: boolean[]
+  /** 這一局偷看過你手牌的對手（他們防你防得很準） */
+  peekedBy?: boolean[]
   win: WinInfo | null
   exhausted: boolean
   events: { n: number; e: HandEvent }[]
@@ -81,7 +85,7 @@ export const need = (h: HandState, seat: number) => 5 - h.seats[seat].melds.leng
 export const seatWind = (h: HandState, seat: number) => (seat - h.dealer + 4) % 4
 export const next = (seat: number) => (seat + 1) % 4
 
-function emit(h: HandState, e: HandEvent) {
+export function emit(h: HandState, e: HandEvent) {
   h.events.push({ n: ++h.eventN, e })
   if (h.events.length > 40) h.events.splice(0, h.events.length - 40)
 }

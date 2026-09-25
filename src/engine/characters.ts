@@ -15,7 +15,23 @@ export interface Look {
   capColor?: string
 }
 
-export type LineKey = 'hello' | 'pon' | 'chi' | 'kong' | 'ting' | 'tsumo' | 'ron' | 'dealIn' | 'otherWin' | 'exhausted' | 'matchWin' | 'matchLose'
+export type LineKey =
+  | 'hello'
+  | 'pon'
+  | 'chi'
+  | 'kong'
+  | 'ting'
+  | 'tsumo'
+  | 'ron'
+  | 'dealIn'
+  | 'otherWin'
+  | 'exhausted'
+  | 'matchWin'
+  | 'matchLose'
+  /** 用絕招時 */
+  | 'skill'
+  /** 你嗆他時回嘴 */
+  | 'reply'
 
 export interface Character {
   id: string
@@ -24,6 +40,8 @@ export interface Character {
   look: Look
   style: AiStyle
   lines: Partial<Record<LineKey, string[]>>
+  /** 對手也會用的絕招（每場次數） */
+  skill?: { id: 'swap' | 'peek' | 'lucky'; uses: number }
 }
 
 const SKIN = '#f6c9a8'
@@ -49,6 +67,7 @@ export const CHARACTERS: Record<string, Character> = {
       exhausted: ['流局！再來再來'],
       matchWin: ['今天手氣真的不錯耶～'],
       matchLose: ['下次再找你們報仇！'],
+      reply: ['欸～你很囂張喔', '好啦好啦，姐姐讓你'],
     },
   },
   lin: {
@@ -70,6 +89,7 @@ export const CHARACTERS: Record<string, Character> = {
       exhausted: ['流局也好，安全'],
       matchWin: ['薑還是老的辣'],
       matchLose: ['後生可畏喔'],
+      reply: ['年輕人，沉住氣', '呵呵，好好好'],
     },
   },
   kai: {
@@ -90,6 +110,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['樣本數太小啦'],
       matchWin: ['數據不會說謊'],
       matchLose: ['回去調一下參數'],
+      reply: ['嘴砲不影響機率', '我記下來了'],
     },
   },
   wang: {
@@ -110,6 +131,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['不錯，明年加薪考慮一下'],
       matchWin: ['領導就是要以身作則'],
       matchLose: ['今天先讓你們贏'],
+      reply: ['年輕人很有衝勁嘛', '這個態度我喜歡'],
     },
   },
   xiaomei: {
@@ -130,6 +152,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['好厲害喔'],
       matchWin: ['謝謝大家讓我～'],
       matchLose: ['下次我會更努力的！'],
+      reply: ['嗚嗚，不要兇我啦', '好啦，我快一點'],
     },
   },
   jie: {
@@ -150,6 +173,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['下一把我一定贏'],
       matchWin: ['今晚續攤我請！'],
       matchLose: ['輸了？不可能！再一場！'],
+      reply: ['你才慢咧！', '來啊，誰怕誰'],
     },
   },
   ama: {
@@ -158,6 +182,7 @@ export const CHARACTERS: Record<string, Character> = {
     bio: '打了五十年麻將。防守滴水不漏。',
     look: { skin: SKIN, hair: 'bun', hairColor: '#c9ccd1', shirt: '#8b5cf6', bg: '#f1ebff', extras: ['glasses', 'earrings'] },
     style: { speed: 0.4, defense: 0.95, greed: 0.4, mistakes: 0.05 },
+    skill: { id: 'peek', uses: 1 },
     lines: {
       hello: ['乖孫，阿嬤不會讓你喔', '來，陪阿嬤打一圈'],
       pon: ['碰啦'],
@@ -171,6 +196,8 @@ export const CHARACTERS: Record<string, Character> = {
       exhausted: ['流局，再來'],
       matchWin: ['紅包阿嬤先收著～'],
       matchLose: ['乖孫長大了喔'],
+      reply: ['乖孫，對阿嬤講話要客氣', '哎唷，嘴巴這麼甜'],
+      skill: ['阿嬤看一下你的牌喔～'],
     },
   },
   erjiu: {
@@ -191,6 +218,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['好啦，算你厲害'],
       matchWin: ['今年發財啦！'],
       matchLose: ['明年……明年一定'],
+      reply: ['小朋友，二舅教你做人', '哈哈，有種！'],
     },
   },
   biaomei: {
@@ -211,6 +239,7 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['好喔'],
       matchWin: ['這要打卡'],
       matchLose: ['我本來就只是湊人數的'],
+      reply: ['喔，好喔', '你好吵喔'],
     },
   },
   queshen: {
@@ -219,6 +248,7 @@ export const CHARACTERS: Record<string, Character> = {
     bio: '傳說中的雀神。話很少，幾乎不放槍。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#e8e8e8', shirt: '#1d2a4a', bg: '#dfe4ee', extras: ['sunglasses'] },
     style: { speed: 0.5, defense: 1, greed: 0.45, mistakes: 0 },
+    skill: { id: 'lucky', uses: 2 },
     lines: {
       hello: ['……開始吧。'],
       pon: ['碰。'],
@@ -231,6 +261,8 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['不錯。'],
       matchWin: ['還差得遠。'],
       matchLose: ['……你，就是下一個雀神。'],
+      reply: ['……哼。', '話多的人，牌會亂。'],
+      skill: ['……牌，過來。'],
     },
   },
   longge: {
@@ -239,6 +271,7 @@ export const CHARACTERS: Record<string, Character> = {
     bio: '老牌麻將館老闆。什麼大風大浪都見過。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#1a1a1a', shirt: '#b3261e', bg: '#ffe4e0', extras: ['mustache'] },
     style: { speed: 0.7, defense: 0.75, greed: 0.7, mistakes: 0.05 },
+    skill: { id: 'swap', uses: 2 },
     lines: {
       hello: ['在我的館子，規矩最重要'],
       pon: ['碰'],
@@ -251,6 +284,8 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['好牌'],
       matchWin: ['常來坐'],
       matchLose: ['江山代有人才出'],
+      reply: ['在我的館子，說話小心點', '哼，嘴上功夫'],
+      skill: ['換一張，手氣就回來了'],
     },
   },
   coco: {
@@ -259,6 +294,7 @@ export const CHARACTERS: Record<string, Character> = {
     bio: '麻將直播主。很會演，也真的很會打。',
     look: { skin: SKIN, hair: 'ponytail', hairColor: '#ff6f91', shirt: '#1d2a4a', bg: '#ffe6f0', extras: ['earrings', 'headphones'] },
     style: { speed: 0.6, defense: 0.7, greed: 0.5, mistakes: 0.05 },
+    skill: { id: 'peek', uses: 1 },
     lines: {
       hello: ['哈囉聊天室！今天挑戰雀神～'],
       pon: ['碰！聊天室刷一波'],
@@ -271,9 +307,19 @@ export const CHARACTERS: Record<string, Character> = {
       otherWin: ['好啦，給你一個讚'],
       matchWin: ['記得訂閱開小鈴鐺～'],
       matchLose: ['今天的精華就是你了'],
+      reply: ['聊天室說你好好笑', '欸，這段我要剪起來'],
+      skill: ['偷看一下下～聊天室不要說喔'],
     },
   },
 }
+
+/** 你可以嗆對手的話（配音用 me-f／me-m 的 taunt.<id>） */
+export const TAUNTS: readonly { id: string; text: string }[] = [
+  { id: 'hurry', text: '快一點啦！' },
+  { id: 'thanks', text: '謝謝喔～' },
+  { id: 'nice', text: '好牌！' },
+  { id: 'ting', text: '你是不是聽了？' },
+]
 
 export function line(ch: Character, key: LineKey, r: number): string | null {
   const ls = ch.lines[key]

@@ -244,4 +244,21 @@ describe('一場東風圈', () => {
     expect(m.hand.seats[0].hand.some((x) => x.id === t.id)).toBe(false)
     expect(m.skills.swap).toBe(1)
   })
+  it('過年回老家：自摸三家付兩倍', () => {
+    const m = M.newMatch('newyear', 2)
+    m.dealer = 1
+    m.hand = rig([hand16 + ' m6', 'z2', 'z3', 'z4'], 'z7', 0)
+    m.hand.dealer = 1
+    const r = M.tsumo(m).result!
+    const tai = r.win!.score.total
+    expect(r.payments.find((p) => p.seat === 2)!.amount).toBe((m.base + tai * m.perTai) * 2)
+    expect(r.extras?.[0].label).toContain('過年紅包')
+  })
+  it('公司尾牙：你胡的牌有紅中就抽獎', () => {
+    const m = M.newMatch('raffle', 1)
+    m.hand = rig(['m1 m1 m1 p2 p3 p4 s5 s6 s7 z1 z1 z1 z5 z5 z5 m4 m4', 'z2', 'z3', 'z4'], 'z7', 0)
+    const r = M.tsumo(m).result!
+    expect(r.extras?.[0].label).toBe('尾牙摸彩')
+    expect(r.extras?.[0].coins).toBeGreaterThan(0)
+  })
 })

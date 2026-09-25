@@ -1829,6 +1829,99 @@ button.mt {
   opacity: 0;
 }
 
+/* 絕招的大字：紫色 */
+.callout.skill {
+  background: var(--purple);
+  box-shadow: 0 5px 0 var(--purple-edge);
+  font-size: 30px;
+}
+
+/* 嗆聲 */
+.taunt {
+  position: relative;
+  display: inline-flex;
+}
+
+.taunt-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 2px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #eef1f7;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.taunt-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 10px);
+  z-index: 12;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 4px 0 rgba(29, 42, 74, 0.18);
+  animation: popIn 0.2s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.taunt-menu button {
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: #f4f6fa;
+  font-size: 13px;
+  font-weight: 900;
+  white-space: nowrap;
+  text-align: left;
+  cursor: pointer;
+}
+
+.bubble.from-me {
+  left: 0;
+  bottom: calc(100% + 8px);
+  top: auto;
+}
+
+/* 關卡規則帶來的東西 */
+.extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.extra {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #fff3c4;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.extra b {
+  font-family: var(--num);
+  color: var(--orange-edge);
+}
+
+.stage-rule {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--purple-edge);
+}
+
 /* 結束畫面的獎勵 */
 .rewards {
   margin-top: 10px;

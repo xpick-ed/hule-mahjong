@@ -50,6 +50,8 @@ export function threats(h: HandState, seat: number, style?: AiStyle, rng?: HasRn
     if (s === seat) return false
     const m = h.seats[s].melds.length
     if (m >= 3 || (m >= 2 && h.wall.length < 60)) return true
+    // 偷看過你的牌：你聽了就知道
+    if (s === 0 && h.peekedBy?.[seat]) return shanten(toCounts(h.seats[0].hand), need(h, 0)) === 0
     if (!style || !rng || style.defense < 0.3) return false
     return shanten(toCounts(h.seats[s].hand), need(h, s)) === 0 && rand(rng) < style.defense * 0.85
   })

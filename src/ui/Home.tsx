@@ -88,6 +88,7 @@ export function Home() {
               <span className="stage-stake">
                 底 {fmt(st.base)}・每台 {fmt(st.perTai)}
               </span>
+              {st.ruleText && <span className="stage-rule">{st.ruleText.split('：')[0]}</span>}
               <span className="stage-cta">{locked ? '上一關拿第一解鎖' : done ? '再打一次' : '開打'}</span>
             </button>
           )

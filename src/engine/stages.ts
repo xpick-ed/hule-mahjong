@@ -1,9 +1,14 @@
 // 闖關：一關一個場景、三個對手、底／台。拿第一過關，解鎖下一關和一款桌布。
 
+export type StageRule = 'raffle' | 'newyear' | 'boss'
+
 export interface Stage {
   id: number
   name: string
   place: string
+  /** 這一關的特別規則 */
+  rule?: StageRule
+  ruleText?: string
   opponents: [string, string, string]
   base: number
   perTai: number
@@ -43,6 +48,8 @@ export const STAGES: readonly Stage[] = [
     id: 1,
     name: '公司尾牙',
     place: '餐廳包廂，主管也在',
+    rule: 'raffle',
+    ruleText: '尾牙摸彩：你胡的牌裡有紅中，就能抽獎拿金幣',
     opponents: ['wang', 'xiaomei', 'jie'],
     base: 500,
     perTai: 200,
@@ -53,6 +60,8 @@ export const STAGES: readonly Stage[] = [
     id: 2,
     name: '過年回老家',
     place: '阿嬤家客廳，紅包滿天飛',
+    rule: 'newyear',
+    ruleText: '過年紅包：自摸的話三家都付兩倍',
     opponents: ['ama', 'erjiu', 'biaomei'],
     base: 1000,
     perTai: 300,
@@ -63,6 +72,8 @@ export const STAGES: readonly Stage[] = [
     id: 3,
     name: '雀神挑戰',
     place: '傳說中的地下室牌館',
+    rule: 'boss',
+    ruleText: '高手過招：對手也會用絕招',
     opponents: ['queshen', 'longge', 'coco'],
     base: 2000,
     perTai: 500,

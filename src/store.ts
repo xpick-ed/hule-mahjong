@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { CHARACTERS, type LineKey } from './engine/characters'
+import { CHARACTERS, TAUNTS, type LineKey } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
@@ -94,6 +94,7 @@ interface UI {
   setMissions(on: boolean): void
   setShop(on: boolean): void
   claimMission(id: string): void
+  taunt(id: string): void
   buyBack(id: string): void
   equipBack(id: string): void
   buySupply(id: M.SkillId): void
@@ -113,6 +114,7 @@ export function savedMatch(): M.MatchState | null {
 }
 
 let bubbleKey = 1
+let tauntReady = 0
 
 /** 這個座位用哪個聲音：你是 me-f／me-m，對手是角色 id */
 function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string {
@@ -132,7 +134,12 @@ export const useUI = create<UI>((set, get) => {
       set({ match: next, sel: null, ...extra })
       save(MATCH_KEY, next)
       get().processEvents()
-      if (next.phase === 'handEnd' && match.phase === 'play') track(P.handMetrics(next))
+      if (next.phase === 'handEnd' && match.phase === 'play') {
+        track(P.handMetrics(next))
+        // 尾牙摸彩的金幣直接進口袋
+        const prize = (next.result?.extras ?? []).reduce((s, x) => s + (x.coins ?? 0), 0)
+        if (prize) setProgress({ ...get().progress, coins: get().progress.coins + prize })
+      }
       if (next.phase === 'end' && match.phase !== 'end') finishMatch(next)
       return next
     } catch (e) {
@@ -214,9 +221,11 @@ export const useUI = create<UI>((set, get) => {
       set({ match, screen: 'match', sel: null, mode: null, chiOpen: false, bubbles: {}, moods: {}, callout: null, seenEvent: 0, menu: false, rewards: null })
       preloadFor(match, get().settings.myVoice)
       sfx.shuffle()
-      // 開場：隨便一個對手打招呼
+      // 開場：隨便一個對手打招呼；有特別規則就提醒一下
       const seat = 1 + Math.floor(Math.random() * 3)
       window.setTimeout(() => get().say(seat, 'hello'), 500)
+      const rule = STAGES[stage].ruleText
+      if (rule) window.setTimeout(() => get().showToast(rule), 1200)
       get().processEvents()
     },
     resume() {
@@ -338,6 +347,21 @@ export const useUI = create<UI>((set, get) => {
         sfx.coin()
       }
     },
+    taunt(id) {
+      const m = get().match
+      const t = TAUNTS.find((x) => x.id === id)
+      if (!m || !t || Date.now() < tauntReady) return
+      tauntReady = Date.now() + 4000
+      speak(`me-${get().settings.myVoice}`, `taunt.${id}`)
+      set({ bubbles: { ...get().bubbles, 0: { text: t.text, key: bubbleKey++ } } })
+      const k = bubbleKey - 1
+      window.setTimeout(() => {
+        const b = get().bubbles[0]
+        if (b && b.key === k) set({ bubbles: { ...get().bubbles, 0: undefined } })
+      }, 2200)
+      // 隨便一個對手回嘴
+      window.setTimeout(() => get().say(1 + Math.floor(Math.random() * 3), 'reply'), 1100)
+    },
     buyBack(id) {
       const p = get().progress
       const b = P.BACK[id]
@@ -430,6 +454,14 @@ export const useUI = create<UI>((set, get) => {
       case 'ting':
         say(e.seat, 'ting', 0.45)
         break
+      case 'skill': {
+        const name = CHARACTERS[m.chars[e.seat]].name
+        callout(e.seat, M.SKILLS[e.id].name)
+        sfx.magic()
+        say(e.seat, 'skill')
+        window.setTimeout(() => get().showToast(e.id === 'peek' ? `${name}偷看了你的手牌！` : `${name}用了「${M.SKILLS[e.id].name}」`), 300)
+        break
+      }
       case 'win': {
         // 胡牌由桌子中間的大章負責，不另外跳字
         sfx.hu()
