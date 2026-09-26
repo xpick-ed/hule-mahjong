@@ -17,13 +17,13 @@
 - 試玩版更新到第 8 版：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL（排行榜在試玩版不能用，要正式上線）
 
 **Next:**
-1. 部署（需要你）：`! npx wrangler login` →
-   `npx wrangler d1 create hule`（把 database_id 貼進 wrangler.toml）→
-   `npx wrangler d1 execute hule --remote --file=schema.sql` → `npm run deploy`
-2. 真人試玩：難度、引導局節奏、危險牌標太多會不會吵、音樂好不好聽
-3. 音樂：現在是合成器，之後可以換真的配樂音檔
+1. Cloudflare Pages 接 GitHub（repo：github.com/xpick-ed/hule-mahjong，已推上去）：
+   後台 Workers & Pages → Create → Pages → Connect to Git → 選 hule-mahjong；
+   專案名 hule、分支 main、Build command `npm run build`、Output `dist` → 之後每次 push 自動上線
+2. 排行榜：後台建 D1（名字 hule）→ Console 貼 schema.sql 執行 → 把 database_id 貼進 wrangler.toml（拿掉註解）→ push
+3. 真人試玩：難度、引導局節奏、危險牌標太多會不會吵、音樂好不好聽
 
-**Blockers:** 部署需要使用者登入 Cloudflare
+**Blockers:** Cloudflare 後台的設定要使用者自己點（wrangler 沒登入）
 
 ## Backlog
 
