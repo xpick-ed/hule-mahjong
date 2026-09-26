@@ -61,7 +61,9 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
     return () => window.removeEventListener('keydown', on)
   }, [next])
   const seats = [0, 1, 2, 3]
-  const items = w ? [...w.score.items, ...(r.dealerItems ?? []).map((x) => ({ ...x, dealer: true }))] : []
+  // 莊家台只算在跟莊家有關的那筆（莊家胡、莊家放槍、或自摸時莊家也要付）
+  const dealerIn = !!w && !!r.dealerItems && (w.seat === r.dealer || w.from === null || w.from === r.dealer)
+  const items = w ? [...w.score.items, ...(dealerIn ? r.dealerItems! : []).map((x) => ({ ...x, dealer: true }))] : []
   // 台數一項一項亮，亮完再亮每家輸贏
   const { shown, all } = useStagger(items.length + 1, 350, 160, tick)
   const done = shown > items.length
@@ -94,7 +96,7 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
                 <b key={taiSoFar} className="bump">
                   {taiSoFar}
                 </b>
-                台{r.dealerItems ? <small>＋莊家台</small> : null}
+                台{dealerIn ? <small>＋莊家台</small> : null}
               </span>
             </header>
             <div className="win-hand">

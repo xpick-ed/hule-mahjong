@@ -1,0 +1,29 @@
+/* 自己帶的字型（scripts/fonts.py 裁成遊戲用得到的字）：離線也能用、不連 Google Fonts。SIL OFL，見 fonts/OFL-*.txt */
+
+@font-face {
+  font-family: 'Chiron GoRound TC';
+  src: url('./fonts/chiron-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Chiron GoRound TC';
+  src: url('./fonts/chiron-900.woff2') format('woff2');
+  font-weight: 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('./fonts/bricolage-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bricolage Grotesque';
+  src: url('./fonts/bricolage-800.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}

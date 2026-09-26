@@ -31,16 +31,16 @@ def used_chars() -> str:
 
 
 def make(src: str, axes: dict, text: str, dest: Path):
+    # 先裁字再固定粗細：整套變體字型有 5 萬多字，先裁快很多
     font = TTFont(src)
-    inst = instancer.instantiateVariableFont(font, axes)
     opts = subset.Options()
-    opts.flavor = "woff2"
     opts.layout_features = ["*"]
     opts.name_IDs = ["*"]
     opts.notdef_outline = True
     sub = subset.Subsetter(opts)
     sub.populate(text=text)
-    sub.subset(inst)
+    sub.subset(font)
+    inst = instancer.instantiateVariableFont(font, axes)
     inst.flavor = "woff2"
     inst.save(dest)
     print(f"{dest.name}: {dest.stat().st_size / 1024:.0f} KB")

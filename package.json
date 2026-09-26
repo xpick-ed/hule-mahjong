@@ -10,7 +10,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "sim": "tsx scripts/sim.ts",
-    "artifact": "vite build && node scripts/artifact.mjs"
+    "artifact": "vite build && node scripts/artifact.mjs",
+    "api": "npx wrangler pages dev dist --port 8788",
+    "deploy": "npm run build && npx wrangler pages deploy"
   },
   "dependencies": {
     "react": "^19.3.0",

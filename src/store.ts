@@ -694,7 +694,7 @@ export const useUI = create<UI>((set, get) => {
         buzz(40)
         mood(e.seat, 'happy')
         if (!say(e.seat, e.from === null ? 'tsumo' : 'ron')) voice(e.seat, e.from === null ? 'call.tsumo' : 'call.hu')
-        if (m.hand.robbing === null && m.hand.win?.score.items.some((x) => x.name === '搶槓') && e.seat === m.hand.win.seat) callout(e.seat, '搶槓')
+        if (M.winsOf(m.hand).some((w) => w.seat === e.seat && w.score.items.some((x) => x.name === '搶槓'))) callout(e.seat, '搶槓')
         if (e.from !== null) {
           mood(e.from, 'sad')
           window.setTimeout(() => say(e.from!, 'dealIn', 0.8), 900)

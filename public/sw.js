@@ -4,7 +4,7 @@
 //   /api/（排行榜）：只走網路
 // 改了這個檔要把 VERSION 加一，舊的快取會清掉。
 
-const VERSION = 1
+const VERSION = 2
 const CACHE = `hule-v${VERSION}`
 const CORE = ['./', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './voice/index.json']
 
@@ -17,6 +17,13 @@ self.addEventListener('install', (e) => {
       const html = await (await fetch('./', { cache: 'no-store' })).text()
       const assets = [...html.matchAll(/(?:src|href)="\.?\/?((?:assets|fonts)\/[^"]+)"/g)].map((m) => `./${m[1]}`)
       await cache.addAll(assets)
+      // CSS 裡用到的字型
+      for (const css of assets.filter((a) => a.endsWith('.css'))) {
+        const text = await (await cache.match(css)).text()
+        const dir = css.slice(0, css.lastIndexOf('/') + 1)
+        const fonts = [...text.matchAll(/url\((?:\.\/)?([^)]+\.woff2)\)/g)].map((m) => dir + m[1])
+        await cache.addAll(fonts)
+      }
       await self.skipWaiting()
     })(),
   )
@@ -27,6 +34,17 @@ self.addEventListener('activate', (e) => {
     (async () => {
       for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k)
       await self.clients.claim()
+      // 配音（全部約 4.5 MB）背景慢慢存，存到哪算哪；沒存到的第一次播的時候也會存
+      try {
+        const cache = await caches.open(CACHE)
+        const idx = await (await fetch('./voice/index.json')).json()
+        for (const v of Object.values(idx.voices)) {
+          const url = `./voice/${v.file}`
+          if (!(await cache.match(url))) await cache.add(url).catch(() => {})
+        }
+      } catch {
+        // 沒網路就下次再說
+      }
     })(),
   )
 })

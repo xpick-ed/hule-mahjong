@@ -4,6 +4,7 @@ import { playMusic } from './music'
 import { unlockAudio } from './sfx'
 import { currentMood, useUI } from './store'
 import { App } from './ui/App'
+import './fonts.css'
 import './styles.css'
 
 // iOS：聲音要等第一次觸控才能開；開了就放音樂

@@ -211,10 +211,11 @@ export function claim(p: Progress, id: string): Progress {
 
 /** 一局結束時，你這一局做到了什麼 */
 export function handMetrics(m: M.MatchState): Partial<Record<Metric, number>> {
-  const w = m.result?.win
+  // 一炮多響時你可能不是第一個胡的
+  const w = M.winsOf(m.result).find((x) => x.seat === 0)
   const pon = m.hand.seats[0].melds.filter((x) => x.type === 'pung' && x.from !== undefined).length
   const out: Partial<Record<Metric, number>> = { pon }
-  if (w && w.seat === 0) {
+  if (w) {
     out.win = 1
     if (w.from === null) out.tsumo = 1
     if (w.score.total >= 4) out.big4 = 1

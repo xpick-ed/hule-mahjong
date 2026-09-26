@@ -305,7 +305,6 @@ function settle(m: MatchState) {
   const extras: NonNullable<HandResult['extras']> = []
   let dItems: TaiItem[] | null = null
   const wins = winsOf(h)
-  if (wins.length > 1) extras.push({ label: `一炮多響：${wins.length} 家一起胡` })
   const di = dealerItems(m.streak)
   const dt = di.reduce((s, x) => s + x.tai, 0)
   const rule = STAGES[m.stage].rule
