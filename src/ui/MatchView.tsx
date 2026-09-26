@@ -2,15 +2,16 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { visible } from '../engine/ai'
 import { discardShanten, kindOf, shanten, toCounts, waits } from '../engine/analysis'
 import { evaluate } from '../engine/coach'
-import { CHARACTERS, TAUNTS } from '../engine/characters'
+import { TAUNTS } from '../engine/characters'
 import * as M from '../engine/match'
 import { canTsumo, need, passedWin, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
 import { BACK } from '../progress'
 import { dangerMap, publicThreats } from '../review'
 import { sfx } from '../sfx'
-import { lookFor, myName, tableSkin, useMyName, useUI } from '../store'
-import { Avatar, MeBadge } from './Avatar'
+import { tableSkin, useMyName, useUI } from '../store'
+import { isFriend, SeatFace, seatName } from './seat'
+import { MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
 import { CutIn } from './Celebrate'
 import { Guide, useGuideStep } from './Guide'
@@ -97,6 +98,7 @@ export function MatchView() {
 function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typeof tableSkin>; back: (typeof BACK)[string] }) {
   const guide = useGuideStep(match)
   const timer = useTurnTimer(match, !!guide)
+  const online = !!match.online
   const threats = useThreats(match)
   useKeys(match)
   return (
@@ -104,7 +106,7 @@ function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typ
       className="match"
       style={{ '--table': skin.color, '--table-rim': skin.rim, '--table-edge': skin.edge, '--back': back.bg, '--back-ring': back.ring } as CSSProperties}
     >
-      <Driver m={match} paused={!!guide} />
+      <Driver m={match} paused={!!guide || online} />
       <TopStrip m={match} />
       <TableCenter m={match} timer={timer} />
       <Opponent m={match} seat={2} side="top" threat={threats.includes(2)} />
@@ -131,7 +133,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
   const mode = useUI((s) => s.mode)
   const h = m.hand
   const me = useMyName()
-  const dealerName = m.dealer === 0 ? me : CHARACTERS[m.chars[m.dealer]].name
+  const dealerName = m.dealer === 0 ? me : seatName(m, m.dealer)
   const lucky = h.luckySeat === 0
   return (
     <header className="strip">
@@ -148,7 +150,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
         </small>
       </span>
       <MeChip m={m} />
-      <div className="skills" role="group" aria-label="絕招">
+      {!m.online && <div className="skills" role="group" aria-label="絕招">
         {(Object.keys(M.SKILLS) as M.SkillId[]).map((id) => (
           <button
             key={id}
@@ -162,7 +164,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
             <b>{m.skills[id]}</b>
           </button>
         ))}
-      </div>
+      </div>}
       <span className="left-count">
         剩 <b>{Math.max(0, h.wall.length - RESERVE)}</b> 張
       </span>
@@ -201,7 +203,7 @@ function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
       <div
         className={cls('compass', `turn-${turnSide}`, timer.active && 'ticking', timer.active && timer.secs <= 5 && 'urgent')}
         style={{ '--p': timer.frac } as CSSProperties}
-        aria-label={`輪到${h.turn === 0 ? myName() : CHARACTERS[m.chars[h.turn]].name}`}
+        aria-label={`輪到${seatName(m, h.turn)}`}
       >
         <span className="c-bottom">{WIND_CHAR[seatWind(h, 0)]}</span>
         <span className="c-right">{WIND_CHAR[seatWind(h, 1)]}</span>
@@ -252,9 +254,8 @@ function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
 }
 
 function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; side: 'top' | 'left' | 'right'; threat: boolean }) {
-  const ch = CHARACTERS[m.chars[seat]]
-  const progress = useUI((st) => st.progress)
-  const look = useMemo(() => lookFor(progress, m.chars[seat]), [progress, m.chars, seat])
+  const name = seatName(m, seat)
+  const offline = isFriend(m, seat) && m.players?.[seat]?.connected === false
   const h = m.hand
   const s = h.seats[seat]
   const bubble = useUI((st) => st.bubbles[seat])
@@ -293,8 +294,8 @@ function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; si
   return (
     <>
       <div className={cls('opp', side, h.turn === seat && h.phase !== 'over' && 'active')}>
-        <button type="button" className={cls('avatar', mode === 'peek' && 'pickable')} onClick={() => peekAt(seat)} aria-label={`${ch.name}${mode === 'peek' ? '（點一下偷看）' : ''}`} disabled={mode !== 'peek'}>
-          <Avatar look={look} mood={mood ?? 'normal'} />
+        <button type="button" className={cls('avatar', mode === 'peek' && 'pickable')} onClick={() => peekAt(seat)} aria-label={`${name}${mode === 'peek' ? '（點一下偷看）' : ''}`} disabled={mode !== 'peek'}>
+          <SeatFace m={m} seat={seat} size={44} mood={mood ?? 'normal'} />
           {h.turn === seat && h.phase === 'discard' && (
             <span className="thinking" aria-hidden="true">
               <i />
@@ -311,7 +312,10 @@ function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; si
           )}
         </button>
         <div className="player-info">
-          <span className="pname">{ch.name}</span>
+          <span className="pname">
+            {name}
+            {offline && <em className="offline">斷線</em>}
+          </span>
           <span className="pscore">{fmt(m.points[seat])}</span>
         </div>
         {!top && (
@@ -344,16 +348,24 @@ interface TurnTimerState {
 
 /** 出牌倒數：輪到你（打牌或吃碰）才開始；時間到系統幫你打。開選單或教學時暫停 */
 function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
-  const turnTime = useUI((s) => s.settings.turnTime)
+  const online = !!m.online
+  const turnTime = useUI((s) => (online ? (s.online?.room?.settings.turnTime ?? 20) : s.settings.turnTime))
+  // 連線時照伺服器的時間倒數，不能暫停（大家在等你）
+  const deadline = useUI((s) => s.online?.deadline ?? null)
   const paused = useUI((s) => s.menu || s.learn !== null || s.people !== null || s.records) || guide
   const autoPlay = useUI((s) => s.autoPlay)
   // 引導局不計時
-  const key = M.waitingForYou(m) && !m.tutorial ? `${m.handNo}:${m.hand.eventN}:${m.hand.phase}` : ''
+  const key = M.waitingForYou(m) && !m.tutorial && (!online || deadline !== null) ? `${m.handNo}:${m.hand.eventN}:${m.hand.phase}` : ''
   const total = turnTime * 1000
   const [left, setLeft] = useState(total)
-  useEffect(() => setLeft(total), [key, total])
+  useEffect(() => setLeft(online && deadline ? deadline - Date.now() : total), [key, total, online, deadline])
   useEffect(() => {
-    if (!key || paused) return
+    if (!key || !online || !deadline) return
+    const id = window.setInterval(() => setLeft(deadline - Date.now()), 100)
+    return () => window.clearInterval(id)
+  }, [key, online, deadline])
+  useEffect(() => {
+    if (!key || paused || online) return
     let last = performance.now()
     const id = window.setInterval(() => {
       const now = performance.now()
@@ -372,7 +384,7 @@ function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secs])
   useEffect(() => {
-    if (key && out) autoPlay()
+    if (key && out && !online) autoPlay()
     // 歸零的那一下觸發一次
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [out])

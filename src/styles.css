@@ -3762,6 +3762,285 @@ kbd {
   margin-top: 12px;
 }
 
+
+/* ---------- 連線對打 ---------- */
+
+.online-btn {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--blue-edge);
+}
+
+.online-sheet .name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.online-sheet .name-row .text-input {
+  width: 240px;
+}
+
+.online-choices {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 14px 0 4px;
+}
+
+.join-form {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.join-form input {
+  width: 150px;
+  height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f7;
+  font-family: var(--num);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  text-transform: uppercase;
+}
+
+.join-form input::placeholder {
+  font-family: var(--ui);
+  font-size: 14px;
+  letter-spacing: 0;
+}
+
+.room {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 20px 14px;
+}
+
+.room-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.room-code {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 4px 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 4px 0 rgba(29, 42, 74, 0.15);
+}
+
+.room-code small {
+  font-size: 13px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.room-code b {
+  font-family: var(--num);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.room-invite {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.room-status {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 12px;
+  background: #fff3c4;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.room-body {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.room-seats,
+.room-settings {
+  padding: 10px 14px;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 4px 0 rgba(29, 42, 74, 0.12);
+  overflow: auto;
+}
+
+.room-seats h4,
+.room-settings h4 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.room-seats ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.room-seats li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: #f4f6fa;
+  font-size: 14px;
+}
+
+.room-seats li.gone {
+  opacity: 0.5;
+}
+
+.room-seats li.ai {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.ai-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px dashed #c9d2e3;
+}
+
+.tag {
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #e2e7f0;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.tag.host {
+  background: var(--orange);
+  color: #fff;
+}
+
+.tag.you {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.room-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.room-settings .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stage-pick {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.stage-pick button {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 12px;
+  background: #eef1f7;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stage-pick button b {
+  font-size: 13px;
+}
+
+.stage-pick button small {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.stage-pick button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.stage-pick button[aria-pressed='true'] small {
+  color: rgba(255, 224, 102, 0.8);
+}
+
+.stage-pick button:disabled,
+.room-settings .seg button:disabled {
+  cursor: default;
+}
+
+.stage-pick button:disabled:not([aria-pressed='true']),
+.room-settings .seg button:disabled:not([aria-pressed='true']) {
+  opacity: 0.55;
+}
+
+.room-foot {
+  display: flex;
+  justify-content: center;
+}
+
+.room-foot .btn.primary {
+  min-width: 260px;
+}
+
+.wait-host {
+  align-self: center;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.pname .offline {
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e2e7f0;
+  color: var(--muted);
+  font-style: normal;
+  font-size: 10px;
+}
+
 /* ---------- 動畫 ---------- */
 
 @keyframes fromMe {

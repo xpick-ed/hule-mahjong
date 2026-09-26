@@ -7,6 +7,8 @@ import { SKINS, STAGES } from './engine/stages'
 import { canTsumo, DEFAULT_RULES, type ClaimDecision, type HandEvent, type Rules } from './engine/table'
 import { tileName, type Kind } from './engine/tiles'
 import { dailyInfo, dailyOptions, shareText } from './daily'
+import type { ClientMsg, RoomSettings, ServerMsg } from './engine/online'
+import { clearRoomFromUrl, newCode, RoomConn, roomFromUrl, savedRoom } from './net'
 import { playMusic, setMusicVolume, type MusicMood } from './music'
 import * as P from './progress'
 import type { Progress } from './progress'
@@ -77,6 +79,19 @@ export interface Bubble {
 
 export type Mood = 'normal' | 'happy' | 'sad'
 
+/** 連線對打的狀態 */
+export interface OnlineInfo {
+  code: string
+  /** connecting 連線中／open 連上了／retry 斷了在重連 */
+  status: 'connecting' | 'open' | 'retry'
+  /** 房間資料（誰在房間、誰是房主、設定） */
+  room: Extract<ServerMsg, { t: 'room' }> | null
+  /** 現在等真人動作的話，這台電腦的時間到哪一刻截止 */
+  deadline: number | null
+  /** 這一局結束後已經按「下一局」的座位 */
+  ready: number[]
+}
+
 /** 開打前的確認畫面：選難度、提醒會蓋掉沒打完的那場 */
 export type Prematch = { stage: number; daily?: string } | null
 
@@ -93,7 +108,11 @@ export interface MatchRewards {
 }
 
 interface UI {
-  screen: 'home' | 'match'
+  screen: 'home' | 'match' | 'room'
+  /** 連線對打中（在房間裡或打牌中） */
+  online: OnlineInfo | null
+  /** 開房／加入的畫面：true 或預先填好的房號 */
+  onlineSheet: boolean | string
   match: M.MatchState | null
   progress: Progress
   settings: Settings
@@ -134,6 +153,15 @@ interface UI {
   /** 引導局：看過的提示 */
   guideSeen: string[]
 
+  setOnlineSheet(v: boolean | string): void
+  /** 開一個新房間（你是房主） */
+  createRoom(): void
+  joinRoom(code: string): void
+  leaveRoom(): void
+  /** 房間裡的指令：改設定、開打、再來一場 */
+  roomSend(msg: ClientMsg): void
+  /** 打開網頁時：從邀請連結、或上次沒離開的房間連回去 */
+  bootOnline(): void
   openStage(p: Prematch): void
   startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean }): void
   resume(): void
@@ -236,10 +264,14 @@ export function lookFor(p: Progress, id: string): Look {
 let bubbleKey = 1
 let tauntReady = 0
 
-/** 這個座位用哪個聲音：你是 me-f／me-m，對手是角色 id */
+/** 這個座位用哪個聲音：你是 me-f／me-m，連線的朋友照他選的，電腦是角色 id */
 function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string {
-  return seat === 0 ? `me-${my}` : m.chars[seat]
+  if (seat === 0) return `me-${my}`
+  const p = m.players?.[seat]
+  return p?.human ? `me-${p.voice ?? 'f'}` : m.chars[seat]
 }
+
+let conn: RoomConn | null = null
 
 function preloadFor(m: M.MatchState, my: Settings['myVoice']) {
   preloadVoices([0, 1, 2, 3].map((s) => voiceOf(m, s, my)))
@@ -343,9 +375,96 @@ export const useUI = create<UI>((set, get) => {
 
   const newHandState = { notes: [] as ReviewNote[], review: [] as ReviewNote[], heardTing: [false, false, false, false] }
 
+  // ---------- 連線對打 ----------
+
+  /** 你的一步送給房間；畫面等伺服器回傳新的牌局再更新 */
+  const move = (mv: M.Move) => {
+    conn?.send({ t: 'move', move: mv })
+    set({ sel: null, mode: null })
+  }
+
+  const connectRoom = (code: string, create: boolean) => {
+    conn?.close()
+    const { settings } = get()
+    let sentRules = false
+    conn = new RoomConn({
+      code,
+      create,
+      name: settings.name.trim() || '玩家',
+      voice: settings.myVoice,
+      onStatus: (status, why) => {
+        if (status === 'closed') {
+          conn = null
+          set({ online: null, screen: 'home', match: null, onlineSheet: false })
+          playMusic('home')
+          if (why) get().showToast(why)
+          return
+        }
+        const o = get().online
+        if (o) set({ online: { ...o, status } })
+      },
+      onMessage: (msg) => {
+        onServer(msg)
+        // 開房的人：把自己的牌桌規則帶進房間
+        if (create && !sentRules && msg.t === 'room' && msg.players[msg.you]?.host) {
+          sentRules = true
+          conn?.send({ t: 'settings', settings: { rules: settings.rules, turnTime: settings.turnTime } satisfies Partial<RoomSettings> })
+        }
+      },
+    })
+    set({ online: { code, status: 'connecting', room: null, deadline: null, ready: [] }, onlineSheet: false, screen: 'room', match: null, menu: false })
+    playMusic('home')
+  }
+
+  const onServer = (msg: ServerMsg) => {
+    const o = get().online
+    if (!o) return
+    if (msg.t === 'room') {
+      set({ online: { ...o, room: msg } })
+      // 回到房間（打完一場，房主按了再來一場）
+      if (msg.phase === 'lobby' && get().screen === 'match') set({ screen: 'room', match: null })
+      return
+    }
+    if (msg.t === 'taunt') {
+      const m = get().match
+      const t = TAUNTS.find((x) => x.id === msg.id)
+      if (!m || !t) return
+      speak(voiceOf(m, msg.seat, get().settings.myVoice), `taunt.${msg.id}`)
+      set({ bubbles: { ...get().bubbles, [msg.seat]: { text: t.text, key: bubbleKey++ } } })
+      const k = bubbleKey - 1
+      window.setTimeout(() => {
+        const b = get().bubbles[msg.seat]
+        if (b && b.key === k) set({ bubbles: { ...get().bubbles, [msg.seat]: undefined } })
+      }, 2400)
+      return
+    }
+    if (msg.t === 'error') {
+      get().showToast(msg.msg)
+      sfx.error()
+      return
+    }
+    // 新的牌局畫面
+    const prev = get().match
+    const m = msg.m
+    const deadline = msg.timeLeft === null ? null : Date.now() + msg.timeLeft
+    const fresh = !prev || !prev.online || m.handNo < prev.handNo || (prev.phase === 'end' && m.phase !== 'end')
+    const extra: Partial<UI> = {}
+    if (fresh) {
+      // 新的一場，或重新整理後連回來：之前的事件不重播
+      Object.assign(extra, { bubbles: {}, moods: {}, callout: null, seenEvent: prev ? 0 : m.hand.eventN, seenHand: m.handNo, sel: null, mode: null, ...newHandState })
+      preloadFor(m, get().settings.myVoice)
+      playMusic(moodFor(m.stage))
+    } else if (m.handNo !== prev.handNo) Object.assign(extra, { bubbles: {}, moods: {}, callout: null, ...newHandState })
+    set({ match: m, screen: 'match', online: { ...o, deadline, ready: msg.ready }, ...extra })
+    get().processEvents()
+    if (prev?.phase === 'play' && m.phase === 'handEnd' && prev.handNo === m.handNo) set({ review: pickNotes(get().notes, m) })
+  }
+
   return {
     screen: 'home',
     match: null,
+    online: null,
+    onlineSheet: false,
     progress: P.ensureDaily(P.migrate(load<Progress>(PROGRESS_KEY) ?? {})),
     settings: settings0,
     sel: null,
@@ -371,6 +490,34 @@ export const useUI = create<UI>((set, get) => {
     ...newHandState,
     guideSeen: [],
 
+    setOnlineSheet(v) {
+      set({ onlineSheet: v })
+    },
+    createRoom() {
+      connectRoom(newCode(), true)
+    },
+    joinRoom(code) {
+      connectRoom(code.trim().toUpperCase(), false)
+    },
+    leaveRoom() {
+      conn?.leave()
+      conn = null
+      set({ online: null, screen: 'home', match: null, menu: false, mode: null })
+      playMusic('home')
+    },
+    roomSend(msg) {
+      conn?.send(msg)
+    },
+    bootOnline() {
+      const fromUrl = roomFromUrl()
+      clearRoomFromUrl()
+      const code = fromUrl ?? savedRoom()
+      if (!code || get().online) return
+      // 還沒有名字：先開房間畫面填名字
+      if (!get().settings.name.trim()) return set({ onlineSheet: code, nameSheet: false })
+      if (fromUrl) set({ nameSheet: false })
+      get().joinRoom(code)
+    },
     openStage(prematch) {
       set({ prematch })
     },
@@ -450,6 +597,12 @@ export const useUI = create<UI>((set, get) => {
       }
       if (sel === id) {
         note(match, id)
+        if (match.online) {
+          move(['d', id])
+          sfx.discard()
+          buzz(10)
+          return
+        }
         if (apply((m) => M.discard(m, id), {}, ['d', id])) {
           sfx.discard()
           buzz(10)
@@ -461,6 +614,12 @@ export const useUI = create<UI>((set, get) => {
       set({ sel: id })
     },
     claim(d) {
+      if (get().match?.online) {
+        set({ chiOpen: false })
+        move(['c', d])
+        if (d.type === 'pass') sfx.click()
+        return
+      }
       const next = apply((m) => M.claim(m, d), { chiOpen: false }, ['c', d])
       if (next && d.type === 'pass') {
         sfx.click()
@@ -469,14 +628,17 @@ export const useUI = create<UI>((set, get) => {
       }
     },
     tsumo() {
+      if (get().match?.online) return move(['t'])
       apply((m) => M.tsumo(m), {}, ['t'])
     },
     kong(kind) {
+      if (get().match?.online) return move(['k', kind])
       apply((m) => M.kong(m, kind), {}, ['k', kind])
     },
     skill(id) {
       const { mode, match } = get()
       if (!match) return
+      if (match.online) return get().showToast('連線對打不能用絕招')
       if (id === 'swap') {
         if (mode === 'swap') return set({ mode: null })
         if (!M.waitingForYou(match) || match.hand.phase !== 'discard') return get().showToast('輪到你打牌時才能換')
@@ -509,9 +671,14 @@ export const useUI = create<UI>((set, get) => {
       set({ chiOpen: on })
     },
     step() {
+      if (get().match?.online) return
       apply((m) => M.step(m))
     },
     nextHand() {
+      if (get().match?.online) {
+        conn?.send({ t: 'next' })
+        return
+      }
       apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null, ...newHandState }, ['n'])
       sfx.shuffle()
     },
@@ -524,7 +691,8 @@ export const useUI = create<UI>((set, get) => {
     },
     autoPlay() {
       const m = get().match
-      if (!m || !M.waitingForYou(m)) return
+      // 連線時由伺服器代打
+      if (!m || m.online || !M.waitingForYou(m)) return
       const h = m.hand
       set({ mode: null, chiOpen: false, sel: null })
       if (h.phase === 'claim') {
@@ -600,7 +768,8 @@ export const useUI = create<UI>((set, get) => {
         const b = get().bubbles[0]
         if (b && b.key === k) set({ bubbles: { ...get().bubbles, 0: undefined } })
       }, 2200)
-      // 隨便一個對手回嘴
+      if (m.online) conn?.send({ t: 'taunt', id })
+      // 隨便一個電腦對手回嘴（連線時朋友會自己回）
       window.setTimeout(() => get().say(1 + Math.floor(Math.random() * 3), 'reply'), 1100)
     },
     buyBack(id) {
@@ -640,8 +809,8 @@ export const useUI = create<UI>((set, get) => {
 
     say(seat, key, chance = 1) {
       const m = get().match
-      if (!m || seat === 0 || Math.random() > chance) return false
-      const ls = CHARACTERS[m.chars[seat]].lines[key]
+      if (!m || seat === 0 || m.players?.[seat]?.human || Math.random() > chance) return false
+      const ls = CHARACTERS[m.chars[seat]]?.lines[key]
       if (!ls?.length) return false
       const i = Math.floor(Math.random() * ls.length)
       const text = ls[i]

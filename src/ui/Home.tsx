@@ -71,6 +71,9 @@ export function Home() {
             每日挑戰
             <small>{doneToday ? `今天第 ${doneToday.place} 名` : STAGES[daily.stage].name}</small>
           </button>
+          <button type="button" className="btn online-btn" onClick={() => useUI.getState().setOnlineSheet(true)}>
+            跟朋友打
+          </button>
           <button type="button" className="btn" onClick={() => setLearn('tips')}>
             教學
           </button>

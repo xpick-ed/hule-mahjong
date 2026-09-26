@@ -4,20 +4,19 @@ import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
 import { share, shareText } from '../daily'
 import * as P from '../progress'
-import { lookFor, myName, TURN_TIMES, useUI } from '../store'
+import { TURN_TIMES, useUI } from '../store'
 import { LEVEL_UNLOCKS } from '../stories'
-import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
 import { sfx } from '../sfx'
 import { cls, CountUp, fmt, Tile } from './bits'
 import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
 import { DailyBoard } from './DailyBoard'
+import { isFriend, SeatFace, seatName } from './seat'
 
-const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? myName() : CHARACTERS[m.chars[seat]].name)
+const nameOf = seatName
 
 export function Face({ m, seat, size = 34 }: { m: M.MatchState; seat: number; size?: number }) {
-  const progress = useUI((s) => s.progress)
-  return seat === 0 ? <MeBadge size={size} /> : <Avatar look={lookFor(progress, m.chars[seat])} size={size} />
+  return <SeatFace m={m} seat={seat} size={size} />
 }
 
 /** 等胡牌的蓋章播完再出現 */
@@ -43,6 +42,8 @@ const tick = (i: number) => sfx.tick(i)
 
 function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   const next = useUI((s) => s.nextHand)
+  // 連線：你按過了，等其他人
+  const waiting = useUI((s) => !!s.online?.ready.includes(0))
   const review = useUI((s) => s.review)
   const [showReview, setShowReview] = useState(false)
   const wins = M.winsOf(r)
@@ -167,9 +168,15 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
           ) : (
             myDiscards >= 4 && <span className="coach-ok">教練：這一局打得很穩</span>
           )}
-          <button type="button" className="btn primary" onClick={next}>
-            {last || m.points.some((p) => p < 0) ? '看最後結果' : '下一局'}
-          </button>
+          {m.online && waiting ? (
+            <button type="button" className="btn primary" disabled>
+              等其他人按下一局
+            </button>
+          ) : (
+            <button type="button" className="btn primary" onClick={next}>
+              {last || m.points.some((p) => p < 0) ? '看最後結果' : '下一局'}
+            </button>
+          )}
         </div>
       </div>
     </div>
@@ -224,6 +231,8 @@ function ReviewPanel({ onBack }: { onBack: () => void }) {
 export function MatchEnd({ m }: { m: M.MatchState }) {
   const start = useUI((s) => s.startStage)
   const toHome = useUI((s) => s.toHome)
+  const { leaveRoom, roomSend } = useUI.getState()
+  const isHost = useUI((s) => !!s.online?.room?.players[s.online.room.you]?.host)
   const order = M.ranking(m)
   const first = order[0] === 0
   const q = finalWord(m)
@@ -241,7 +250,11 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     if (r === 'copied') showToast('戰績複製好了，貼給朋友吧')
     else if (r === 'failed') showToast('這個瀏覽器不能分享')
   }
-  const title = m.daily
+  const title = m.online
+    ? first
+      ? '你是這一桌的贏家！'
+      : `第 ${place} 名`
+    : m.daily
     ? `每日挑戰 ${m.daily.slice(5).replace('-', '/')}：第 ${place} 名`
     : m.tutorial
       ? `引導局完成！第 ${place} 名`
@@ -250,7 +263,9 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
           ? `過關！${stage.name}拿第一`
           : '你就是新的雀神！'
         : `第 ${place} 名`
-  const sub = m.daily
+  const sub = m.online
+    ? `跟朋友連線・${stage.name}・${m.handNo} 局`
+    : m.daily
     ? `${stage.name}・今天大家的牌都一樣`
     : m.tutorial
       ? `你已經會打了！之後每一步會計時、對手也不再放水${first && hasNext ? `。下一關：${STAGES[m.stage + 1].name}` : ''}`
@@ -284,6 +299,20 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
           <div className="final-side">
             {m.daily && <DailyBoard m={m} />}
             <Rewards />
+            {m.online ? (
+              <div className="final-actions">
+                <button type="button" className="btn" onClick={leaveRoom}>
+                  離開房間
+                </button>
+                {isHost ? (
+                  <button type="button" className="btn primary" onClick={() => roomSend({ t: 'again' })}>
+                    再來一場
+                  </button>
+                ) : (
+                  <span className="wait-host">等房主決定要不要再來一場</span>
+                )}
+              </div>
+            ) : (
             <div className="final-actions">
               <button type="button" className="btn" onClick={toHome}>
                 回首頁
@@ -301,6 +330,7 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
                 </button>
               )}
             </div>
+            )}
           </div>
         </div>
       </div>
@@ -377,9 +407,9 @@ function Affinity({ m }: { m: M.MatchState }) {
 function finalWord(m: M.MatchState): { seat: number; key: 'matchWin' | 'matchLose'; text: string } | null {
   const order = M.ranking(m)
   const seat = order[0] === 0 ? order[order.length - 1] : order[0]
-  if (seat === 0) return null
+  if (seat === 0 || isFriend(m, seat)) return null
   const key = order[0] === 0 ? 'matchLose' : 'matchWin'
-  const text = CHARACTERS[m.chars[seat]].lines[key]?.[0]
+  const text = CHARACTERS[m.chars[seat]]?.lines[key]?.[0]
   return text ? { seat, key, text } : null
 }
 
@@ -458,6 +488,7 @@ export function Menu() {
   const screen = useUI((s) => s.screen)
   const inMatch = useUI((s) => !!s.match && s.screen === 'match')
   const { setMenu, setSettings, setLearn, toHome, setSkin } = useUI.getState()
+  const inRoom = useUI((s) => !!s.online)
   const [tab, setTab] = useState<MenuTab>('sound')
   const rules = settings.rules
   const setRules = (r: Partial<typeof rules>) => setSettings({ rules: { ...rules, ...r } })
@@ -609,9 +640,14 @@ export function Menu() {
         <button type="button" className="btn" onClick={() => setLearn('tips')}>
           胡牌技巧
         </button>
-        {screen === 'match' && (
+        {screen === 'match' && !inRoom && (
           <button type="button" className="btn" onClick={toHome}>
             回首頁（保留這一場）
+          </button>
+        )}
+        {inRoom && (
+          <button type="button" className="btn" onClick={() => useUI.getState().leaveRoom()}>
+            離開房間（電腦幫你打完）
           </button>
         )}
         <button type="button" className="btn primary" onClick={() => setMenu(false)}>

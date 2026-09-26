@@ -79,6 +79,27 @@ describe('每個人看到的牌局', () => {
     // 原本那份沒被改到
     expect(m.hand.seats[0].hand.some((t) => t.kind !== 'x')).toBe(true)
   })
+  it('每個人看到的胡牌的人、放槍的人、輸贏都對得上', () => {
+    for (const seed of ['w1', 'w2', 'w3', 'w4', 'w5', 'w6']) {
+      let m = M.newMatch(`win-${seed}`, 0, { humans: HUMANS })
+      const rng = { rng: 9 }
+      for (let g = 0; g < 5000 && m.phase === 'play'; g++) {
+        const p = M.humansPending(m)
+        m = p.length ? M.act(m, p[0], M.autoMove(m, p[0], rng)!) : M.step(m)
+      }
+      const w = m.result?.win
+      if (!w) continue
+      for (const seat of [0, 1, 2, 3]) {
+        const v = viewFor(m, seat, players)
+        const vw = v.result!.win!
+        expect(vw.seat).toBe((w.seat - seat + 4) % 4)
+        expect(v.hand.win!.seat).toBe(vw.seat)
+        expect(v.result!.deltas[vw.seat]).toBeGreaterThan(0)
+        if (w.from !== null) expect(vw.from).toBe((w.from - seat + 4) % 4)
+        expect(v.players![vw.seat].name).toBe(players[w.seat].name)
+      }
+    }
+  })
   it('一局結束時手牌全部亮出來', () => {
     let m = M.newMatch('reveal', 0, { humans: HUMANS })
     const rng = { rng: 5 }

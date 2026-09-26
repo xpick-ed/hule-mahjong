@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react'
-import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import type { WinScore } from '../engine/scoring'
 import { sfx } from '../sfx'
-import { lookFor, myName, useUI } from '../store'
-import { Avatar, MeBadge } from './Avatar'
+import { SeatFace, seatName } from './seat'
 
 /** 大牌：有 4 台以上的牌型（碰碰胡、混一色、小三元……）就算，回傳要秀的名字 */
 export function bigHand(score: WinScore): { title: string; tai: number } | null {
@@ -21,7 +19,6 @@ export function CutIn({ m }: { m: M.MatchState }) {
   // 一炮多響時你有胡就演你的
   const w = M.winsOf(m.result).find((x) => x.seat === 0) ?? m.result?.win
   const big = w ? bigHand(w.score) : null
-  const progress = useUI((s) => s.progress)
   const [on, setOn] = useState(!!big)
   useEffect(() => {
     if (!big) return
@@ -35,12 +32,14 @@ export function CutIn({ m }: { m: M.MatchState }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   if (!on || !w || !big) return null
-  const name = w.seat === 0 ? myName() : CHARACTERS[m.chars[w.seat]].name
+  const name = seatName(m, w.seat)
   return (
     <div className="cutin" role="status" aria-label={`${name}胡了${big.title}`}>
       <div className="cutin-rays" aria-hidden="true" />
       <div className="cutin-band">
-        <span className="cutin-face">{w.seat === 0 ? <MeBadge size={120} /> : <Avatar look={lookFor(progress, m.chars[w.seat])} mood="happy" size={120} />}</span>
+        <span className="cutin-face">
+          <SeatFace m={m} seat={w.seat} size={120} mood="happy" />
+        </span>
         <div className="cutin-text">
           <span className="cutin-who">
             {name}

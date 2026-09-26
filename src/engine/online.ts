@@ -31,11 +31,6 @@ function rotateHand(h: HandState, k: number) {
   h.peekedBy = ra(h.peekedBy, k)
   h.passedWin = ra(h.passedWin, k)
   if (h.robbing) h.robbing.seat = rs(h.robbing.seat, k)
-  for (const w of [h.win, ...(h.also ?? [])]) {
-    if (!w) continue
-    w.seat = rs(w.seat, k)
-    w.from = rs(w.from, k)
-  }
   for (const { e } of h.events) {
     const x = e as { seat?: number; from?: number | null; target?: number }
     if ('seat' in x) x.seat = rs(x.seat, k)
@@ -56,13 +51,15 @@ export function rotateMatch(src: MatchState, k: number): MatchState {
   m.peek = rs(m.peek, k)
   if (m.aiSkills) m.aiSkills = Object.fromEntries(Object.entries(m.aiSkills).map(([s, n]) => [rs(Number(s), k), n]))
   rotateHand(m.hand, k)
+  // 胡牌資料在 hand.win 和 result.win 是同一份（複製時也還是同一份）：每一份只能轉一次
+  const wins = new Set([m.hand.win, ...(m.hand.also ?? []), m.result?.win, ...(m.result?.also ?? [])])
+  for (const w of wins) {
+    if (!w) continue
+    w.seat = rs(w.seat, k)
+    w.from = rs(w.from, k)
+  }
   if (m.result) {
     const r = m.result
-    for (const w of [r.win, ...(r.also ?? [])]) {
-      if (!w) continue
-      w.seat = rs(w.seat, k)
-      w.from = rs(w.from, k)
-    }
     for (const p of r.payments) {
       p.seat = rs(p.seat, k)
       if (p.to !== undefined) p.to = rs(p.to, k)

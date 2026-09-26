@@ -131,7 +131,7 @@ export function judgeDiscard(m: MatchState, tileId: number, turn: number, heardT
     const dm = dangerMap(h, th)
     const safe = ev.filter((e) => dm.get(e.kind) === 'safe').sort((a, b) => a.sh - b.sh || b.uke - a.uke)[0]
     if (dm.get(kind) === 'danger' && safe) {
-      const who = th.map((s) => CHARACTERS[m.chars[s]].name).join('、')
+      const who = th.map((s) => m.players?.[s]?.name ?? CHARACTERS[m.chars[s]]?.name ?? '對手').join('、')
       return {
         ...base,
         better: safe.kind,
