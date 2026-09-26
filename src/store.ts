@@ -57,6 +57,8 @@ export interface Settings {
   rules: Rules
   /** 上次選的難度 */
   difficulty: M.Difficulty
+  /** 存檔版本 */
+  v?: number
 }
 
 export const TURN_TIMES = [10, 15, 20, 30, 45, 60] as const
@@ -162,10 +164,15 @@ interface UI {
   processEvents(): void
 }
 
+/** 設定存檔的版本：2 = 危險牌提示改成預設關 */
+const SETTINGS_VERSION = 2
+
 function loadSettings(): Settings {
   const raw = load<Partial<Settings> & { sound?: boolean; voice?: boolean }>(SETTINGS_KEY) ?? {}
   // 舊版是「音效／配音 開關」，換成音量
   const { sound, voice, ...rest } = raw
+  // 舊存檔裡的危險牌提示是當時的預設值（開），不是自己選的：改回新的預設（關）
+  if ((rest.v ?? 1) < 2) delete rest.danger
   return {
     sfxVol: sound === false ? 0 : 0.8,
     voiceVol: voice === false ? 0 : 0.9,
@@ -173,11 +180,12 @@ function loadSettings(): Settings {
     myVoice: 'f',
     fast: false,
     hints: true,
-    danger: true,
+    danger: false,
     turnTime: 20,
     difficulty: 'normal',
     ...rest,
     rules: { ...DEFAULT_RULES, ...(rest.rules ?? {}) },
+    v: SETTINGS_VERSION,
   }
 }
 
