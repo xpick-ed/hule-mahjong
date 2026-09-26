@@ -117,6 +117,8 @@ export interface RoomSettings {
   rules: Rules
   /** 每一步幾秒 */
   turnTime: number
+  /** 電腦出牌快一點 */
+  fast?: boolean
 }
 
 export interface LobbyPlayer {

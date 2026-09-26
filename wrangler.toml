@@ -20,3 +20,12 @@ binding = "ASSETS"
 binding = "DB"
 database_name = "hule"
 database_id = "c771b91b-d73b-4f2e-8ab4-ef56024be1c0"
+
+# 連線對打：一個房號一個 Durable Object（免費方案要用 SQLite 版）
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

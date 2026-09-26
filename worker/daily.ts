@@ -23,6 +23,8 @@ export interface Env {
   DB?: { prepare(sql: string): D1Stmt }
   VERIFY_REPLAY?: string
   ASSETS: { fetch(req: Request): Promise<Response> }
+  /** 連線對打的房間（Durable Object） */
+  ROOM?: { idFromName(name: string): unknown; get(id: unknown): { fetch(req: Request): Promise<Response> } }
 }
 interface Ctx {
   request: Request

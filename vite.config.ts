@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react()],
   base: './',
   // 開發時 /api 轉給本機的 Worker（排行榜）：npm run api（npx wrangler dev --port 8788）
-  server: { host: true, proxy: { '/api': 'http://localhost:8788' } },
+  server: { host: true, proxy: { '/api': { target: 'http://localhost:8788', ws: true } } },
 })
