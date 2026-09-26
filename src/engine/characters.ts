@@ -349,6 +349,33 @@ export const TAUNTS: readonly { id: string; text: string }[] = [
   { id: 'ting', text: '你是不是聽了？' },
 ]
 
+/**
+ * 角色之間鬥嘴：a 先講，b 回一句。同一桌的兩個電腦都在的時候，偶爾會冒出來。
+ * 配音的 id 是 <角色>.banter.<第幾組>
+ */
+export const BANTER: readonly { a: string; b: string; say: string; reply: string }[] = [
+  // 巷口麻將：大舅媽、鄒家雀神、小姨丈
+  { a: 'meiling', b: 'kai', say: '小姨丈，你那個機率算好了沒啦？', reply: '大舅媽，還差兩個變數……' },
+  { a: 'kai', b: 'lin', say: '雀神，這張您覺得危險嗎？', reply: '自己的牌，自己看。' },
+  { a: 'lin', b: 'meiling', say: '大舅媽，碰太多，門清就沒了。', reply: '哎唷，碰了才開心嘛！' },
+  { a: 'meiling', b: 'lin', say: '雀神今天怎麼都不胡啊？', reply: '急什麼，好牌在後頭。' },
+  // 公司尾牙：王經理、小美、阿傑
+  { a: 'jie', b: 'wang', say: '經理，這把讓我一下啦！', reply: '年終考績我可沒讓你喔。' },
+  { a: 'wang', b: 'xiaomei', say: '小美，放輕鬆，今天不談公事。', reply: '好的經理……那我可以胡您嗎？' },
+  { a: 'xiaomei', b: 'jie', say: '阿傑哥，你打好快喔！', reply: '業績就是這樣衝出來的！' },
+  { a: 'jie', b: 'xiaomei', say: '小美，新手運也要有個限度吧！', reply: '我也不知道為什麼會這樣～' },
+  // 過年回老家：阿嬤、二舅、表妹
+  { a: 'erjiu', b: 'ama', say: '媽，今年紅包我一定要贏回來！', reply: '你每年都這樣講。' },
+  { a: 'ama', b: 'biaomei', say: '乖孫，手機放下，專心打。', reply: '好啦阿嬤，最後一則。' },
+  { a: 'biaomei', b: 'erjiu', say: '二舅，你是不是又聽了？', reply: '小孩子不要亂猜！' },
+  { a: 'erjiu', b: 'biaomei', say: '表妹，上大學有沒有學麻將？', reply: '有啊，機率課。' },
+  // 雀神挑戰：雀神、龍哥、Coco
+  { a: 'coco', b: 'queshen', say: '雀神大大，可以跟聊天室打聲招呼嗎？', reply: '……專心。' },
+  { a: 'longge', b: 'coco', say: '小姐，在我館子裡直播要先打招呼。', reply: '龍哥好！聊天室說你很帥～' },
+  { a: 'queshen', b: 'longge', say: '龍哥，你的牌，變了。', reply: '哼，看得出來算你厲害。' },
+  { a: 'coco', b: 'longge', say: '龍哥，你剛剛是不是換牌？', reply: '在我的館子，沒有這種事。' },
+]
+
 /** 快速表情：不唸出來，只跳泡泡（連線時朋友也看得到） */
 export const EMOTES: readonly { id: string; emoji: string; text: string }[] = [
   { id: 'wow', emoji: '😱', text: '好險！' },

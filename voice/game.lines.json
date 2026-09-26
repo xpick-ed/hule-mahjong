@@ -3060,5 +3060,133 @@
  "me-m.taunt.ting": {
   "who": "me-m",
   "text": "你是不是聽了？"
+ },
+ "meiling.banter.0": {
+  "who": "meiling",
+  "text": "小姨丈，你那個機率算好了沒啦？"
+ },
+ "kai.banter.0": {
+  "who": "kai",
+  "text": "大舅媽，還差兩個變數……"
+ },
+ "kai.banter.1": {
+  "who": "kai",
+  "text": "雀神，這張您覺得危險嗎？"
+ },
+ "lin.banter.1": {
+  "who": "lin",
+  "text": "自己的牌，自己看。"
+ },
+ "lin.banter.2": {
+  "who": "lin",
+  "text": "大舅媽，碰太多，門清就沒了。"
+ },
+ "meiling.banter.2": {
+  "who": "meiling",
+  "text": "哎唷，碰了才開心嘛！"
+ },
+ "meiling.banter.3": {
+  "who": "meiling",
+  "text": "雀神今天怎麼都不胡啊？"
+ },
+ "lin.banter.3": {
+  "who": "lin",
+  "text": "急什麼，好牌在後頭。"
+ },
+ "jie.banter.4": {
+  "who": "jie",
+  "text": "經理，這把讓我一下啦！"
+ },
+ "wang.banter.4": {
+  "who": "wang",
+  "text": "年終考績我可沒讓你喔。"
+ },
+ "wang.banter.5": {
+  "who": "wang",
+  "text": "小美，放輕鬆，今天不談公事。"
+ },
+ "xiaomei.banter.5": {
+  "who": "xiaomei",
+  "text": "好的經理……那我可以胡您嗎？"
+ },
+ "xiaomei.banter.6": {
+  "who": "xiaomei",
+  "text": "阿傑哥，你打好快喔！"
+ },
+ "jie.banter.6": {
+  "who": "jie",
+  "text": "業績就是這樣衝出來的！"
+ },
+ "jie.banter.7": {
+  "who": "jie",
+  "text": "小美，新手運也要有個限度吧！"
+ },
+ "xiaomei.banter.7": {
+  "who": "xiaomei",
+  "text": "我也不知道為什麼會這樣～"
+ },
+ "erjiu.banter.8": {
+  "who": "erjiu",
+  "text": "媽，今年紅包我一定要贏回來！"
+ },
+ "ama.banter.8": {
+  "who": "ama",
+  "text": "你每年都這樣講。"
+ },
+ "ama.banter.9": {
+  "who": "ama",
+  "text": "乖孫，手機放下，專心打。"
+ },
+ "biaomei.banter.9": {
+  "who": "biaomei",
+  "text": "好啦阿嬤，最後一則。"
+ },
+ "biaomei.banter.10": {
+  "who": "biaomei",
+  "text": "二舅，你是不是又聽了？"
+ },
+ "erjiu.banter.10": {
+  "who": "erjiu",
+  "text": "小孩子不要亂猜！"
+ },
+ "erjiu.banter.11": {
+  "who": "erjiu",
+  "text": "表妹，上大學有沒有學麻將？"
+ },
+ "biaomei.banter.11": {
+  "who": "biaomei",
+  "text": "有啊，機率課。"
+ },
+ "coco.banter.12": {
+  "who": "coco",
+  "text": "雀神大大，可以跟聊天室打聲招呼嗎？"
+ },
+ "queshen.banter.12": {
+  "who": "queshen",
+  "text": "……專心。"
+ },
+ "longge.banter.13": {
+  "who": "longge",
+  "text": "小姐，在我館子裡直播要先打招呼。"
+ },
+ "coco.banter.13": {
+  "who": "coco",
+  "text": "龍哥好！聊天室說你很帥～"
+ },
+ "queshen.banter.14": {
+  "who": "queshen",
+  "text": "龍哥，你的牌，變了。"
+ },
+ "longge.banter.14": {
+  "who": "longge",
+  "text": "哼，看得出來算你厲害。"
+ },
+ "coco.banter.15": {
+  "who": "coco",
+  "text": "龍哥，你剛剛是不是換牌？"
+ },
+ "longge.banter.15": {
+  "who": "longge",
+  "text": "在我的館子，沒有這種事。"
  }
 }

@@ -7,7 +7,7 @@
 // 台詞 id：<角色>.tile.<牌>、<角色>.call.<chi|pon|kong|hu|tsumo>、<角色>.line.<時機>.<第幾句>
 
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { CHARACTERS, TAUNTS } from '../src/engine/characters'
+import { BANTER, CHARACTERS, TAUNTS } from '../src/engine/characters'
 import { KINDS, tileName } from '../src/engine/tiles'
 
 interface Voice {
@@ -84,6 +84,12 @@ for (const [who, c] of Object.entries(CAST)) {
     })
   }
 }
+
+// 角色鬥嘴：<角色>.banter.<第幾組>（先講的和回嘴的各一句）
+BANTER.forEach((x, n) => {
+  lines[`${x.a}.banter.${n}`] = { who: x.a, text: x.say }
+  lines[`${x.b}.banter.${n}`] = { who: x.b, text: x.reply }
+})
 
 mkdirSync('voice', { recursive: true })
 writeFileSync('voice/cast.json', JSON.stringify(cast, null, 1) + '\n')

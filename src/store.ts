@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { chooseDiscard } from './engine/ai'
-import { CHARACTERS, tauntText, type LineKey, type Look } from './engine/characters'
+import { BANTER, CHARACTERS, tauntText, type LineKey, type Look } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
@@ -269,6 +269,8 @@ export function lookFor(p: Progress, id: string): Look {
 
 let bubbleKey = 1
 let tauntReady = 0
+/** 上一次角色鬥嘴的時間（別太常講） */
+let banterAt = 0
 
 /** 這個座位用哪個聲音：你是 me-f／me-m，連線的朋友照他選的，電腦是角色 id */
 function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string {
@@ -866,6 +868,33 @@ export const useUI = create<UI>((set, get) => {
     },
   }
 
+  /** 兩個電腦角色鬥嘴一下（一局最多講幾次，間隔至少 40 秒） */
+  function banter() {
+    const m = get().match
+    if (!m || m.phase !== 'play' || m.hand.phase === 'over' || Date.now() - banterAt < 40000 || Math.random() > 0.08) return
+    const seatOf = (id: string) => [1, 2, 3].find((s) => m.chars[s] === id && !m.players?.[s]?.human)
+    const options = BANTER.map((x, n) => ({ x, n, sa: seatOf(x.a), sb: seatOf(x.b) })).filter((o) => o.sa !== undefined && o.sb !== undefined)
+    if (!options.length) return
+    const bubbles = get().bubbles
+    const o = options[Math.floor(Math.random() * options.length)]
+    if (bubbles[o.sa!] || bubbles[o.sb!]) return
+    banterAt = Date.now()
+    const show = (seat: number, id: string, text: string) => {
+      speak(id, `banter.${o.n}`)
+      set({ bubbles: { ...get().bubbles, [seat]: { text, key: bubbleKey++ } } })
+      const k = bubbleKey - 1
+      window.setTimeout(() => {
+        const b = get().bubbles[seat]
+        if (b && b.key === k) set({ bubbles: { ...get().bubbles, [seat]: undefined } })
+      }, 2800)
+    }
+    show(o.sa!, o.x.a, o.x.say)
+    window.setTimeout(() => {
+      const now = get().match
+      if (now && now.handNo === m.handNo && now.hand.phase !== 'over') show(o.sb!, o.x.b, o.x.reply)
+    }, 2300)
+  }
+
   function mood(seat: number, md: Mood) {
     set({ moods: { ...get().moods, [seat]: md } })
     window.setTimeout(() => set({ moods: { ...get().moods, [seat]: undefined } }), 3200)
@@ -883,6 +912,7 @@ export const useUI = create<UI>((set, get) => {
       case 'discard':
         if (e.seat !== 0) sfx.discard()
         voice(e.seat, `tile.${e.tile.kind}`)
+        if (e.seat !== 0) window.setTimeout(() => banter(), 1100)
         break
       case 'draw':
         if (e.seat === 0) sfx.draw()
