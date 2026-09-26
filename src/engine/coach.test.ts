@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { evaluate } from './coach'
+import { evaluate, makeWaitPuzzle, waitsOfKinds } from './coach'
 
 const hand = (s: string) => s.split(' ').map((kind, id) => ({ id, kind }))
 
@@ -25,5 +25,26 @@ describe('教練：打哪張最好', () => {
     expect(ev[0].kind).toBe('p6')
     expect(ev[0].uke).toBe(8)
     expect(ev.find((x) => x.kind === 'p3')!.uke).toBe(4)
+  })
+})
+
+describe('聽哪些牌', () => {
+  const w = (s: string) => waitsOfKinds(s.split(' '))
+  it('常見的多面聽', () => {
+    expect(w('m1 m2 m3 m4')).toEqual(['m1', 'm4'])
+    expect(w('p1 p1 p1 p2')).toEqual(['p2', 'p3'])
+    expect(w('p2 p2 p2 p3')).toEqual(['p1', 'p3', 'p4'])
+    expect(w('m5 m5 p7 p7')).toEqual(['m5', 'p7'])
+    expect(w('m3 m4 m5 m6 m7 z1 z1')).toEqual(['m2', 'm5', 'm8'])
+  })
+  it('九蓮寶燈聽一到九', () => {
+    expect(w('m1 m1 m1 m2 m3 m4 m5 m6 m7 m8 m9 m9 m9')).toEqual(['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9'])
+  })
+  it('練習題：同一個種子出一樣的題目，而且真的聽牌', () => {
+    const a = makeWaitPuzzle(42, 10)
+    expect(makeWaitPuzzle(42, 10)).toEqual(a)
+    expect(a.kinds).toHaveLength(10)
+    expect(a.waits.length).toBeGreaterThanOrEqual(2)
+    expect(new Set(a.kinds.map((k) => k[0])).size).toBe(1)
   })
 })

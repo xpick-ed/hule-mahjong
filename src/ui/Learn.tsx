@@ -1,12 +1,13 @@
 // 學習中心：胡牌技巧（課程）、練習題（打哪張最好，用規則引擎評分）、算台規則（每種台附例子）。
 
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
-import { evaluate } from '../engine/coach'
+import { useEffect, useMemo, useState } from 'react'
+import { evaluate, makeWaitPuzzle, neededKinds } from '../engine/coach'
 import { shuffle } from '../engine/rng'
 import { KINDS, sortTiles, tileName, type Tile as T } from '../engine/tiles'
 import { sfx } from '../sfx'
 import { useUI, type LearnTab } from '../store'
 import { cls, Tile } from './bits'
+import { CHAPTERS } from './lessons'
 
 /** 一排牌：「|」隔開的是不同組，hot 裡的牌會框起來 */
 function Tiles({ ks, w = 24, hot = '' }: { ks: string; w?: number; hot?: string }) {
@@ -30,106 +31,33 @@ function Tiles({ ks, w = 24, hot = '' }: { ks: string; w?: number; hot?: string 
 
 // ---------- 胡牌技巧 ----------
 
-interface Example {
-  label: string
-  ks: string
-  hot?: string
-  /** 等哪些牌（顯示在箭頭後面） */
-  waits?: string
-}
-
-interface Lesson {
-  title: string
-  body: ReactNode[]
-  examples: Example[]
-}
-
-const LESSONS: Lesson[] = [
-  {
-    title: '胡牌長什麼樣子',
-    body: [
-      '手上 16 張，摸到（或別人打出）第 17 張時，湊成「5 組面子＋1 對」就胡了。',
-      '面子有兩種：順子（同花色連號，像三四五萬）和刻子（三張一樣）。四張一樣可以開槓，也算一組。',
-    ],
-    examples: [{ label: '5 組面子＋1 對（眼）', ks: 'm1 m2 m3 | p4 p5 p6 | s7 s8 s9 | z5 z5 z5 | m6 m7 m8 | p2 p2' }],
-  },
-  {
-    title: '搭子：還差一張的組合',
-    body: ['差一張就變成面子的兩張牌叫「搭子」。搭子不一樣，能等的牌也不一樣：'],
-    examples: [
-      { label: '兩面（最好）', ks: 'm4 m5', waits: 'm3 m6' },
-      { label: '嵌張', ks: 'p4 p6', waits: 'p5' },
-      { label: '邊張', ks: 's1 s2', waits: 's3' },
-      { label: '對子', ks: 'z1 z1', waits: 'z1' },
-    ],
-  },
-  {
-    title: '先打哪張',
-    body: [
-      '一開始先打連不起來的牌，順序大概是：',
-      '1. 孤零零的字牌（東南西北中發白）。自己的風和中發白可以晚一點打，湊成刻子就有台。',
-      '2. 孤零零的 1 和 9。',
-      '3. 其他跟誰都連不上的牌。搭子和對子先留著。',
-    ],
-    examples: [{ label: '框起來的兩張可以先打', ks: 'm2 m3 | p5 p6 | s4 s4 | z3 | m9 | p1 p2', hot: 'z3 m9' }],
-  },
-  {
-    title: '聽牌要聽「多」的',
-    body: [
-      '差一張就胡叫「聽牌」。可以選的時候，選能等最多張的聽法：兩面（2 種、最多 8 張）比嵌張、邊張、單吊（1 種、最多 4 張）好。',
-      '也要算外面已經出現幾張。遊戲裡的聽牌提示會幫你算「還剩幾張」。',
-    ],
-    examples: [
-      { label: '兩面：聽二、五萬，最多 8 張', ks: 'm3 m4', waits: 'm2 m5' },
-      { label: '嵌張：只聽四筒，最多 4 張', ks: 'p3 p5', waits: 'p4' },
-    ],
-  },
-  {
-    title: '吃、碰要不要',
-    body: [
-      '吃碰會讓你快一點聽牌，但會失去「門清」（1 台），自摸時也拿不到「門清自摸」的 3 台。',
-      '手牌已經很順（差一兩步就聽）時，不一定要吃；牌很亂、想趕快胡時，吃碰很好用。',
-      '中發白和自己的風，碰了就有 1 台，值得碰。',
-    ],
-    examples: [{ label: '碰紅中：一組就 1 台', ks: 'z5 z5 z5' }],
-  },
-  {
-    title: '防守：不要放槍',
-    body: [
-      '有人亮了三組，或牌局後半段有人一直打安全牌，他可能聽牌了。這時候先打：',
-      '・現物：他自己打過的牌，打了不會放他槍。',
-      '・筋：他打過四萬，一萬和七萬就比較安全（他如果是兩面聽，聽不到這兩張）。',
-      '・外面已經看到三張的牌、字牌。最危險的是從沒出現過的中張（三到七）。',
-    ],
-    examples: [{ label: '他打過四萬 → 一萬、七萬比較安全', ks: 'm4 | m1 m7', hot: 'm1 m7' }],
-  },
-  {
-    title: '做大牌',
-    body: [
-      '手上某種花色特別多，就把別的花色打掉，做混一色（4 台）或清一色（8 台）。',
-      '對子很多時做碰碰胡（4 台），看到對子就碰。',
-      '大牌會慢一點，但胡一次抵好幾次小胡。王經理就是這樣打的。',
-    ],
-    examples: [{ label: '清一色：整手只有一種花色', ks: 'p1 p2 p3 | p4 p5 p6 | p7 p7 p7 | p8 p9' }],
-  },
-  {
-    title: '花牌、莊家、連莊',
-    body: [
-      '摸到花牌會自動亮出來再補一張。花牌跟你的位置對上就是「正花」，每張 1 台（東：春梅、南：夏蘭、西：秋竹、北：冬菊）。',
-      '莊家胡牌或付錢都多算 1 台；連莊時每連一次再多 2 台。自己當莊可以衝一點，別人當莊時要更小心放槍。',
-    ],
-    examples: [{ label: '春夏秋冬湊齊：花槓 2 台', ks: 'f1 f2 f3 f4' }],
-  },
-]
-
 function Tips() {
-  const [i, setI] = useState(0)
-  const l = LESSONS[i]
+  const [ci, setCi] = useState(0)
+  const [li, setLi] = useState(0)
+  const ch = CHAPTERS[ci]
+  const l = ch.lessons[li]
+  const go = (c: number, i: number) => {
+    setCi(c)
+    setLi(i)
+  }
+  // 最後一課按「下一課」就進下一章
+  const next = () => (li + 1 < ch.lessons.length ? setLi(li + 1) : ci + 1 < CHAPTERS.length ? go(ci + 1, 0) : undefined)
+  const prev = () => (li > 0 ? setLi(li - 1) : ci > 0 ? go(ci - 1, CHAPTERS[ci - 1].lessons.length - 1) : undefined)
+  const first = ci === 0 && li === 0
+  const last = ci === CHAPTERS.length - 1 && li === ch.lessons.length - 1
   return (
     <div className="lesson">
+      <nav className="chapters" aria-label="章節">
+        {CHAPTERS.map((c, k) => (
+          <button key={c.id} type="button" aria-pressed={k === ci} onClick={() => go(k, 0)}>
+            {c.name}
+            <small>{c.lessons.length}</small>
+          </button>
+        ))}
+      </nav>
       <header className="lesson-head">
         <span className="lesson-no">
-          {i + 1}／{LESSONS.length}
+          {ch.name} {li + 1}／{ch.lessons.length}
         </span>
         <h3>{l.title}</h3>
       </header>
@@ -138,30 +66,35 @@ function Tips() {
           <p key={k}>{p}</p>
         ))}
       </div>
-      <div className="lesson-examples">
-        {l.examples.map((e, k) => (
-          <div key={k} className="example">
-            <Tiles ks={e.ks} hot={e.hot} />
-            {e.waits && (
-              <span className="arrow">
-                → 等 <Tiles ks={e.waits} w={20} />
-              </span>
-            )}
-            <small>{e.label}</small>
-          </div>
-        ))}
-      </div>
+      {l.examples.length > 0 && (
+        <div className="lesson-examples">
+          {l.examples.map((e, k) => {
+            const w = e.waits === true ? neededKinds(e.ks.split(/[\s|]+/).filter(Boolean)).join(' ') : e.waits
+            return (
+              <div key={`${ci}-${li}-${k}`} className="example">
+                <Tiles ks={e.ks} hot={e.hot} />
+                {w && (
+                  <span className="arrow">
+                    → 等 <Tiles ks={w} w={20} />
+                  </span>
+                )}
+                <small>{e.label}</small>
+              </div>
+            )
+          })}
+        </div>
+      )}
       <div className="lesson-nav">
-        <button type="button" className="btn small" disabled={i === 0} onClick={() => setI(i - 1)}>
+        <button type="button" className="btn small" disabled={first} onClick={prev}>
           上一課
         </button>
         <span className="dots" aria-hidden="true">
-          {LESSONS.map((_, k) => (
-            <i key={k} className={cls(k === i && 'on')} />
+          {ch.lessons.map((_, k) => (
+            <i key={k} className={cls(k === li && 'on')} />
           ))}
         </span>
-        <button type="button" className="btn small primary" disabled={i === LESSONS.length - 1} onClick={() => setI(i + 1)}>
-          下一課
+        <button type="button" className="btn small primary" disabled={last} onClick={next}>
+          {li + 1 === ch.lessons.length && !last ? `下一章：${CHAPTERS[ci + 1].name}` : '下一課'}
         </button>
       </div>
     </div>
@@ -189,6 +122,105 @@ function makePuzzle(seed: number): T[] {
 const stepText = (sh: number) => (sh <= 0 ? '聽牌了' : `還差 ${sh} 步聽牌`)
 
 function Practice() {
+  const [mode, setMode] = useState<'discard' | 'waits'>('discard')
+  return (
+    <div className="practice">
+      <div className="seg practice-mode" role="group" aria-label="練習題種類">
+        <button type="button" aria-pressed={mode === 'discard'} onClick={() => setMode('discard')}>
+          打哪張
+        </button>
+        <button type="button" aria-pressed={mode === 'waits'} onClick={() => setMode('waits')}>
+          聽哪些
+        </button>
+      </div>
+      {mode === 'discard' ? <DiscardPractice /> : <WaitPractice />}
+    </div>
+  )
+}
+
+/** 聽哪些：給一組同花色的牌（剛好聽牌），把聽的牌全部選出來 */
+function WaitPractice() {
+  const [size, setSize] = useState<7 | 10 | 13>(7)
+  const [seed, setSeed] = useState(() => (Math.random() * 1e9) | 0)
+  const puzzle = useMemo(() => makeWaitPuzzle(seed, size), [seed, size])
+  const [picked, setPicked] = useState<string[]>([])
+  const [done, setDone] = useState(false)
+  const [score, setScore] = useState({ right: 0, total: 0 })
+  const suit = puzzle.kinds[0][0]
+  const all = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((r) => `${suit}${r}`)
+  const correct = new Set(puzzle.waits)
+  const ok = done && picked.length === correct.size && picked.every((k) => correct.has(k))
+  const toggle = (k: string) => {
+    if (done) return
+    setPicked((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]))
+  }
+  const submit = () => {
+    setDone(true)
+    const good = picked.length === correct.size && picked.every((k) => correct.has(k))
+    setScore((s) => ({ right: s.right + (good ? 1 : 0), total: s.total + 1 }))
+    if (good) sfx.win()
+    else sfx.error()
+  }
+  const nextQ = (sz = size) => {
+    setSize(sz)
+    setSeed((Math.random() * 1e9) | 0)
+    setPicked([])
+    setDone(false)
+  }
+  return (
+    <>
+      <header className="practice-head">
+        <h3>這手聽哪些牌？</h3>
+        <div className="seg size-pick" role="group" aria-label="張數">
+          {([7, 10, 13] as const).map((n) => (
+            <button key={n} type="button" aria-pressed={size === n} onClick={() => nextQ(n)}>
+              {n} 張
+            </button>
+          ))}
+        </div>
+        <span className="score">
+          答對 {score.right}／{score.total}
+        </span>
+      </header>
+      <p className="practice-lead">這些牌剛好聽牌。把會胡的牌全部點起來，再按「對答案」。</p>
+      <div className="practice-hand">
+        {puzzle.kinds.map((k, i) => (
+          <Tile key={i} kind={k} w={28} />
+        ))}
+      </div>
+      <div className="wait-picks" role="group" aria-label="選聽的牌">
+        {all.map((k) => (
+          <Tile
+            key={k}
+            kind={k}
+            w={28}
+            selected={picked.includes(k)}
+            hot={done && correct.has(k)}
+            dim={done && picked.includes(k) && !correct.has(k)}
+            onClick={done ? undefined : () => toggle(k)}
+          />
+        ))}
+      </div>
+      {done ? (
+        <div className={cls('verdict', ok ? 'good' : 'bad')}>
+          <p>
+            <b>{ok ? '全對！' : '差一點！'}</b>聽 {puzzle.waits.map(tileName).join('、')}，共 {puzzle.waits.length} 種。
+            {!ok && picked.some((k) => !correct.has(k)) && ` 灰掉的是不會胡的。`}
+          </p>
+          <button type="button" className="btn small primary" onClick={() => nextQ()}>
+            下一題
+          </button>
+        </div>
+      ) : (
+        <button type="button" className="btn small primary check" disabled={!picked.length} onClick={submit}>
+          對答案
+        </button>
+      )}
+    </>
+  )
+}
+
+function DiscardPractice() {
   const [seed, setSeed] = useState(() => (Math.random() * 1e9) | 0)
   const hand = useMemo(() => makePuzzle(seed), [seed])
   const ev = useMemo(() => evaluate(hand), [hand])
@@ -211,7 +243,7 @@ function Practice() {
   const bests = ev.filter((x) => isBest(x.kind))
 
   return (
-    <div className="practice">
+    <>
       <header className="practice-head">
         <h3>這手該打哪張？</h3>
         <span className="score">
@@ -259,7 +291,7 @@ function Practice() {
       ) : (
         <p className="practice-tip">提示：先找連不起來的孤張。框起來的是正解，選完才會出現。</p>
       )}
-    </div>
+    </>
   )
 }
 

@@ -287,9 +287,10 @@ function useTurnTimer(m: M.MatchState): TurnTimerState {
     let last = performance.now()
     const id = window.setInterval(() => {
       const now = performance.now()
-      const dt = now - last
+      // 切到別的 App、螢幕關掉時不扣時間；回來時也不會一次扣一大段
+      const dt = document.hidden ? 0 : Math.min(250, now - last)
       last = now
-      setLeft((l) => l - dt)
+      if (dt) setLeft((l) => l - dt)
     }, 100)
     return () => window.clearInterval(id)
   }, [key, paused])
