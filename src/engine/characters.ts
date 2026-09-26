@@ -349,6 +349,24 @@ export const TAUNTS: readonly { id: string; text: string }[] = [
   { id: 'ting', text: '你是不是聽了？' },
 ]
 
+/** 快速表情：不唸出來，只跳泡泡（連線時朋友也看得到） */
+export const EMOTES: readonly { id: string; emoji: string; text: string }[] = [
+  { id: 'wow', emoji: '😱', text: '好險！' },
+  { id: 'please', emoji: '🙏', text: '拜託拜託' },
+  { id: 'lol', emoji: '😂', text: '笑死' },
+  { id: 'argh', emoji: '😤', text: '可惡！' },
+  { id: 'tea', emoji: '🍵', text: '慢慢來' },
+  { id: 'gg', emoji: '👏', text: '打得好' },
+]
+
+/** 嗆聲或表情的泡泡文字；沒有這個 id 就是 null */
+export function tauntText(id: string): { text: string; voiced: boolean } | null {
+  const t = TAUNTS.find((x) => x.id === id)
+  if (t) return { text: t.text, voiced: true }
+  const e = EMOTES.find((x) => x.id === id)
+  return e ? { text: `${e.emoji} ${e.text}`, voiced: false } : null
+}
+
 export function line(ch: Character, key: LineKey, r: number): string | null {
   const ls = ch.lines[key]
   if (!ls || !ls.length) return null

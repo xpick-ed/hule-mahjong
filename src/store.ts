@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { chooseDiscard } from './engine/ai'
-import { CHARACTERS, TAUNTS, type LineKey, type Look } from './engine/characters'
+import { CHARACTERS, tauntText, type LineKey, type Look } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
@@ -444,9 +444,9 @@ export const useUI = create<UI>((set, get) => {
     }
     if (msg.t === 'taunt') {
       const m = get().match
-      const t = TAUNTS.find((x) => x.id === msg.id)
+      const t = tauntText(msg.id)
       if (!m || !t) return
-      speak(voiceOf(m, msg.seat, get().settings.myVoice), `taunt.${msg.id}`)
+      if (t.voiced) speak(voiceOf(m, msg.seat, get().settings.myVoice), `taunt.${msg.id}`)
       set({ bubbles: { ...get().bubbles, [msg.seat]: { text: t.text, key: bubbleKey++ } } })
       const k = bubbleKey - 1
       window.setTimeout(() => {
@@ -782,10 +782,10 @@ export const useUI = create<UI>((set, get) => {
     },
     taunt(id) {
       const m = get().match
-      const t = TAUNTS.find((x) => x.id === id)
+      const t = tauntText(id)
       if (!m || !t || Date.now() < tauntReady) return
-      tauntReady = Date.now() + 4000
-      speak(`me-${get().settings.myVoice}`, `taunt.${id}`)
+      tauntReady = Date.now() + (t.voiced ? 4000 : 2500)
+      if (t.voiced) speak(`me-${get().settings.myVoice}`, `taunt.${id}`)
       set({ bubbles: { ...get().bubbles, 0: { text: t.text, key: bubbleKey++ } } })
       const k = bubbleKey - 1
       window.setTimeout(() => {

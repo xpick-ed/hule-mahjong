@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { visible } from '../engine/ai'
 import { discardShanten, kindOf, shanten, toCounts, waits } from '../engine/analysis'
 import { evaluate } from '../engine/coach'
-import { TAUNTS } from '../engine/characters'
+import { EMOTES, TAUNTS } from '../engine/characters'
 import * as M from '../engine/match'
 import { canTsumo, need, passedWin, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
@@ -417,6 +417,23 @@ function TauntButton() {
               {t.text}
             </button>
           ))}
+          <span className="emote-row">
+            {EMOTES.map((e) => (
+              <button
+                key={e.id}
+                type="button"
+                role="menuitem"
+                title={e.text}
+                aria-label={e.text}
+                onClick={() => {
+                  taunt(e.id)
+                  setOpen(false)
+                }}
+              >
+                {e.emoji}
+              </button>
+            ))}
+          </span>
         </span>
       )}
     </span>

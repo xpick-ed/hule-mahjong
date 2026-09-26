@@ -4266,6 +4266,23 @@ kbd {
   box-shadow: 0 4px 0 var(--orange-edge);
 }
 
+
+/* 快速表情 */
+.emote-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  padding-top: 4px;
+  border-top: 1px solid #eef1f7;
+}
+
+.taunt-menu .emote-row button {
+  justify-content: center;
+  padding: 4px 0;
+  font-size: 22px;
+  line-height: 1;
+}
+
 /* ---------- 動畫 ---------- */
 
 @keyframes fromMe {

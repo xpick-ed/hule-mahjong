@@ -230,7 +230,7 @@ export class Room {
           if (s.players.length && !s.players.some((p) => p.host)) s.players[0].host = true
           break
         case 'taunt': {
-          if (seat === undefined || Date.now() - (this.lastTaunt.get(pid) ?? 0) < 3000) return
+          if (seat === undefined || typeof msg.id !== 'string' || msg.id.length > 20 || Date.now() - (this.lastTaunt.get(pid) ?? 0) < 2000) return
           this.lastTaunt.set(pid, Date.now())
           for (const [other, sock] of this.sockets) {
             const os = s.seatOf[other]
