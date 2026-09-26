@@ -19,17 +19,16 @@
 **Doing（2026-09-26 下午）：** 你的名字（第一次打開問、設定可改、牌桌和結算都用）；第一關對手改名：大舅媽、鄒家雀神、小姨丈（4 句台詞改寫重新配音）；危險牌提示預設關。
 
 **網站：** https://hule.leh-x.workers.dev （Cloudflare Worker `hule`，帳號 lin.enhsiang@gmail.com）
-- 2026-09-26：push 之後的自動 build 沒有觸發或失敗（最後一次自動部署是 7c87d4c），
-  所以用 `npx wrangler deploy` 手動部署了 633e208（wrangler 已登入）。原因還沒查到：wrangler 的登入看不到 build 紀錄，要在後台 Deployments 看
+- 2026-09-26：自動部署停住的原因是 Cloudflare 跟 GitHub 斷線（後台 Settings → Build 顯示 "disconnected from your Git account"），
+  push 之後沒有 build。已重新接上 GitHub App；斷線期間用 `npx wrangler deploy` 手動部署過 633e208
 
 **Next:**
-1. 查自動部署：後台 hule → Deployments 看 2e59af7、633e208 有沒有 build 紀錄；沒有的話看 Settings → Build 的 Git 連線
-   （在修好之前，改完用 `npm run deploy` 手動部署）
+1. 確認重新接上之後 push 會自動部署（這一筆就是測試）
 2. 排行榜：`npx wrangler d1 create hule` → database_id 貼進 wrangler.toml（拿掉註解）→
    `npx wrangler d1 execute hule --remote --file=schema.sql` → 部署
 3. 真人試玩：難度、引導局節奏、音樂好不好聽
 
-**Blockers:** 自動部署的原因要看後台
+**Blockers:** 無
 
 ## Backlog
 
