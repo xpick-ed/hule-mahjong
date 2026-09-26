@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import { ROOM_RE } from '../engine/online'
-import { STAGES } from '../engine/stages'
+import { LADDER } from '../engine/stages'
 import { canPlayOnline, inviteLink, SITE } from '../net'
 import { DEFAULT_NAME, TURN_TIMES, useUI } from '../store'
 import { cls } from './bits'
@@ -161,7 +161,7 @@ export function RoomView() {
           <section className="room-settings" aria-label="設定">
             <h4>{host ? '設定（你是房主）' : '設定（房主決定）'}</h4>
             <div className="stage-pick" role="group" aria-label="關卡">
-              {STAGES.map((s, i) => (
+              {LADDER.map((s, i) => (
                 <button key={s.id} type="button" aria-pressed={st.stage === i} disabled={!host} onClick={() => set({ stage: i })}>
                   <b>{s.name}</b>
                   <small>{s.opponents.map((id) => CHARACTERS[id].name).join('、')}</small>

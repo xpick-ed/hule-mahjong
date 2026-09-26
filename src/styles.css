@@ -4350,6 +4350,177 @@ kbd {
   line-height: 1.7;
 }
 
+
+/* ---------- 全國錦標賽 ---------- */
+
+.stage-card.tourney-card {
+  background: linear-gradient(160deg, #1f7a55, #0f4d36);
+  color: #fff;
+}
+
+.tourney-card .stage-no,
+.tourney-card .stage-place {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tourney-card .stage-name {
+  color: #ffe066;
+}
+
+.tourney-path {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.tourney-path i {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+  font-style: normal;
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.tourney-path i.on {
+  border-color: #ffe066;
+  background: #ffe066;
+  color: #0f4d36;
+}
+
+.tourney-path b {
+  margin-left: 4px;
+  font-size: 12px;
+  color: #ffe066;
+}
+
+.tourney-card .stage-cta {
+  background: #ffe066;
+  color: #0f4d36;
+  box-shadow: 0 3px 0 #d9b93a;
+}
+
+.tourney-card.locked .stage-cta {
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.tourney-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tourney-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: #f4f6fa;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tourney-step.on {
+  background: #e3f5ec;
+  box-shadow: inset 0 0 0 2px #1f7a55;
+}
+
+.tourney-step.locked {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.ts-no {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #1f7a55;
+  color: #fff;
+  font-family: var(--num);
+  font-weight: 800;
+}
+
+.ts-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-main b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+}
+
+.ts-main small {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.ts-items {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+.item-chip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #fff3c4;
+  font-size: 11px;
+  font-weight: 900;
+  color: #8a5a00;
+}
+
+.ts-stars i {
+  font-style: normal;
+  font-size: 12px;
+  color: rgba(29, 42, 74, 0.2);
+}
+
+.ts-stars i.on {
+  color: var(--orange);
+}
+
+.ts-faces {
+  display: flex;
+  gap: 2px;
+  flex: none;
+}
+
+/* 錦標賽的特別道具按鈕：金色 */
+.skill.item {
+  background: #fff3c4;
+  color: #8a5a00;
+}
+
+.skill.item.on {
+  background: var(--orange);
+  color: #fff;
+}
+
 /* ---------- 動畫 ---------- */
 
 @keyframes fromMe {

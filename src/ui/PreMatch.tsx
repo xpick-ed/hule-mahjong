@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
-import { STAGES } from '../engine/stages'
+import { LADDER, STAGES, TOURNEY } from '../engine/stages'
 import { dailyInfo } from '../daily'
 import { STAR_GOALS, starsOf } from '../progress'
 import { lookFor, savedMatch, useUI } from '../store'
@@ -20,7 +20,7 @@ export function PreMatch() {
   if (!pm) return null
   return (
     <Sheet open onClose={() => open(null)} label="開打">
-      {pm.survival ? <SurvivalBody /> : <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />}
+      {pm.tourney ? <TourneyBody first={pm.stage} /> : pm.survival ? <SurvivalBody /> : <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />}
     </Sheet>
   )
 }
@@ -142,7 +142,7 @@ function SurvivalBody() {
   const saved = useMemo(() => savedMatch(), [])
   const run = progress.survivalRun
   const best = progress.survivalBest
-  const next = run ? M.survivalStage(run.level, STAGES.length) : null
+  const next = run ? M.survivalStage(run.level, LADDER.length) : null
   return (
     <div className="prematch">
       <header className="pm-head">
@@ -183,6 +183,82 @@ function SurvivalBody() {
             繼續第 {run.level + 1} 關
           </button>
         )}
+      </div>
+    </div>
+  )
+}
+
+/** 全國錦標賽：三站的路線、每站的對手和特別道具，選一站開打（沒晉級的站鎖住） */
+function TourneyBody({ first }: { first: number }) {
+  const progress = useUI((s) => s.progress)
+  const { startStage, openStage, resume } = useUI.getState()
+  const saved = useMemo(() => savedMatch(), [])
+  const [pick, setPick] = useState(first)
+  const stage = STAGES[pick]
+  return (
+    <div className="prematch">
+      <header className="pm-head">
+        <span className="pm-no">挑戰模式{progress.tourneyWins > 0 ? `・拿過 ${progress.tourneyWins} 次冠軍` : ''}</span>
+        <h3>全國錦標賽</h3>
+      </header>
+      <p className="pm-small">每站打一場東風圈，拿第一才晉級下一站。每站兩個特別道具各用一次，每次開打重新發。對手一站比一站強。</p>
+      <ol className="tourney-steps">
+        {TOURNEY.map((t, k) => {
+          const idx = STAGES.indexOf(t)
+          const open = k <= progress.tourneyCleared
+          const done = k < progress.tourneyCleared
+          const stars = starsOf(progress, t.id)
+          return (
+            <li key={t.id}>
+              <button type="button" className={cls('tourney-step', pick === idx && 'on', !open && 'locked')} disabled={!open} onClick={() => setPick(idx)}>
+                <span className="ts-no">{k + 1}</span>
+                <span className="ts-main">
+                  <b>
+                    {t.name}
+                    {done && <em className="tag">已晉級</em>}
+                    {!open && <em className="tag">上一站拿第一解鎖</em>}
+                  </b>
+                  <small>{t.opponents.map((id) => CHARACTERS[id].name).join('、')}</small>
+                  <span className="ts-items">
+                    {(t.items ?? []).map((id) => (
+                      <span key={id} className="item-chip" title={M.SKILLS[id].desc}>
+                        {M.SKILLS[id].name}
+                      </span>
+                    ))}
+                    <span className="ts-stars" aria-label={`${stars.filter(Boolean).length} 顆星`}>
+                      {stars.map((on, i) => (
+                        <i key={i} className={cls(on && 'on')}>★</i>
+                      ))}
+                    </span>
+                  </span>
+                </span>
+                <span className="ts-faces">
+                  {t.opponents.map((id) => (
+                    <Avatar key={id} look={lookFor(progress, id)} size={28} />
+                  ))}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ol>
+      {saved && (
+        <p className="pm-warn" role="alert">
+          你還有一場「{STAGES[saved.stage].name}」打到第 {saved.handNo} 局。開新的一場，那一場就沒了。
+        </p>
+      )}
+      <div className="sheet-actions">
+        <button type="button" className="btn" onClick={() => openStage(null)}>
+          取消
+        </button>
+        {saved && STAGES[saved.stage].tournament && (
+          <button type="button" className="btn" onClick={resume}>
+            繼續那一場
+          </button>
+        )}
+        <button type="button" className="btn primary" onClick={() => startStage(pick)}>
+          開打：{stage.name}
+        </button>
       </div>
     </div>
   )

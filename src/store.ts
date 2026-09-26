@@ -3,7 +3,7 @@ import { chooseDiscard } from './engine/ai'
 import { BANTER, CHARACTERS, tauntText, type LineKey, type Look } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
-import { SKINS, STAGES } from './engine/stages'
+import { LADDER, SKINS, STAGES } from './engine/stages'
 import { canTsumo, DEFAULT_RULES, type ClaimDecision, type HandEvent, type Rules } from './engine/table'
 import { tileName, type Kind } from './engine/tiles'
 import { dailyInfo, dailyOptions, shareText } from './daily'
@@ -93,7 +93,7 @@ export interface OnlineInfo {
 }
 
 /** 開打前的確認畫面：選難度、提醒會蓋掉沒打完的那場 */
-export type Prematch = { stage: number; daily?: string; survival?: boolean } | null
+export type Prematch = { stage: number; daily?: string; survival?: boolean; tourney?: boolean } | null
 
 export interface MatchRewards {
   r: P.Rewards
@@ -107,6 +107,8 @@ export interface MatchRewards {
   stars: { text: string; coins: number }[]
   /** 生存模式：這一關的結果 */
   survival?: P.SurvivalResult
+  /** 全國錦標賽：這一站的結果 */
+  tourney?: P.TourneyResult
   /** 每日挑戰：這一場算不算成績（一天只算第一場） */
   dailyCounted?: boolean
 }
@@ -199,7 +201,7 @@ interface UI {
   taunt(id: string): void
   buyBack(id: string): void
   equipBack(id: string): void
-  buySupply(id: M.SkillId): void
+  buySupply(id: P.ShopSkill): void
   showToast(msg: string): void
   seeGuide(id: string): void
   skipTutorial(): void
@@ -251,7 +253,8 @@ export function myName(s: Settings = useUI.getState().settings): string {
 export const useMyName = () => useUI((s) => s.settings.name.trim() || DEFAULT_NAME)
 
 export function moodFor(stage: number): MusicMood {
-  return (['alley', 'party', 'newyear', 'boss', 'storm', 'final'] as const)[stage] ?? 'alley'
+  // 闖關六關、錦標賽三站（週賽熱鬧、竹東有客家味的五聲音階、全國決賽）
+  return (['alley', 'party', 'newyear', 'boss', 'storm', 'final', 'party', 'newyear', 'final'] as const)[stage] ?? 'alley'
 }
 
 /** 現在畫面該放的音樂（第一次點畫面、聲音解鎖時用） */
@@ -364,7 +367,7 @@ export const useUI = create<UI>((set, get) => {
     let p = { ...get().progress }
     p.matches++
     const first = M.ranking(m)[0] === 0
-    if (first && !m.daily && !m.survival) {
+    if (first && !m.daily && !m.survival && !STAGES[m.stage].tournament) {
       p.wins++
       if (m.stage >= p.cleared) {
         p.cleared = m.stage + 1
@@ -385,13 +388,20 @@ export const useUI = create<UI>((set, get) => {
     p = st.p
     let unlocked = rec.unlocked
     let survival: P.SurvivalResult | undefined
+    let tourney: P.TourneyResult | undefined
+    if (STAGES[m.stage].tournament && !m.online) {
+      const t = P.recordTourney(p, m)
+      p = t.p
+      tourney = t.res
+      unlocked = [...unlocked, ...t.unlocked]
+    }
     if (m.survival) {
       const sv = P.recordSurvival(p, m)
       p = sv.p
       survival = sv.res
       unlocked = [...unlocked, ...sv.unlocked]
     }
-    if (P.starCount(p) >= STAGES.length * 3) {
+    if (LADDER.every((st) => P.starsOf(p, st.id).every(Boolean))) {
       const u = P.unlock(p, ['allStars'])
       p = u.p
       unlocked = [...unlocked, ...u.unlocked]
@@ -404,7 +414,7 @@ export const useUI = create<UI>((set, get) => {
     }
     setProgress(p)
     save(MATCH_KEY, null)
-    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, survival, dailyCounted } })
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, survival, tourney, dailyCounted } })
     announce(unlocked, 1800)
     if (first) sfx.win()
     else sfx.lose()
@@ -571,17 +581,18 @@ export const useUI = create<UI>((set, get) => {
         match.log = []
       } else if (opt.survival) {
         // 生存模式：照撐過幾關決定打哪一關；第二輪起高手難度
-        const { stage: st, loop } = M.survivalStage(opt.survival.level, STAGES.length)
+        const { stage: st, loop } = M.survivalStage(opt.survival.level, LADDER.length)
         match = M.newMatch(newSeed(), st, { rules: settings.rules, difficulty: loop > 1 ? 'hard' : 'normal', survival: opt.survival })
       } else {
         const tutorial = !!opt.tutorial
-        const difficulty = tutorial ? 'easy' : (opt.difficulty ?? settings.difficulty)
+        const difficulty = tutorial ? 'easy' : STAGES[stage].tournament ? 'normal' : (opt.difficulty ?? settings.difficulty)
         match = M.newMatch(newSeed(), stage, { rules: settings.rules, difficulty, tutorial })
         if (!tutorial && opt.difficulty && opt.difficulty !== settings.difficulty) get().setSettings({ difficulty: opt.difficulty })
         // 商店買的絕招補給這一場用
+        // （錦標賽只能用那一站的特別道具，補給留到下一場闖關）
         const { bonus } = progress
-        if (bonus.swap || bonus.peek || bonus.lucky) {
-          for (const k of Object.keys(bonus) as M.SkillId[]) match.skills[k] += bonus[k]
+        if (!STAGES[stage].items && (bonus.swap || bonus.peek || bonus.lucky)) {
+          for (const k of Object.keys(bonus) as P.ShopSkill[]) match.skills[k] = (match.skills[k] ?? 0) + bonus[k]
           setProgress({ ...get().progress, bonus: { swap: 0, peek: 0, lucky: 0 } })
         }
       }
@@ -686,21 +697,27 @@ export const useUI = create<UI>((set, get) => {
       if (id === 'swap') {
         if (mode === 'swap') return set({ mode: null })
         if (!M.waitingForYou(match) || match.hand.phase !== 'discard') return get().showToast('輪到你打牌時才能換')
-        if (match.skills.swap <= 0) return get().showToast('這一場用完了')
+        if ((match.skills.swap ?? 0) <= 0) return get().showToast('這一場用完了')
         set({ mode: 'swap', sel: null })
         get().showToast('點一張要換掉的牌')
         return
       }
       if (id === 'peek') {
         if (mode === 'peek') return set({ mode: null })
-        if (match.skills.peek <= 0) return get().showToast('這一場用完了')
+        if ((match.skills.peek ?? 0) <= 0) return get().showToast('這一場用完了')
         set({ mode: 'peek', sel: null })
         get().showToast('點一家的頭像來偷看')
         return
       }
-      if (apply((m) => M.useSkill(m, 'lucky'), {}, ['s', 'lucky'])) {
+      // 好運、免死金牌、加倍卡：按了就生效
+      const done: Partial<Record<M.SkillId, string>> = {
+        lucky: '下一張會摸到好牌',
+        shield: '免死金牌：這一局你不用付錢',
+        double: '加倍卡：這一局你胡的話，大家付兩倍',
+      }
+      if (apply((m) => M.useSkill(m, id), {}, ['s', id])) {
         sfx.magic()
-        get().showToast('下一張會摸到好牌')
+        get().showToast(done[id] ?? '用好了')
         track({ skill: 1 })
       }
     },

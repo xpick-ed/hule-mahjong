@@ -78,6 +78,9 @@ export interface HandState {
   discardCount: number
   /** 用了「好運」絕招的座位：下一次摸牌摸到最有用的牌 */
   luckySeat: number | null
+  /** 錦標賽道具（只有你、只管這一局）：免死金牌、加倍卡 */
+  shield?: boolean
+  double?: boolean
   /** 這一局已經喊過聽牌的座位（台詞一局只講一次） */
   tingSaid: boolean[]
   /** 這一局偷看過你手牌的對手（他們防你防得很準） */

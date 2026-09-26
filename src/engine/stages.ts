@@ -1,5 +1,7 @@
 // 闖關：一關一個場景、三個對手、底／台。拿第一過關，解鎖下一關和一款桌布。
 
+import type { SkillId } from './match'
+
 export type StageRule = 'raffle' | 'newyear' | 'boss' | 'storm' | 'final'
 
 export interface Stage {
@@ -15,6 +17,10 @@ export interface Stage {
   startPoints: number
   /** 打幾圈（1 = 東風圈；2 = 東風、南風兩圈） */
   rounds?: number
+  /** 全國錦標賽的第幾站（1–3）；闖關的關卡沒有 */
+  tournament?: number
+  /** 這一站可以用的特別道具（各一次，每次開打重新發） */
+  items?: SkillId[]
   /** 過關解鎖的桌布 */
   reward: TableSkin
 }
@@ -35,6 +41,7 @@ export const SKINS: Record<string, TableSkin> = {
   gold: { id: 'gold', name: '雀神金', color: '#f2b705', rim: '#dca300', edge: '#b58500' },
   storm: { id: 'storm', name: '颱風藍', color: '#3c6e9e', rim: '#2f5d8a', edge: '#214669' },
   ruby: { id: 'ruby', name: '冠軍紅', color: '#d7263d', rim: '#bd1f33', edge: '#951628' },
+  cup: { id: 'cup', name: '錦標綠金', color: '#1f7a55', rim: '#18664a', edge: '#0f4d36' },
 }
 
 export const STAGES: readonly Stage[] = [
@@ -109,4 +116,49 @@ export const STAGES: readonly Stage[] = [
     startPoints: 150000,
     reward: SKINS.ruby,
   },
+  // ---------- 全國錦標賽（另外一條路：三站，拿第一才晉級） ----------
+  {
+    id: 6,
+    name: '長春路週賽',
+    place: '長春路巷口，每週六下午的老朋友局',
+    tournament: 1,
+    items: ['lucky', 'swap'],
+    ruleText: '特別道具：好運、換牌（各一次）',
+    opponents: ['shange', 'daqing', 'chenji'],
+    base: 1000,
+    perTai: 300,
+    startPoints: 50000,
+    reward: SKINS.cup,
+  },
+  {
+    id: 7,
+    name: '竹東鎮比賽',
+    place: '竹東鎮活動中心，鎮上的高手都來了',
+    tournament: 2,
+    items: ['peek', 'shield'],
+    ruleText: '特別道具：偷看、免死金牌（各一次）',
+    opponents: ['xiaoliu', 'xiaohao', 'xiaoyuan'],
+    base: 2000,
+    perTai: 500,
+    startPoints: 80000,
+    reward: SKINS.cup,
+  },
+  {
+    id: 8,
+    name: '全國錦標賽',
+    place: '決賽桌，全國的眼睛都在看',
+    tournament: 3,
+    items: ['double', 'shield'],
+    ruleText: '特別道具：加倍卡、免死金牌（各一次）',
+    opponents: ['dushen', 'duxia', 'dusheng'],
+    base: 5000,
+    perTai: 1000,
+    startPoints: 200000,
+    reward: SKINS.cup,
+  },
 ]
+
+/** 闖關的六關（錦標賽不算）：首頁的關卡、每日挑戰、生存模式、連線房間都用這個 */
+export const LADDER = STAGES.filter((s) => !s.tournament)
+/** 全國錦標賽的三站 */
+export const TOURNEY = STAGES.filter((s) => s.tournament)

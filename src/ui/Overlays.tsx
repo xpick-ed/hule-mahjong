@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
-import { SKINS, STAGES } from '../engine/stages'
+import { LADDER, SKINS, STAGES, TOURNEY } from '../engine/stages'
 import { share, shareText } from '../daily'
 import * as P from '../progress'
 import { TURN_TIMES, useUI } from '../store'
@@ -247,7 +247,7 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   const stage = STAGES[m.stage]
-  const hasNext = m.stage + 1 < STAGES.length
+  const hasNext = m.stage + 1 < LADDER.length
   const place = order.indexOf(0) + 1
   const showToast = useUI((s) => s.showToast)
   const doShare = async () => {
@@ -258,8 +258,16 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
   const sv = useUI((s) => s.rewards?.survival)
   const svBest = useUI((s) => s.progress.survivalBest)
   const svRun = useUI((s) => s.progress.survivalRun)
-  const svNext = svRun ? M.survivalStage(svRun.level, STAGES.length) : null
-  const title = m.survival && sv
+  const svNext = svRun ? M.survivalStage(svRun.level, LADDER.length) : null
+  const tr = useUI((s) => s.rewards?.tourney)
+  const nextEvent = tr ? TOURNEY[tr.event] : undefined
+  const title = tr
+    ? tr.champion
+      ? '全國錦標賽冠軍！'
+      : tr.won
+        ? `晉級！${stage.name}拿第一`
+        : `第 ${place} 名，止步${stage.name}`
+    : m.survival && sv
     ? sv.out
       ? `生存模式結束：撐過 ${sv.stages} 關`
       : `撐過第 ${sv.stages} 關！`
@@ -278,7 +286,13 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
             ? '你就是新的雀神！'
             : `過關！${stage.name}拿第一`
         : `第 ${place} 名`
-  const sub = m.survival && sv
+  const sub = tr
+    ? tr.champion
+      ? '你打敗了賭神、賭俠、賭聖！'
+      : tr.won
+        ? `下一站：${nextEvent?.name ?? ''}`
+        : '拿第一才能晉級。再挑戰一次，特別道具會重新發'
+    : m.survival && sv
     ? sv.out
       ? sv.best
         ? '新紀錄！'
@@ -320,7 +334,25 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
           <div className="final-side">
             {m.daily && <DailyBoard m={m} />}
             <Rewards />
-            {m.survival ? (
+            {tr ? (
+              <div className="final-actions">
+                <button type="button" className="btn" onClick={toHome}>
+                  回首頁
+                </button>
+                <button type="button" className="btn" onClick={doShare}>
+                  分享
+                </button>
+                {tr.won && nextEvent ? (
+                  <button type="button" className="btn primary" onClick={() => start(STAGES.indexOf(nextEvent))}>
+                    下一站
+                  </button>
+                ) : (
+                  <button type="button" className="btn primary" onClick={() => start(m.stage)}>
+                    {tr.champion ? '再打一次' : '再挑戰'}
+                  </button>
+                )}
+              </div>
+            ) : m.survival ? (
               <div className="final-actions">
                 <button type="button" className="btn" onClick={toHome}>
                   {sv?.out ? '回首頁' : '回首頁（保留進度）'}
@@ -405,6 +437,12 @@ function Rewards() {
             <small>回首頁領 +{f.reward}</small>
           </li>
         ))}
+        {rw.tourney && rw.tourney.coins > 0 && (
+          <li className="star-done">
+            {rw.tourney.champion ? '全國冠軍獎金' : '晉級獎金'}
+            <b>+{fmt(rw.tourney.coins)}</b>
+          </li>
+        )}
         {rw.survival && rw.survival.coins > 0 && (
           <li className="star-done">
             {rw.survival.out ? `生存模式撐過 ${rw.survival.stages} 關` : '生存模式晉級'}

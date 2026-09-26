@@ -12,12 +12,15 @@ import type { Kind } from './tiles'
 
 export { RuleError } from './table'
 
-export type SkillId = 'swap' | 'peek' | 'lucky'
+export type SkillId = 'swap' | 'peek' | 'lucky' | 'shield' | 'double'
 
 export const SKILLS: Record<SkillId, { name: string; desc: string; uses: number }> = {
   swap: { name: '換牌', desc: '選一張手牌，換成牌山裡隨機一張', uses: 2 },
   peek: { name: '偷看', desc: '看一家的手牌，看到你下次打牌為止', uses: 1 },
   lucky: { name: '好運', desc: '下一次摸牌，摸到最有用的那張', uses: 1 },
+  // 錦標賽的特別道具
+  shield: { name: '免死金牌', desc: '這一局你不用付錢（放槍、別人自摸都算）', uses: 1 },
+  double: { name: '加倍卡', desc: '這一局你胡的話，大家付兩倍', uses: 1 },
 }
 
 export interface Payment {
@@ -26,6 +29,8 @@ export interface Payment {
   tai: number
   /** 一炮多響時：付給誰 */
   to?: number
+  /** 免死金牌：這筆不用付 */
+  waived?: boolean
 }
 
 export interface HandResult {
@@ -62,7 +67,8 @@ export interface MatchState {
   phase: 'play' | 'handEnd' | 'end'
   result: HandResult | null
   history: { winner: number | null; from: number | null; tai: number; hand?: number; items?: string[] }[]
-  skills: Record<SkillId, number>
+  /** 這一場可以用的絕招／道具和剩幾次（闖關是換牌、偷看、好運；錦標賽是那一站的兩個特別道具） */
+  skills: Partial<Record<SkillId, number>>
   /** 偷看中的座位 */
   peek: number | null
   /** 對手絕招剩幾次（座位 → 次數） */
@@ -222,6 +228,7 @@ export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {
     ...(opt.survival ? { survival: { ...opt.survival } } : {}),
   } as unknown as MatchState
   if (opt.survival) m.points[0] = Math.max(100, Math.round((stage.startPoints * opt.survival.ratio) / 100) * 100)
+  if (stage.items) m.skills = Object.fromEntries(stage.items.map((id) => [id, 1]))
   const opponents = shuffle(m, [...stage.opponents])
   m.chars = ['me', ...opponents]
   if (opt.humans) {
@@ -296,11 +303,17 @@ export function useSkill(m: MatchState, id: SkillId, arg?: number): MatchState {
     } else if (id === 'peek') {
       if (arg === undefined || arg < 1 || arg > 3) fail('選一家來偷看')
       r.peek = arg!
+    } else if (id === 'shield') {
+      if (r.hand.shield) fail('這一局已經用了')
+      r.hand.shield = true
+    } else if (id === 'double') {
+      if (r.hand.double) fail('這一局已經用了')
+      r.hand.double = true
     } else {
       if (r.hand.luckySeat === 0) fail('已經在用了')
       r.hand.luckySeat = 0
     }
-    r.skills[id]--
+    r.skills[id] = (r.skills[id] ?? 0) - 1
   })
 }
 
@@ -403,16 +416,22 @@ function settle(m: MatchState) {
       win.score.total += 1
     }
     if (mult > 1) extras.push({ label: '過年紅包：自摸三家付兩倍' })
+    // 加倍卡：你胡的話大家付兩倍
+    const double = w === 0 && !!h.double ? 2 : 1
+    if (double > 1) extras.push({ label: '加倍卡：大家付兩倍' })
     // 尾牙摸彩：你胡的牌裡有紅中就抽獎
     const withRed = [...win.hand, ...h.seats[w].melds.flatMap((x) => x.tiles)].some((t) => t.kind === 'z5')
     if (rule === 'raffle' && w === 0 && withRed) extras.push({ label: '尾牙摸彩', coins: pick(m, [100, 150, 200, 300, 500]) })
     for (const p of payers) {
       const involved = w === m.dealer || p === m.dealer
       const tai = win.score.total + (involved ? dt : 0)
-      const amount = (m.base + tai * m.perTai) * mult
-      deltas[p] -= amount
+      const amount = (m.base + tai * m.perTai) * mult * double
+      // 免死金牌：你這一局不用付（贏的人照拿）
+      const waived = p === 0 && !!h.shield
+      if (!waived) deltas[p] -= amount
       deltas[w] += amount
-      payments.push({ seat: p, amount, tai, ...(wins.length > 1 ? { to: w } : {}) })
+      payments.push({ seat: p, amount, tai, ...(wins.length > 1 ? { to: w } : {}), ...(waived ? { waived: true } : {}) })
+      if (waived) extras.push({ label: `免死金牌：這次 ${amount.toLocaleString('en-US')} 不用付` })
     }
     if (w === m.dealer || payers.includes(m.dealer)) dItems = di
     m.history.push({ winner: w, from: win.from, tai: win.score.total, hand: m.handNo, items: win.score.items.map((x) => x.name) })

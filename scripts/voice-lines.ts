@@ -46,6 +46,16 @@ const CAST: Record<string, { name: string; voice: Voice; calls: Calls }> = {
   acai: { name: '阿財伯', voice: { voice: M1, rate: '-12%', pitch: '-6Hz', fx: ['elder', 'warm'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
   nova: { name: 'Nova', voice: { voice: F2, rate: '+16%', pitch: '+4Hz', fx: ['bright', 'loud'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
   zheng: { name: '鄭警官', voice: { voice: M1, rate: '-8%', pitch: '-16Hz', fx: ['raspy'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
+  // 全國錦標賽（九位都是男生）
+  shange: { name: '山歌協會', voice: { voice: M1, rate: '-4%', pitch: '-6Hz', fx: ['warm', 'elder'] }, calls: ['吃～', '碰～', '槓～', '胡囉！', '自摸！'] },
+  daqing: { name: '大慶行老闆', voice: { voice: M1, rate: '+4%', pitch: '-10Hz', fx: ['hearty'] }, calls: ['吃！', '碰！', '槓！', '胡了！', '自摸！'] },
+  chenji: { name: '陳記老街老闆', voice: { voice: M1, rate: '-12%', pitch: '-12Hz', fx: ['elder', 'gruff'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
+  xiaoliu: { name: '小劉', voice: { voice: M1, rate: '+14%', pitch: '+6Hz', fx: ['bright', 'loud'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
+  xiaohao: { name: '小豪', voice: { voice: M1, rate: '+2%', pitch: '-4Hz', fx: ['smooth'] }, calls: ['吃。', '碰！', '槓！', '胡！', '自摸！'] },
+  xiaoyuan: { name: '小員', voice: { voice: M1, rate: '-2%', pitch: '+2Hz', fx: ['plain'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
+  dushen: { name: '賭神', voice: { voice: M1, rate: '-10%', pitch: '-14Hz', fx: ['smooth', 'mystic'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
+  duxia: { name: '賭俠', voice: { voice: M1, rate: '+6%', pitch: '-2Hz', fx: ['loud'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
+  dusheng: { name: '賭聖', voice: { voice: M1, rate: '+10%', pitch: '+10Hz', fx: ['bright'] }, calls: ['吃！', '碰！', '槓！', '胡啦！', '自摸！'] },
   // 你自己的聲音（設定裡選女聲／男聲）：只有報牌和喊牌，沒有台詞
   'me-f': { name: '你（女聲）', voice: { voice: F2, rate: '+0%', pitch: '+0Hz', fx: ['plain'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
   'me-m': { name: '你（男聲）', voice: { voice: M1, rate: '+0%', pitch: '+0Hz', fx: ['plain'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },

@@ -5,6 +5,9 @@ import { hashSeed, randInt } from './engine/rng'
 import * as M from './engine/match'
 import { STAGES } from './engine/stages'
 
+/** 商店買得到的絕招補給（錦標賽的特別道具買不到） */
+export type ShopSkill = 'swap' | 'peek' | 'lucky'
+
 export interface Daily {
   date: string
   ids: string[]
@@ -24,7 +27,7 @@ export interface Progress {
   backs: string[]
   back: string
   /** 商店買的絕招補給，下一場開打時加上去 */
-  bonus: Record<M.SkillId, number>
+  bonus: Record<ShopSkill, number>
   daily: Daily | null
   stats: Stats
   /** 成就：id → 解鎖日期 */
@@ -47,6 +50,9 @@ export interface Progress {
   survivalRun: M.Survival | null
   /** 生存模式最好的紀錄 */
   survivalBest: { stages: number; ratio: number; date: string } | null
+  /** 全國錦標賽：已經晉級過幾站（0–3）、拿過幾次全國冠軍 */
+  tourneyCleared: number
+  tourneyWins: number
 }
 
 /** 圖鑑裡記下來的一手牌（只存牌的種類，小小的） */
@@ -103,6 +109,8 @@ export const defaultProgress: Progress = {
   album: {},
   survivalRun: null,
   survivalBest: null,
+  tourneyCleared: 0,
+  tourneyWins: 0,
 }
 
 /** 舊存檔少了新欄位：補上預設值 */
@@ -144,7 +152,8 @@ export function rankOf(pts: number) {
 
 // ---------- 一場結束的獎勵 ----------
 
-const STAGE_MULT = [1, 1.5, 2, 3, 3.5, 4]
+// 闖關六關、錦標賽三站
+const STAGE_MULT = [1, 1.5, 2, 3, 3.5, 4, 1.5, 2.5, 4]
 const PLACE_COINS = [300, 150, 80, 30]
 const PLACE_RANK = [40, 15, -5, -20]
 
@@ -290,7 +299,7 @@ export const BACKS: readonly BackDef[] = [
 
 export const BACK: Record<string, BackDef> = Object.fromEntries(BACKS.map((b) => [b.id, b]))
 
-export const SUPPLY: readonly { id: M.SkillId; price: number }[] = [
+export const SUPPLY: readonly { id: ShopSkill; price: number }[] = [
   { id: 'swap', price: 120 },
   { id: 'peek', price: 150 },
   { id: 'lucky', price: 200 },
@@ -333,6 +342,8 @@ export const ACHIEVEMENTS: readonly AchDef[] = [
   { id: 'champion', name: '全國冠軍', desc: '全國麻將大賽拿第一' },
   { id: 'allStars', name: '滿天星', desc: '每一關都拿到三顆星' },
   { id: 'survive3', name: '撐住', desc: '生存模式撐過 3 關' },
+  { id: 'tourneyTown', name: '竹東鎮冠軍', desc: '錦標賽竹東鎮比賽拿第一' },
+  { id: 'tourneyChamp', name: '全國錦標賽冠軍', desc: '打敗賭神、賭俠、賭聖，拿下全國錦標賽' },
   { id: 'survive6', name: '一輪到底', desc: '生存模式撐完六關' },
   { id: 'hardFirst', name: '高手中的高手', desc: '高手難度拿第一' },
   { id: 'daily', name: '每日一局', desc: '打完一場每日挑戰' },
@@ -477,6 +488,10 @@ export const STAR_GOALS: Record<number, StarGoal[]> = {
   3: [first, bigHand(5), clean],
   4: [first, tsumoN(3), bigHand(6)],
   5: [first, tsumoN(2), clean],
+  // 全國錦標賽三站
+  6: [first, bigHand(3), clean],
+  7: [first, tsumoN(2), clean],
+  8: [first, bigHand(5), tsumoN(2)],
 }
 
 export const starsOf = (p: Progress, stageId: number) => p.stars[stageId] ?? [false, false, false]
@@ -618,4 +633,36 @@ export function recordSurvival(p: Progress, m: M.MatchState): { p: Progress; res
   const u = unlock(q, ids)
   q = u.p
   return { p: q, res: { out, stages, ratio, best, coins }, unlocked: u.unlocked }
+}
+
+// ---------- 全國錦標賽 ----------
+
+/** 每一站拿第一的獎金 */
+export const TOURNEY_PRIZE = [300, 700, 2000]
+
+export interface TourneyResult {
+  /** 第幾站（1–3） */
+  event: number
+  won: boolean
+  /** 拿下全國冠軍 */
+  champion: boolean
+  coins: number
+}
+
+/** 錦標賽打完一站：拿第一就晉級（解鎖下一站），第三站拿第一是全國冠軍 */
+export function recordTourney(p: Progress, m: M.MatchState): { p: Progress; res: TourneyResult; unlocked: AchDef[] } {
+  const event = STAGES[m.stage].tournament!
+  const won = M.ranking(m)[0] === 0
+  const champion = won && event === 3
+  const coins = won ? TOURNEY_PRIZE[event - 1] : 0
+  let q: Progress = {
+    ...p,
+    coins: p.coins + coins,
+    tourneyCleared: won ? Math.max(p.tourneyCleared, event) : p.tourneyCleared,
+    tourneyWins: p.tourneyWins + (champion ? 1 : 0),
+  }
+  const ids = [won && event === 2 ? 'tourneyTown' : '', champion ? 'tourneyChamp' : ''].filter(Boolean)
+  const u = unlock(q, ids)
+  q = u.p
+  return { p: q, res: { event, won, champion, coins }, unlocked: u.unlocked }
 }

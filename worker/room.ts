@@ -8,7 +8,7 @@
 import { CHARACTERS } from '../src/engine/characters'
 import * as M from '../src/engine/match'
 import { newRoomCode, ROOM_RE, viewFor, type ClientMsg, type LobbyPlayer, type RoomSettings, type ServerMsg } from '../src/engine/online'
-import { STAGES } from '../src/engine/stages'
+import { LADDER } from '../src/engine/stages'
 import { DEFAULT_RULES, RuleError } from '../src/engine/table'
 
 // ---------- Cloudflare 的型別（只宣告用到的） ----------
@@ -259,7 +259,8 @@ export class Room {
 
   private applySettings(x: Partial<RoomSettings>) {
     const st = this.s!.settings
-    if (typeof x.stage === 'number' && STAGES[x.stage]) st.stage = x.stage
+    // 連線只開闖關的六關（錦標賽是自己一個人的挑戰）
+    if (typeof x.stage === 'number' && LADDER[x.stage]) st.stage = x.stage
     if (typeof x.turnTime === 'number' && TURN_TIMES.includes(x.turnTime)) st.turnTime = x.turnTime
     if (typeof x.fast === 'boolean') st.fast = x.fast
     if (x.rules) {

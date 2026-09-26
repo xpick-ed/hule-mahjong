@@ -151,19 +151,24 @@ function TopStrip({ m }: { m: M.MatchState }) {
       </span>
       <MeChip m={m} />
       {!m.online && <div className="skills" role="group" aria-label="絕招">
-        {(Object.keys(M.SKILLS) as M.SkillId[]).map((id) => (
-          <button
-            key={id}
-            type="button"
-            className={cls('skill', (mode === id || (id === 'lucky' && lucky)) && 'on')}
-            disabled={m.skills[id] <= 0 && mode !== id}
-            onClick={() => skill(id)}
-            title={M.SKILLS[id].desc}
-          >
-            {M.SKILLS[id].name}
-            <b>{m.skills[id]}</b>
-          </button>
-        ))}
+        {(Object.keys(m.skills) as M.SkillId[]).map((id) => {
+          // 這一局正在用的（好運、免死金牌、加倍卡）亮起來
+          const active = mode === id || (id === 'lucky' && lucky) || (id === 'shield' && !!h.shield) || (id === 'double' && !!h.double)
+          const left = m.skills[id] ?? 0
+          return (
+            <button
+              key={id}
+              type="button"
+              className={cls('skill', active && 'on', (id === 'shield' || id === 'double') && 'item')}
+              disabled={left <= 0 && mode !== id}
+              onClick={() => skill(id)}
+              title={M.SKILLS[id].desc}
+            >
+              {M.SKILLS[id].name}
+              <b>{left}</b>
+            </button>
+          )
+        })}
       </div>}
       <span className="left-count">
         剩 <b>{Math.max(0, h.wall.length - RESERVE)}</b> 張

@@ -222,6 +222,118 @@
   }
  },
  {
+  "id": "shange",
+  "name": "山歌協會",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-4%",
+   "pitch": "-6Hz",
+   "fx": [
+    "warm",
+    "elder"
+   ]
+  }
+ },
+ {
+  "id": "daqing",
+  "name": "大慶行老闆",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+4%",
+   "pitch": "-10Hz",
+   "fx": [
+    "hearty"
+   ]
+  }
+ },
+ {
+  "id": "chenji",
+  "name": "陳記老街老闆",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-12%",
+   "pitch": "-12Hz",
+   "fx": [
+    "elder",
+    "gruff"
+   ]
+  }
+ },
+ {
+  "id": "xiaoliu",
+  "name": "小劉",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+14%",
+   "pitch": "+6Hz",
+   "fx": [
+    "bright",
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "xiaohao",
+  "name": "小豪",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+2%",
+   "pitch": "-4Hz",
+   "fx": [
+    "smooth"
+   ]
+  }
+ },
+ {
+  "id": "xiaoyuan",
+  "name": "小員",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-2%",
+   "pitch": "+2Hz",
+   "fx": [
+    "plain"
+   ]
+  }
+ },
+ {
+  "id": "dushen",
+  "name": "賭神",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-10%",
+   "pitch": "-14Hz",
+   "fx": [
+    "smooth",
+    "mystic"
+   ]
+  }
+ },
+ {
+  "id": "duxia",
+  "name": "賭俠",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+6%",
+   "pitch": "-2Hz",
+   "fx": [
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "dusheng",
+  "name": "賭聖",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+10%",
+   "pitch": "+10Hz",
+   "fx": [
+    "bright"
+   ]
+  }
+ },
+ {
   "id": "me-f",
   "name": "你（女聲）",
   "voice": {

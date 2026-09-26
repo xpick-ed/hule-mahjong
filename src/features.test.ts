@@ -4,10 +4,11 @@ import { describe, expect, it } from 'vitest'
 import { chooseClaim, chooseSelf } from './engine/ai'
 import { CHARACTERS } from './engine/characters'
 import * as M from './engine/match'
+import * as T from './engine/table'
 import type { Tile } from './engine/tiles'
 import { dailyInfo, dailyOptions, handGrid } from './daily'
 import * as P from './progress'
-import { STAGES } from './engine/stages'
+import { LADDER, STAGES } from './engine/stages'
 import { dangerMap, judgeDiscard, publicThreats } from './review'
 
 let id = 9000
@@ -188,7 +189,7 @@ describe('生存模式', () => {
     const m = M.newMatch('sv', 1, { survival: { level: 1, ratio: 1.5 } })
     expect(m.points[0]).toBe(STAGES[1].startPoints * 1.5)
     expect(m.points[1]).toBe(STAGES[1].startPoints)
-    expect(M.survivalStage(6, STAGES.length)).toEqual({ stage: 0, loop: 2 })
+    expect(M.survivalStage(6, LADDER.length)).toEqual({ stage: 0, loop: 2 })
   })
   const end = (level: number, points: number[]) => {
     const m = M.newMatch('sv-end', level % STAGES.length, { survival: { level, ratio: 1 } })
@@ -211,5 +212,89 @@ describe('生存模式', () => {
     expect(p.survivalRun).toBeNull()
     expect(p.coins).toBe(200)
     expect(unlocked).toHaveLength(0)
+  })
+})
+
+describe('全國錦標賽', () => {
+  const idx = (event: number) => STAGES.findIndex((s) => s.tournament === event)
+  it('每站兩個特別道具，各一次；不會有別的絕招', () => {
+    expect(M.newMatch('t1', idx(1)).skills).toEqual({ lucky: 1, swap: 1 })
+    expect(M.newMatch('t2', idx(2)).skills).toEqual({ peek: 1, shield: 1 })
+    expect(M.newMatch('t3', idx(3)).skills).toEqual({ double: 1, shield: 1 })
+  })
+  /** 座位 0 打出 m3，座位 1 剛好聽 m3（放槍）；win0 = true 時反過來：座位 1 打 m3 給你胡 */
+  const setup = (event: number, win0 = false) => {
+    let n = 7000
+    const t = (x: string) => x.split(' ').map((kind) => ({ id: n++, kind }))
+    const m = M.newMatch(`item-${event}-${win0}`, idx(event))
+    const waiting = 'm1 m1 m1 p2 p3 p4 s5 s6 s7 z1 z1 z1 z5 z5 m4 m5'
+    const junk = 'z2 z2 z3 z3 z4 z4 z6 z6 s9 s9 p9 p9 m9 m9 s1 s2'
+    const junk2 = 'p1 z2 z3 z4 z6 z7 s9 p9 m9 p5 p6 s1 s3 s4 p7 s8'
+    const hands = win0 ? [waiting, 'm3 ' + junk2, junk, junk] : ['m3 ' + junk2, waiting, junk, junk]
+    m.hand.seats.forEach((s, i) => {
+      s.hand = t(hands[i])
+      s.melds = []
+      s.flowers = []
+      s.discards = []
+    })
+    const turn = win0 ? 1 : 0
+    m.hand.wall = t(Array(40).fill('z7').join(' '))
+    m.hand.turn = turn
+    m.hand.phase = 'discard'
+    m.hand.drawn = m.hand.seats[turn].hand[0]
+    m.hand.events = []
+    m.dealer = 2
+    m.hand.dealer = 2
+    return m
+  }
+  it('免死金牌：這一局放槍不用付，贏的人照拿；用過就沒了', () => {
+    let m = M.useSkill(setup(2), 'shield')
+    expect(m.skills.shield).toBe(0)
+    expect(() => M.useSkill(m, 'shield')).toThrow()
+    m = M.discard(m, m.hand.seats[0].hand.find((x) => x.kind === 'm3')!.id)
+    for (let g = 0; g < 5 && m.phase === 'play'; g++) m = M.step(m)
+    const r = m.result!
+    expect(r.win).toMatchObject({ seat: 1, from: 0 })
+    expect(r.deltas[0]).toBe(0)
+    expect(r.deltas[1]).toBeGreaterThan(0)
+    expect(r.payments[0].waived).toBe(true)
+    expect(r.extras?.some((x) => x.label.startsWith('免死金牌'))).toBe(true)
+  })
+  it('加倍卡：這一局你胡的話大家付兩倍', () => {
+    const play = (use: boolean) => {
+      let m = setup(3, true)
+      if (use) m = M.useSkill(m, 'double')
+      const r = structuredClone(m)
+      // 座位 1 打出 m3，你聽 m3
+      T.discardTile(r.hand, 1, r.hand.seats[1].hand.find((x) => x.kind === 'm3')!.id)
+      expect(r.hand.options[0]?.hu).toBe(true)
+      return M.claim(r, { type: 'hu' }).result!
+    }
+    const plain = play(false)
+    const doubled = play(true)
+    expect(plain.win).toMatchObject({ seat: 0, from: 1 })
+    expect(doubled.deltas[0]).toBe(plain.deltas[0] * 2)
+    expect(doubled.deltas[1]).toBe(plain.deltas[1] * 2)
+    expect(doubled.extras?.some((x) => x.label.startsWith('加倍卡'))).toBe(true)
+  })
+  it('晉級：拿第一解鎖下一站，第三站拿第一是全國冠軍', () => {
+    const end = (event: number, first: boolean) => {
+      const m = M.newMatch('t-end', idx(event))
+      m.phase = 'end'
+      m.points = first ? [9e5, 1, 2, 3] : [1, 9e5, 2, 3]
+      return m
+    }
+    let p = P.defaultProgress
+    let r = P.recordTourney(p, end(1, false))
+    expect(r.res.won).toBe(false)
+    expect(r.p.tourneyCleared).toBe(0)
+    r = P.recordTourney(p, end(1, true))
+    expect(r.p.tourneyCleared).toBe(1)
+    expect(r.res.coins).toBe(P.TOURNEY_PRIZE[0])
+    p = P.recordTourney(r.p, end(2, true)).p
+    const c = P.recordTourney(p, end(3, true))
+    expect(c.res.champion).toBe(true)
+    expect(c.p.tourneyWins).toBe(1)
+    expect(c.unlocked.map((a) => a.id)).toContain('tourneyChamp')
   })
 })

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { CHARACTERS } from '../engine/characters'
-import { STAGES } from '../engine/stages'
+import { LADDER, STAGES, TOURNEY } from '../engine/stages'
 import { dailyInfo } from '../daily'
 import { claimable, rankOf, starsOf } from '../progress'
 import { lookFor, savedMatch, useUI } from '../store'
@@ -25,7 +25,7 @@ export function Home() {
   const ladder = useRef<HTMLElement>(null)
   useEffect(() => {
     const el = ladder.current
-    const card = el?.children[Math.min(progress.cleared, STAGES.length - 1)] as HTMLElement | undefined
+    const card = el?.children[Math.min(progress.cleared, LADDER.length - 1)] as HTMLElement | undefined
     if (el && card && progress.cleared >= 3) el.scrollLeft = card.offsetLeft - el.offsetLeft - 8
   }, [progress.cleared])
 
@@ -94,7 +94,7 @@ export function Home() {
       </section>
 
       <section className="ladder" aria-label="闖關" ref={ladder}>
-        {STAGES.map((st, i) => {
+        {LADDER.map((st, i) => {
           const locked = i > progress.cleared
           const done = i < progress.cleared
           const fresh = i === 0 && !progress.tutorial
@@ -147,6 +147,31 @@ export function Home() {
           </span>
           <span className="stage-cta">
             {progress.cleared < 1 ? '過第一關解鎖' : progress.survivalRun ? `繼續：第 ${progress.survivalRun.level + 1} 關` : '開始挑戰'}
+          </span>
+        </button>
+        <button
+          type="button"
+          className={cls('stage-card', 'tourney-card', progress.cleared < 1 && 'locked')}
+          disabled={progress.cleared < 1}
+          onClick={() => openStage({ stage: STAGES.indexOf(TOURNEY[Math.min(progress.tourneyCleared, TOURNEY.length - 1)]), tourney: true })}
+        >
+          <span className="stage-no">挑戰模式</span>
+          <span className="stage-name">全國錦標賽</span>
+          <span className="stage-place">長春路 → 竹東鎮 → 全國。每站兩個特別道具，拿第一才晉級。</span>
+          <span className="tourney-path" aria-label={`已經晉級 ${progress.tourneyCleared} 站`}>
+            {TOURNEY.map((t, k) => (
+              <i key={t.id} className={cls(k < progress.tourneyCleared && 'on')}>
+                {k + 1}
+              </i>
+            ))}
+            {progress.tourneyWins > 0 && <b>冠軍 ×{progress.tourneyWins}</b>}
+          </span>
+          <span className="stage-cta">
+            {progress.cleared < 1
+              ? '過第一關解鎖'
+              : progress.tourneyCleared >= TOURNEY.length
+                ? '再拿一次冠軍'
+                : `挑戰：${TOURNEY[progress.tourneyCleared].name}`}
           </span>
         </button>
       </section>

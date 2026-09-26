@@ -2,7 +2,7 @@
 
 import type { MatchOptions } from './engine/match'
 import { hashSeed } from './engine/rng'
-import { STAGES } from './engine/stages'
+import { LADDER } from './engine/stages'
 import { DEFAULT_RULES } from './engine/table'
 
 export interface DailyInfo {
@@ -12,7 +12,7 @@ export interface DailyInfo {
 }
 
 export function dailyInfo(date: string): DailyInfo {
-  return { date, seed: `daily-${date}`, stage: hashSeed(`daily-stage-${date}`) % STAGES.length }
+  return { date, seed: `daily-${date}`, stage: hashSeed(`daily-stage-${date}`) % LADDER.length }
 }
 
 /** 每日挑戰固定：預設規則、普通難度 */

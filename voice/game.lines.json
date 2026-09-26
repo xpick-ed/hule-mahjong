@@ -4093,6 +4093,2070 @@
   "who": "zheng",
   "text": "你今天的眼神，很有自信"
  },
+ "shange.tile.m1": {
+  "who": "shange",
+  "text": "一萬"
+ },
+ "shange.tile.m2": {
+  "who": "shange",
+  "text": "二萬"
+ },
+ "shange.tile.m3": {
+  "who": "shange",
+  "text": "三萬"
+ },
+ "shange.tile.m4": {
+  "who": "shange",
+  "text": "四萬"
+ },
+ "shange.tile.m5": {
+  "who": "shange",
+  "text": "五萬"
+ },
+ "shange.tile.m6": {
+  "who": "shange",
+  "text": "六萬"
+ },
+ "shange.tile.m7": {
+  "who": "shange",
+  "text": "七萬"
+ },
+ "shange.tile.m8": {
+  "who": "shange",
+  "text": "八萬"
+ },
+ "shange.tile.m9": {
+  "who": "shange",
+  "text": "九萬"
+ },
+ "shange.tile.p1": {
+  "who": "shange",
+  "text": "一筒"
+ },
+ "shange.tile.p2": {
+  "who": "shange",
+  "text": "二筒"
+ },
+ "shange.tile.p3": {
+  "who": "shange",
+  "text": "三筒"
+ },
+ "shange.tile.p4": {
+  "who": "shange",
+  "text": "四筒"
+ },
+ "shange.tile.p5": {
+  "who": "shange",
+  "text": "五筒"
+ },
+ "shange.tile.p6": {
+  "who": "shange",
+  "text": "六筒"
+ },
+ "shange.tile.p7": {
+  "who": "shange",
+  "text": "七筒"
+ },
+ "shange.tile.p8": {
+  "who": "shange",
+  "text": "八筒"
+ },
+ "shange.tile.p9": {
+  "who": "shange",
+  "text": "九筒"
+ },
+ "shange.tile.s1": {
+  "who": "shange",
+  "text": "一條"
+ },
+ "shange.tile.s2": {
+  "who": "shange",
+  "text": "二條"
+ },
+ "shange.tile.s3": {
+  "who": "shange",
+  "text": "三條"
+ },
+ "shange.tile.s4": {
+  "who": "shange",
+  "text": "四條"
+ },
+ "shange.tile.s5": {
+  "who": "shange",
+  "text": "五條"
+ },
+ "shange.tile.s6": {
+  "who": "shange",
+  "text": "六條"
+ },
+ "shange.tile.s7": {
+  "who": "shange",
+  "text": "七條"
+ },
+ "shange.tile.s8": {
+  "who": "shange",
+  "text": "八條"
+ },
+ "shange.tile.s9": {
+  "who": "shange",
+  "text": "九條"
+ },
+ "shange.tile.z1": {
+  "who": "shange",
+  "text": "東風"
+ },
+ "shange.tile.z2": {
+  "who": "shange",
+  "text": "南風"
+ },
+ "shange.tile.z3": {
+  "who": "shange",
+  "text": "西風"
+ },
+ "shange.tile.z4": {
+  "who": "shange",
+  "text": "北風"
+ },
+ "shange.tile.z5": {
+  "who": "shange",
+  "text": "紅中"
+ },
+ "shange.tile.z6": {
+  "who": "shange",
+  "text": "發財"
+ },
+ "shange.tile.z7": {
+  "who": "shange",
+  "text": "白板"
+ },
+ "shange.call.chi": {
+  "who": "shange",
+  "text": "吃～"
+ },
+ "shange.call.pon": {
+  "who": "shange",
+  "text": "碰～"
+ },
+ "shange.call.kong": {
+  "who": "shange",
+  "text": "槓～"
+ },
+ "shange.call.hu": {
+  "who": "shange",
+  "text": "胡囉！",
+  "rate": "+6%",
+  "pitch": "+2Hz"
+ },
+ "shange.call.tsumo": {
+  "who": "shange",
+  "text": "自摸！",
+  "rate": "+6%",
+  "pitch": "+2Hz"
+ },
+ "shange.line.hello.0": {
+  "who": "shange",
+  "text": "來來來，先唱一段山歌暖暖身"
+ },
+ "shange.line.hello.1": {
+  "who": "shange",
+  "text": "今天禮拜六，打牌唱歌兩樣都不能少"
+ },
+ "shange.line.pon.0": {
+  "who": "shange",
+  "text": "碰～山歌就是要有來有往"
+ },
+ "shange.line.chi.0": {
+  "who": "shange",
+  "text": "吃一下，哼哼～"
+ },
+ "shange.line.kong.0": {
+  "who": "shange",
+  "text": "槓～聲音要拉長～"
+ },
+ "shange.line.ting.0": {
+  "who": "shange",
+  "text": "欸，這首快唱到副歌了"
+ },
+ "shange.line.tsumo.0": {
+  "who": "shange",
+  "text": "自摸！這要唱一首慶祝！"
+ },
+ "shange.line.ron.0": {
+  "who": "shange",
+  "text": "胡囉！謝謝你捧場"
+ },
+ "shange.line.dealIn.0": {
+  "who": "shange",
+  "text": "哎呀，唱到走音了"
+ },
+ "shange.line.otherWin.0": {
+  "who": "shange",
+  "text": "好手氣，給你拍拍手"
+ },
+ "shange.line.exhausted.0": {
+  "who": "shange",
+  "text": "流局，大家來合唱一首"
+ },
+ "shange.line.matchWin.0": {
+  "who": "shange",
+  "text": "今天回去唱給協會的人聽！"
+ },
+ "shange.line.matchLose.0": {
+  "who": "shange",
+  "text": "輸了沒關係，歌照唱！"
+ },
+ "shange.line.reply.0": {
+  "who": "shange",
+  "text": "年輕人，嗓門大不代表會贏喔"
+ },
+ "shange.line.reply.1": {
+  "who": "shange",
+  "text": "好好好，唱首歌給你聽"
+ },
+ "shange.line.friend.0": {
+  "who": "shange",
+  "text": "你來了！協會的人都在問你"
+ },
+ "shange.line.friend.1": {
+  "who": "shange",
+  "text": "跟你打牌，心情像唱山歌一樣好"
+ },
+ "daqing.tile.m1": {
+  "who": "daqing",
+  "text": "一萬"
+ },
+ "daqing.tile.m2": {
+  "who": "daqing",
+  "text": "二萬"
+ },
+ "daqing.tile.m3": {
+  "who": "daqing",
+  "text": "三萬"
+ },
+ "daqing.tile.m4": {
+  "who": "daqing",
+  "text": "四萬"
+ },
+ "daqing.tile.m5": {
+  "who": "daqing",
+  "text": "五萬"
+ },
+ "daqing.tile.m6": {
+  "who": "daqing",
+  "text": "六萬"
+ },
+ "daqing.tile.m7": {
+  "who": "daqing",
+  "text": "七萬"
+ },
+ "daqing.tile.m8": {
+  "who": "daqing",
+  "text": "八萬"
+ },
+ "daqing.tile.m9": {
+  "who": "daqing",
+  "text": "九萬"
+ },
+ "daqing.tile.p1": {
+  "who": "daqing",
+  "text": "一筒"
+ },
+ "daqing.tile.p2": {
+  "who": "daqing",
+  "text": "二筒"
+ },
+ "daqing.tile.p3": {
+  "who": "daqing",
+  "text": "三筒"
+ },
+ "daqing.tile.p4": {
+  "who": "daqing",
+  "text": "四筒"
+ },
+ "daqing.tile.p5": {
+  "who": "daqing",
+  "text": "五筒"
+ },
+ "daqing.tile.p6": {
+  "who": "daqing",
+  "text": "六筒"
+ },
+ "daqing.tile.p7": {
+  "who": "daqing",
+  "text": "七筒"
+ },
+ "daqing.tile.p8": {
+  "who": "daqing",
+  "text": "八筒"
+ },
+ "daqing.tile.p9": {
+  "who": "daqing",
+  "text": "九筒"
+ },
+ "daqing.tile.s1": {
+  "who": "daqing",
+  "text": "一條"
+ },
+ "daqing.tile.s2": {
+  "who": "daqing",
+  "text": "二條"
+ },
+ "daqing.tile.s3": {
+  "who": "daqing",
+  "text": "三條"
+ },
+ "daqing.tile.s4": {
+  "who": "daqing",
+  "text": "四條"
+ },
+ "daqing.tile.s5": {
+  "who": "daqing",
+  "text": "五條"
+ },
+ "daqing.tile.s6": {
+  "who": "daqing",
+  "text": "六條"
+ },
+ "daqing.tile.s7": {
+  "who": "daqing",
+  "text": "七條"
+ },
+ "daqing.tile.s8": {
+  "who": "daqing",
+  "text": "八條"
+ },
+ "daqing.tile.s9": {
+  "who": "daqing",
+  "text": "九條"
+ },
+ "daqing.tile.z1": {
+  "who": "daqing",
+  "text": "東風"
+ },
+ "daqing.tile.z2": {
+  "who": "daqing",
+  "text": "南風"
+ },
+ "daqing.tile.z3": {
+  "who": "daqing",
+  "text": "西風"
+ },
+ "daqing.tile.z4": {
+  "who": "daqing",
+  "text": "北風"
+ },
+ "daqing.tile.z5": {
+  "who": "daqing",
+  "text": "紅中"
+ },
+ "daqing.tile.z6": {
+  "who": "daqing",
+  "text": "發財"
+ },
+ "daqing.tile.z7": {
+  "who": "daqing",
+  "text": "白板"
+ },
+ "daqing.call.chi": {
+  "who": "daqing",
+  "text": "吃！"
+ },
+ "daqing.call.pon": {
+  "who": "daqing",
+  "text": "碰！"
+ },
+ "daqing.call.kong": {
+  "who": "daqing",
+  "text": "槓！"
+ },
+ "daqing.call.hu": {
+  "who": "daqing",
+  "text": "胡了！",
+  "rate": "+14%",
+  "pitch": "-2Hz"
+ },
+ "daqing.call.tsumo": {
+  "who": "daqing",
+  "text": "自摸！",
+  "rate": "+14%",
+  "pitch": "-2Hz"
+ },
+ "daqing.line.hello.0": {
+  "who": "daqing",
+  "text": "店交給老婆顧，我偷溜出來打兩圈"
+ },
+ "daqing.line.hello.1": {
+  "who": "daqing",
+  "text": "做生意講信用，打牌也是"
+ },
+ "daqing.line.pon.0": {
+  "who": "daqing",
+  "text": "碰！這筆生意我接了"
+ },
+ "daqing.line.chi.0": {
+  "who": "daqing",
+  "text": "吃，進貨進貨"
+ },
+ "daqing.line.kong.0": {
+  "who": "daqing",
+  "text": "槓！大批進貨！"
+ },
+ "daqing.line.ting.0": {
+  "who": "daqing",
+  "text": "嗯，這批貨快到了"
+ },
+ "daqing.line.tsumo.0": {
+  "who": "daqing",
+  "text": "自摸！今天生意好！"
+ },
+ "daqing.line.ron.0": {
+  "who": "daqing",
+  "text": "胡了，帳記一下"
+ },
+ "daqing.line.dealIn.0": {
+  "who": "daqing",
+  "text": "唉，這筆虧本了"
+ },
+ "daqing.line.otherWin.0": {
+  "who": "daqing",
+  "text": "好啦，算你便宜一點"
+ },
+ "daqing.line.exhausted.0": {
+  "who": "daqing",
+  "text": "流局，今天沒賺也沒賠"
+ },
+ "daqing.line.matchWin.0": {
+  "who": "daqing",
+  "text": "回去跟老婆說今天賺了"
+ },
+ "daqing.line.matchLose.0": {
+  "who": "daqing",
+  "text": "下禮拜再來把本撈回來"
+ },
+ "daqing.line.reply.0": {
+  "who": "daqing",
+  "text": "少年仔，嘴甜一點才會做生意"
+ },
+ "daqing.line.reply.1": {
+  "who": "daqing",
+  "text": "你這樣講，我要漲價喔"
+ },
+ "daqing.line.friend.0": {
+  "who": "daqing",
+  "text": "老主顧來了！今天打折"
+ },
+ "daqing.line.friend.1": {
+  "who": "daqing",
+  "text": "你來我店裡，茶隨便喝"
+ },
+ "chenji.tile.m1": {
+  "who": "chenji",
+  "text": "一萬"
+ },
+ "chenji.tile.m2": {
+  "who": "chenji",
+  "text": "二萬"
+ },
+ "chenji.tile.m3": {
+  "who": "chenji",
+  "text": "三萬"
+ },
+ "chenji.tile.m4": {
+  "who": "chenji",
+  "text": "四萬"
+ },
+ "chenji.tile.m5": {
+  "who": "chenji",
+  "text": "五萬"
+ },
+ "chenji.tile.m6": {
+  "who": "chenji",
+  "text": "六萬"
+ },
+ "chenji.tile.m7": {
+  "who": "chenji",
+  "text": "七萬"
+ },
+ "chenji.tile.m8": {
+  "who": "chenji",
+  "text": "八萬"
+ },
+ "chenji.tile.m9": {
+  "who": "chenji",
+  "text": "九萬"
+ },
+ "chenji.tile.p1": {
+  "who": "chenji",
+  "text": "一筒"
+ },
+ "chenji.tile.p2": {
+  "who": "chenji",
+  "text": "二筒"
+ },
+ "chenji.tile.p3": {
+  "who": "chenji",
+  "text": "三筒"
+ },
+ "chenji.tile.p4": {
+  "who": "chenji",
+  "text": "四筒"
+ },
+ "chenji.tile.p5": {
+  "who": "chenji",
+  "text": "五筒"
+ },
+ "chenji.tile.p6": {
+  "who": "chenji",
+  "text": "六筒"
+ },
+ "chenji.tile.p7": {
+  "who": "chenji",
+  "text": "七筒"
+ },
+ "chenji.tile.p8": {
+  "who": "chenji",
+  "text": "八筒"
+ },
+ "chenji.tile.p9": {
+  "who": "chenji",
+  "text": "九筒"
+ },
+ "chenji.tile.s1": {
+  "who": "chenji",
+  "text": "一條"
+ },
+ "chenji.tile.s2": {
+  "who": "chenji",
+  "text": "二條"
+ },
+ "chenji.tile.s3": {
+  "who": "chenji",
+  "text": "三條"
+ },
+ "chenji.tile.s4": {
+  "who": "chenji",
+  "text": "四條"
+ },
+ "chenji.tile.s5": {
+  "who": "chenji",
+  "text": "五條"
+ },
+ "chenji.tile.s6": {
+  "who": "chenji",
+  "text": "六條"
+ },
+ "chenji.tile.s7": {
+  "who": "chenji",
+  "text": "七條"
+ },
+ "chenji.tile.s8": {
+  "who": "chenji",
+  "text": "八條"
+ },
+ "chenji.tile.s9": {
+  "who": "chenji",
+  "text": "九條"
+ },
+ "chenji.tile.z1": {
+  "who": "chenji",
+  "text": "東風"
+ },
+ "chenji.tile.z2": {
+  "who": "chenji",
+  "text": "南風"
+ },
+ "chenji.tile.z3": {
+  "who": "chenji",
+  "text": "西風"
+ },
+ "chenji.tile.z4": {
+  "who": "chenji",
+  "text": "北風"
+ },
+ "chenji.tile.z5": {
+  "who": "chenji",
+  "text": "紅中"
+ },
+ "chenji.tile.z6": {
+  "who": "chenji",
+  "text": "發財"
+ },
+ "chenji.tile.z7": {
+  "who": "chenji",
+  "text": "白板"
+ },
+ "chenji.call.chi": {
+  "who": "chenji",
+  "text": "吃。"
+ },
+ "chenji.call.pon": {
+  "who": "chenji",
+  "text": "碰。"
+ },
+ "chenji.call.kong": {
+  "who": "chenji",
+  "text": "槓。"
+ },
+ "chenji.call.hu": {
+  "who": "chenji",
+  "text": "胡了。",
+  "rate": "-2%",
+  "pitch": "-4Hz"
+ },
+ "chenji.call.tsumo": {
+  "who": "chenji",
+  "text": "自摸。",
+  "rate": "-2%",
+  "pitch": "-4Hz"
+ },
+ "chenji.line.hello.0": {
+  "who": "chenji",
+  "text": "老街的店開了四十年，牌也打了四十年"
+ },
+ "chenji.line.hello.1": {
+  "who": "chenji",
+  "text": "慢慢來，不急"
+ },
+ "chenji.line.pon.0": {
+  "who": "chenji",
+  "text": "碰。"
+ },
+ "chenji.line.chi.0": {
+  "who": "chenji",
+  "text": "吃。"
+ },
+ "chenji.line.kong.0": {
+  "who": "chenji",
+  "text": "槓，老招牌。"
+ },
+ "chenji.line.ting.0": {
+  "who": "chenji",
+  "text": "差不多了"
+ },
+ "chenji.line.tsumo.0": {
+  "who": "chenji",
+  "text": "自摸，老天賞飯吃"
+ },
+ "chenji.line.ron.0": {
+  "who": "chenji",
+  "text": "胡了，歹勢"
+ },
+ "chenji.line.dealIn.0": {
+  "who": "chenji",
+  "text": "老了，看漏了"
+ },
+ "chenji.line.otherWin.0": {
+  "who": "chenji",
+  "text": "有進步喔"
+ },
+ "chenji.line.exhausted.0": {
+  "who": "chenji",
+  "text": "流局，泡茶"
+ },
+ "chenji.line.matchWin.0": {
+  "who": "chenji",
+  "text": "老街的招牌，還沒倒"
+ },
+ "chenji.line.matchLose.0": {
+  "who": "chenji",
+  "text": "年輕人厲害，老街要交給你們了"
+ },
+ "chenji.line.reply.0": {
+  "who": "chenji",
+  "text": "呵呵，火氣不要那麼大"
+ },
+ "chenji.line.reply.1": {
+  "who": "chenji",
+  "text": "好啦，聽你的"
+ },
+ "chenji.line.friend.0": {
+  "who": "chenji",
+  "text": "你又來啦，老位子給你坐"
+ },
+ "chenji.line.friend.1": {
+  "who": "chenji",
+  "text": "來，先吃塊老街的糕仔"
+ },
+ "xiaoliu.tile.m1": {
+  "who": "xiaoliu",
+  "text": "一萬"
+ },
+ "xiaoliu.tile.m2": {
+  "who": "xiaoliu",
+  "text": "二萬"
+ },
+ "xiaoliu.tile.m3": {
+  "who": "xiaoliu",
+  "text": "三萬"
+ },
+ "xiaoliu.tile.m4": {
+  "who": "xiaoliu",
+  "text": "四萬"
+ },
+ "xiaoliu.tile.m5": {
+  "who": "xiaoliu",
+  "text": "五萬"
+ },
+ "xiaoliu.tile.m6": {
+  "who": "xiaoliu",
+  "text": "六萬"
+ },
+ "xiaoliu.tile.m7": {
+  "who": "xiaoliu",
+  "text": "七萬"
+ },
+ "xiaoliu.tile.m8": {
+  "who": "xiaoliu",
+  "text": "八萬"
+ },
+ "xiaoliu.tile.m9": {
+  "who": "xiaoliu",
+  "text": "九萬"
+ },
+ "xiaoliu.tile.p1": {
+  "who": "xiaoliu",
+  "text": "一筒"
+ },
+ "xiaoliu.tile.p2": {
+  "who": "xiaoliu",
+  "text": "二筒"
+ },
+ "xiaoliu.tile.p3": {
+  "who": "xiaoliu",
+  "text": "三筒"
+ },
+ "xiaoliu.tile.p4": {
+  "who": "xiaoliu",
+  "text": "四筒"
+ },
+ "xiaoliu.tile.p5": {
+  "who": "xiaoliu",
+  "text": "五筒"
+ },
+ "xiaoliu.tile.p6": {
+  "who": "xiaoliu",
+  "text": "六筒"
+ },
+ "xiaoliu.tile.p7": {
+  "who": "xiaoliu",
+  "text": "七筒"
+ },
+ "xiaoliu.tile.p8": {
+  "who": "xiaoliu",
+  "text": "八筒"
+ },
+ "xiaoliu.tile.p9": {
+  "who": "xiaoliu",
+  "text": "九筒"
+ },
+ "xiaoliu.tile.s1": {
+  "who": "xiaoliu",
+  "text": "一條"
+ },
+ "xiaoliu.tile.s2": {
+  "who": "xiaoliu",
+  "text": "二條"
+ },
+ "xiaoliu.tile.s3": {
+  "who": "xiaoliu",
+  "text": "三條"
+ },
+ "xiaoliu.tile.s4": {
+  "who": "xiaoliu",
+  "text": "四條"
+ },
+ "xiaoliu.tile.s5": {
+  "who": "xiaoliu",
+  "text": "五條"
+ },
+ "xiaoliu.tile.s6": {
+  "who": "xiaoliu",
+  "text": "六條"
+ },
+ "xiaoliu.tile.s7": {
+  "who": "xiaoliu",
+  "text": "七條"
+ },
+ "xiaoliu.tile.s8": {
+  "who": "xiaoliu",
+  "text": "八條"
+ },
+ "xiaoliu.tile.s9": {
+  "who": "xiaoliu",
+  "text": "九條"
+ },
+ "xiaoliu.tile.z1": {
+  "who": "xiaoliu",
+  "text": "東風"
+ },
+ "xiaoliu.tile.z2": {
+  "who": "xiaoliu",
+  "text": "南風"
+ },
+ "xiaoliu.tile.z3": {
+  "who": "xiaoliu",
+  "text": "西風"
+ },
+ "xiaoliu.tile.z4": {
+  "who": "xiaoliu",
+  "text": "北風"
+ },
+ "xiaoliu.tile.z5": {
+  "who": "xiaoliu",
+  "text": "紅中"
+ },
+ "xiaoliu.tile.z6": {
+  "who": "xiaoliu",
+  "text": "發財"
+ },
+ "xiaoliu.tile.z7": {
+  "who": "xiaoliu",
+  "text": "白板"
+ },
+ "xiaoliu.call.chi": {
+  "who": "xiaoliu",
+  "text": "吃！"
+ },
+ "xiaoliu.call.pon": {
+  "who": "xiaoliu",
+  "text": "碰！"
+ },
+ "xiaoliu.call.kong": {
+  "who": "xiaoliu",
+  "text": "槓！"
+ },
+ "xiaoliu.call.hu": {
+  "who": "xiaoliu",
+  "text": "胡！",
+  "rate": "+24%",
+  "pitch": "+14Hz"
+ },
+ "xiaoliu.call.tsumo": {
+  "who": "xiaoliu",
+  "text": "自摸！",
+  "rate": "+24%",
+  "pitch": "+14Hz"
+ },
+ "xiaoliu.line.hello.0": {
+  "who": "xiaoliu",
+  "text": "竹東第一快手，就是我小劉"
+ },
+ "xiaoliu.line.hello.1": {
+  "who": "xiaoliu",
+  "text": "快點快點，打完還要去吃粄條"
+ },
+ "xiaoliu.line.pon.0": {
+  "who": "xiaoliu",
+  "text": "碰！手腳要快！"
+ },
+ "xiaoliu.line.chi.0": {
+  "who": "xiaoliu",
+  "text": "吃！再來再來！"
+ },
+ "xiaoliu.line.kong.0": {
+  "who": "xiaoliu",
+  "text": "槓！"
+ },
+ "xiaoliu.line.ting.0": {
+  "who": "xiaoliu",
+  "text": "嘿，我聽了喔"
+ },
+ "xiaoliu.line.tsumo.0": {
+  "who": "xiaoliu",
+  "text": "自摸！速度就是一切！"
+ },
+ "xiaoliu.line.ron.0": {
+  "who": "xiaoliu",
+  "text": "胡！你太慢了啦"
+ },
+ "xiaoliu.line.dealIn.0": {
+  "who": "xiaoliu",
+  "text": "可惡，太急了"
+ },
+ "xiaoliu.line.otherWin.0": {
+  "who": "xiaoliu",
+  "text": "好啦好啦，下一把"
+ },
+ "xiaoliu.line.exhausted.0": {
+  "who": "xiaoliu",
+  "text": "流局！快洗牌！"
+ },
+ "xiaoliu.line.matchWin.0": {
+  "who": "xiaoliu",
+  "text": "冠軍是我的！"
+ },
+ "xiaoliu.line.matchLose.0": {
+  "who": "xiaoliu",
+  "text": "回去練手速"
+ },
+ "xiaoliu.line.reply.0": {
+  "who": "xiaoliu",
+  "text": "講那麼多，快打啦！"
+ },
+ "xiaoliu.line.reply.1": {
+  "who": "xiaoliu",
+  "text": "你是不是怕了？"
+ },
+ "xiaoliu.line.friend.0": {
+  "who": "xiaoliu",
+  "text": "兄弟！今天一起衝"
+ },
+ "xiaoliu.line.friend.1": {
+  "who": "xiaoliu",
+  "text": "你來了，比賽才好玩"
+ },
+ "xiaohao.tile.m1": {
+  "who": "xiaohao",
+  "text": "一萬"
+ },
+ "xiaohao.tile.m2": {
+  "who": "xiaohao",
+  "text": "二萬"
+ },
+ "xiaohao.tile.m3": {
+  "who": "xiaohao",
+  "text": "三萬"
+ },
+ "xiaohao.tile.m4": {
+  "who": "xiaohao",
+  "text": "四萬"
+ },
+ "xiaohao.tile.m5": {
+  "who": "xiaohao",
+  "text": "五萬"
+ },
+ "xiaohao.tile.m6": {
+  "who": "xiaohao",
+  "text": "六萬"
+ },
+ "xiaohao.tile.m7": {
+  "who": "xiaohao",
+  "text": "七萬"
+ },
+ "xiaohao.tile.m8": {
+  "who": "xiaohao",
+  "text": "八萬"
+ },
+ "xiaohao.tile.m9": {
+  "who": "xiaohao",
+  "text": "九萬"
+ },
+ "xiaohao.tile.p1": {
+  "who": "xiaohao",
+  "text": "一筒"
+ },
+ "xiaohao.tile.p2": {
+  "who": "xiaohao",
+  "text": "二筒"
+ },
+ "xiaohao.tile.p3": {
+  "who": "xiaohao",
+  "text": "三筒"
+ },
+ "xiaohao.tile.p4": {
+  "who": "xiaohao",
+  "text": "四筒"
+ },
+ "xiaohao.tile.p5": {
+  "who": "xiaohao",
+  "text": "五筒"
+ },
+ "xiaohao.tile.p6": {
+  "who": "xiaohao",
+  "text": "六筒"
+ },
+ "xiaohao.tile.p7": {
+  "who": "xiaohao",
+  "text": "七筒"
+ },
+ "xiaohao.tile.p8": {
+  "who": "xiaohao",
+  "text": "八筒"
+ },
+ "xiaohao.tile.p9": {
+  "who": "xiaohao",
+  "text": "九筒"
+ },
+ "xiaohao.tile.s1": {
+  "who": "xiaohao",
+  "text": "一條"
+ },
+ "xiaohao.tile.s2": {
+  "who": "xiaohao",
+  "text": "二條"
+ },
+ "xiaohao.tile.s3": {
+  "who": "xiaohao",
+  "text": "三條"
+ },
+ "xiaohao.tile.s4": {
+  "who": "xiaohao",
+  "text": "四條"
+ },
+ "xiaohao.tile.s5": {
+  "who": "xiaohao",
+  "text": "五條"
+ },
+ "xiaohao.tile.s6": {
+  "who": "xiaohao",
+  "text": "六條"
+ },
+ "xiaohao.tile.s7": {
+  "who": "xiaohao",
+  "text": "七條"
+ },
+ "xiaohao.tile.s8": {
+  "who": "xiaohao",
+  "text": "八條"
+ },
+ "xiaohao.tile.s9": {
+  "who": "xiaohao",
+  "text": "九條"
+ },
+ "xiaohao.tile.z1": {
+  "who": "xiaohao",
+  "text": "東風"
+ },
+ "xiaohao.tile.z2": {
+  "who": "xiaohao",
+  "text": "南風"
+ },
+ "xiaohao.tile.z3": {
+  "who": "xiaohao",
+  "text": "西風"
+ },
+ "xiaohao.tile.z4": {
+  "who": "xiaohao",
+  "text": "北風"
+ },
+ "xiaohao.tile.z5": {
+  "who": "xiaohao",
+  "text": "紅中"
+ },
+ "xiaohao.tile.z6": {
+  "who": "xiaohao",
+  "text": "發財"
+ },
+ "xiaohao.tile.z7": {
+  "who": "xiaohao",
+  "text": "白板"
+ },
+ "xiaohao.call.chi": {
+  "who": "xiaohao",
+  "text": "吃。"
+ },
+ "xiaohao.call.pon": {
+  "who": "xiaohao",
+  "text": "碰！"
+ },
+ "xiaohao.call.kong": {
+  "who": "xiaohao",
+  "text": "槓！"
+ },
+ "xiaohao.call.hu": {
+  "who": "xiaohao",
+  "text": "胡！",
+  "rate": "+12%",
+  "pitch": "+4Hz"
+ },
+ "xiaohao.call.tsumo": {
+  "who": "xiaohao",
+  "text": "自摸！",
+  "rate": "+12%",
+  "pitch": "+4Hz"
+ },
+ "xiaohao.line.hello.0": {
+  "who": "xiaohao",
+  "text": "要打就打大的"
+ },
+ "xiaohao.line.hello.1": {
+  "who": "xiaohao",
+  "text": "小牌我不胡，要胡就胡大的"
+ },
+ "xiaohao.line.pon.0": {
+  "who": "xiaohao",
+  "text": "碰，大牌在路上了"
+ },
+ "xiaohao.line.chi.0": {
+  "who": "xiaohao",
+  "text": "吃。"
+ },
+ "xiaohao.line.kong.0": {
+  "who": "xiaohao",
+  "text": "槓！加台加台！"
+ },
+ "xiaohao.line.ting.0": {
+  "who": "xiaohao",
+  "text": "這把很大喔，小心"
+ },
+ "xiaohao.line.tsumo.0": {
+  "who": "xiaohao",
+  "text": "自摸！這才叫豪！"
+ },
+ "xiaohao.line.ron.0": {
+  "who": "xiaohao",
+  "text": "胡！台數算一下，嚇死你"
+ },
+ "xiaohao.line.dealIn.0": {
+  "who": "xiaohao",
+  "text": "嘖，大牌還沒做完"
+ },
+ "xiaohao.line.otherWin.0": {
+  "who": "xiaohao",
+  "text": "小牌而已啦"
+ },
+ "xiaohao.line.exhausted.0": {
+  "who": "xiaohao",
+  "text": "流局，可惜我的大牌"
+ },
+ "xiaohao.line.matchWin.0": {
+  "who": "xiaohao",
+  "text": "豪氣干雲！"
+ },
+ "xiaohao.line.matchLose.0": {
+  "who": "xiaohao",
+  "text": "下次做更大的"
+ },
+ "xiaohao.line.reply.0": {
+  "who": "xiaohao",
+  "text": "你那點台數不夠看"
+ },
+ "xiaohao.line.reply.1": {
+  "who": "xiaohao",
+  "text": "哈，有種來拚大的"
+ },
+ "xiaohao.line.friend.0": {
+  "who": "xiaohao",
+  "text": "好兄弟！今天一起做大牌"
+ },
+ "xiaohao.line.friend.1": {
+  "who": "xiaohao",
+  "text": "跟你打，才夠豪"
+ },
+ "xiaoyuan.tile.m1": {
+  "who": "xiaoyuan",
+  "text": "一萬"
+ },
+ "xiaoyuan.tile.m2": {
+  "who": "xiaoyuan",
+  "text": "二萬"
+ },
+ "xiaoyuan.tile.m3": {
+  "who": "xiaoyuan",
+  "text": "三萬"
+ },
+ "xiaoyuan.tile.m4": {
+  "who": "xiaoyuan",
+  "text": "四萬"
+ },
+ "xiaoyuan.tile.m5": {
+  "who": "xiaoyuan",
+  "text": "五萬"
+ },
+ "xiaoyuan.tile.m6": {
+  "who": "xiaoyuan",
+  "text": "六萬"
+ },
+ "xiaoyuan.tile.m7": {
+  "who": "xiaoyuan",
+  "text": "七萬"
+ },
+ "xiaoyuan.tile.m8": {
+  "who": "xiaoyuan",
+  "text": "八萬"
+ },
+ "xiaoyuan.tile.m9": {
+  "who": "xiaoyuan",
+  "text": "九萬"
+ },
+ "xiaoyuan.tile.p1": {
+  "who": "xiaoyuan",
+  "text": "一筒"
+ },
+ "xiaoyuan.tile.p2": {
+  "who": "xiaoyuan",
+  "text": "二筒"
+ },
+ "xiaoyuan.tile.p3": {
+  "who": "xiaoyuan",
+  "text": "三筒"
+ },
+ "xiaoyuan.tile.p4": {
+  "who": "xiaoyuan",
+  "text": "四筒"
+ },
+ "xiaoyuan.tile.p5": {
+  "who": "xiaoyuan",
+  "text": "五筒"
+ },
+ "xiaoyuan.tile.p6": {
+  "who": "xiaoyuan",
+  "text": "六筒"
+ },
+ "xiaoyuan.tile.p7": {
+  "who": "xiaoyuan",
+  "text": "七筒"
+ },
+ "xiaoyuan.tile.p8": {
+  "who": "xiaoyuan",
+  "text": "八筒"
+ },
+ "xiaoyuan.tile.p9": {
+  "who": "xiaoyuan",
+  "text": "九筒"
+ },
+ "xiaoyuan.tile.s1": {
+  "who": "xiaoyuan",
+  "text": "一條"
+ },
+ "xiaoyuan.tile.s2": {
+  "who": "xiaoyuan",
+  "text": "二條"
+ },
+ "xiaoyuan.tile.s3": {
+  "who": "xiaoyuan",
+  "text": "三條"
+ },
+ "xiaoyuan.tile.s4": {
+  "who": "xiaoyuan",
+  "text": "四條"
+ },
+ "xiaoyuan.tile.s5": {
+  "who": "xiaoyuan",
+  "text": "五條"
+ },
+ "xiaoyuan.tile.s6": {
+  "who": "xiaoyuan",
+  "text": "六條"
+ },
+ "xiaoyuan.tile.s7": {
+  "who": "xiaoyuan",
+  "text": "七條"
+ },
+ "xiaoyuan.tile.s8": {
+  "who": "xiaoyuan",
+  "text": "八條"
+ },
+ "xiaoyuan.tile.s9": {
+  "who": "xiaoyuan",
+  "text": "九條"
+ },
+ "xiaoyuan.tile.z1": {
+  "who": "xiaoyuan",
+  "text": "東風"
+ },
+ "xiaoyuan.tile.z2": {
+  "who": "xiaoyuan",
+  "text": "南風"
+ },
+ "xiaoyuan.tile.z3": {
+  "who": "xiaoyuan",
+  "text": "西風"
+ },
+ "xiaoyuan.tile.z4": {
+  "who": "xiaoyuan",
+  "text": "北風"
+ },
+ "xiaoyuan.tile.z5": {
+  "who": "xiaoyuan",
+  "text": "紅中"
+ },
+ "xiaoyuan.tile.z6": {
+  "who": "xiaoyuan",
+  "text": "發財"
+ },
+ "xiaoyuan.tile.z7": {
+  "who": "xiaoyuan",
+  "text": "白板"
+ },
+ "xiaoyuan.call.chi": {
+  "who": "xiaoyuan",
+  "text": "吃。"
+ },
+ "xiaoyuan.call.pon": {
+  "who": "xiaoyuan",
+  "text": "碰。"
+ },
+ "xiaoyuan.call.kong": {
+  "who": "xiaoyuan",
+  "text": "槓。"
+ },
+ "xiaoyuan.call.hu": {
+  "who": "xiaoyuan",
+  "text": "胡了。",
+  "rate": "+8%",
+  "pitch": "+10Hz"
+ },
+ "xiaoyuan.call.tsumo": {
+  "who": "xiaoyuan",
+  "text": "自摸。",
+  "rate": "+8%",
+  "pitch": "+10Hz"
+ },
+ "xiaoyuan.line.hello.0": {
+  "who": "xiaoyuan",
+  "text": "……請多指教"
+ },
+ "xiaoyuan.line.hello.1": {
+  "who": "xiaoyuan",
+  "text": "我不太說話，專心打牌"
+ },
+ "xiaoyuan.line.pon.0": {
+  "who": "xiaoyuan",
+  "text": "碰。"
+ },
+ "xiaoyuan.line.chi.0": {
+  "who": "xiaoyuan",
+  "text": "吃。"
+ },
+ "xiaoyuan.line.kong.0": {
+  "who": "xiaoyuan",
+  "text": "槓。"
+ },
+ "xiaoyuan.line.ting.0": {
+  "who": "xiaoyuan",
+  "text": "嗯。"
+ },
+ "xiaoyuan.line.tsumo.0": {
+  "who": "xiaoyuan",
+  "text": "自摸。"
+ },
+ "xiaoyuan.line.ron.0": {
+  "who": "xiaoyuan",
+  "text": "胡了。"
+ },
+ "xiaoyuan.line.dealIn.0": {
+  "who": "xiaoyuan",
+  "text": "……失誤了"
+ },
+ "xiaoyuan.line.otherWin.0": {
+  "who": "xiaoyuan",
+  "text": "嗯，打得好"
+ },
+ "xiaoyuan.line.exhausted.0": {
+  "who": "xiaoyuan",
+  "text": "流局。"
+ },
+ "xiaoyuan.line.matchWin.0": {
+  "who": "xiaoyuan",
+  "text": "……謝謝大家"
+ },
+ "xiaoyuan.line.matchLose.0": {
+  "who": "xiaoyuan",
+  "text": "我會再努力"
+ },
+ "xiaoyuan.line.reply.0": {
+  "who": "xiaoyuan",
+  "text": "……你很吵。"
+ },
+ "xiaoyuan.line.reply.1": {
+  "who": "xiaoyuan",
+  "text": "嗯。"
+ },
+ "xiaoyuan.line.friend.0": {
+  "who": "xiaoyuan",
+  "text": "……你來了。"
+ },
+ "xiaoyuan.line.friend.1": {
+  "who": "xiaoyuan",
+  "text": "跟你打，我比較會講話"
+ },
+ "dushen.tile.m1": {
+  "who": "dushen",
+  "text": "一萬"
+ },
+ "dushen.tile.m2": {
+  "who": "dushen",
+  "text": "二萬"
+ },
+ "dushen.tile.m3": {
+  "who": "dushen",
+  "text": "三萬"
+ },
+ "dushen.tile.m4": {
+  "who": "dushen",
+  "text": "四萬"
+ },
+ "dushen.tile.m5": {
+  "who": "dushen",
+  "text": "五萬"
+ },
+ "dushen.tile.m6": {
+  "who": "dushen",
+  "text": "六萬"
+ },
+ "dushen.tile.m7": {
+  "who": "dushen",
+  "text": "七萬"
+ },
+ "dushen.tile.m8": {
+  "who": "dushen",
+  "text": "八萬"
+ },
+ "dushen.tile.m9": {
+  "who": "dushen",
+  "text": "九萬"
+ },
+ "dushen.tile.p1": {
+  "who": "dushen",
+  "text": "一筒"
+ },
+ "dushen.tile.p2": {
+  "who": "dushen",
+  "text": "二筒"
+ },
+ "dushen.tile.p3": {
+  "who": "dushen",
+  "text": "三筒"
+ },
+ "dushen.tile.p4": {
+  "who": "dushen",
+  "text": "四筒"
+ },
+ "dushen.tile.p5": {
+  "who": "dushen",
+  "text": "五筒"
+ },
+ "dushen.tile.p6": {
+  "who": "dushen",
+  "text": "六筒"
+ },
+ "dushen.tile.p7": {
+  "who": "dushen",
+  "text": "七筒"
+ },
+ "dushen.tile.p8": {
+  "who": "dushen",
+  "text": "八筒"
+ },
+ "dushen.tile.p9": {
+  "who": "dushen",
+  "text": "九筒"
+ },
+ "dushen.tile.s1": {
+  "who": "dushen",
+  "text": "一條"
+ },
+ "dushen.tile.s2": {
+  "who": "dushen",
+  "text": "二條"
+ },
+ "dushen.tile.s3": {
+  "who": "dushen",
+  "text": "三條"
+ },
+ "dushen.tile.s4": {
+  "who": "dushen",
+  "text": "四條"
+ },
+ "dushen.tile.s5": {
+  "who": "dushen",
+  "text": "五條"
+ },
+ "dushen.tile.s6": {
+  "who": "dushen",
+  "text": "六條"
+ },
+ "dushen.tile.s7": {
+  "who": "dushen",
+  "text": "七條"
+ },
+ "dushen.tile.s8": {
+  "who": "dushen",
+  "text": "八條"
+ },
+ "dushen.tile.s9": {
+  "who": "dushen",
+  "text": "九條"
+ },
+ "dushen.tile.z1": {
+  "who": "dushen",
+  "text": "東風"
+ },
+ "dushen.tile.z2": {
+  "who": "dushen",
+  "text": "南風"
+ },
+ "dushen.tile.z3": {
+  "who": "dushen",
+  "text": "西風"
+ },
+ "dushen.tile.z4": {
+  "who": "dushen",
+  "text": "北風"
+ },
+ "dushen.tile.z5": {
+  "who": "dushen",
+  "text": "紅中"
+ },
+ "dushen.tile.z6": {
+  "who": "dushen",
+  "text": "發財"
+ },
+ "dushen.tile.z7": {
+  "who": "dushen",
+  "text": "白板"
+ },
+ "dushen.call.chi": {
+  "who": "dushen",
+  "text": "吃。"
+ },
+ "dushen.call.pon": {
+  "who": "dushen",
+  "text": "碰。"
+ },
+ "dushen.call.kong": {
+  "who": "dushen",
+  "text": "槓。"
+ },
+ "dushen.call.hu": {
+  "who": "dushen",
+  "text": "胡了。",
+  "rate": "+0%",
+  "pitch": "-6Hz"
+ },
+ "dushen.call.tsumo": {
+  "who": "dushen",
+  "text": "自摸。",
+  "rate": "+0%",
+  "pitch": "-6Hz"
+ },
+ "dushen.line.hello.0": {
+  "who": "dushen",
+  "text": "今天，我只吃巧克力。"
+ },
+ "dushen.line.hello.1": {
+  "who": "dushen",
+  "text": "坐吧，開始吧。"
+ },
+ "dushen.line.pon.0": {
+  "who": "dushen",
+  "text": "碰。"
+ },
+ "dushen.line.chi.0": {
+  "who": "dushen",
+  "text": "吃。"
+ },
+ "dushen.line.kong.0": {
+  "who": "dushen",
+  "text": "槓。"
+ },
+ "dushen.line.ting.0": {
+  "who": "dushen",
+  "text": "這一手，我已經看到結局了"
+ },
+ "dushen.line.tsumo.0": {
+  "who": "dushen",
+  "text": "自摸。這張，我早就知道。"
+ },
+ "dushen.line.ron.0": {
+  "who": "dushen",
+  "text": "胡了。承讓。"
+ },
+ "dushen.line.dealIn.0": {
+  "who": "dushen",
+  "text": "……有意思。"
+ },
+ "dushen.line.otherWin.0": {
+  "who": "dushen",
+  "text": "不錯，你有天分。"
+ },
+ "dushen.line.exhausted.0": {
+  "who": "dushen",
+  "text": "流局。下一局。"
+ },
+ "dushen.line.matchWin.0": {
+  "who": "dushen",
+  "text": "牌桌上，我從不失手。"
+ },
+ "dushen.line.matchLose.0": {
+  "who": "dushen",
+  "text": "年輕人，你讓我想起從前的自己。"
+ },
+ "dushen.line.skill.0": {
+  "who": "dushen",
+  "text": "牌，來。"
+ },
+ "dushen.line.reply.0": {
+  "who": "dushen",
+  "text": "沉住氣。"
+ },
+ "dushen.line.reply.1": {
+  "who": "dushen",
+  "text": "心急，是牌桌上的大忌。"
+ },
+ "dushen.line.friend.0": {
+  "who": "dushen",
+  "text": "又是你。坐吧。"
+ },
+ "dushen.line.friend.1": {
+  "who": "dushen",
+  "text": "我等你很久了。"
+ },
+ "duxia.tile.m1": {
+  "who": "duxia",
+  "text": "一萬"
+ },
+ "duxia.tile.m2": {
+  "who": "duxia",
+  "text": "二萬"
+ },
+ "duxia.tile.m3": {
+  "who": "duxia",
+  "text": "三萬"
+ },
+ "duxia.tile.m4": {
+  "who": "duxia",
+  "text": "四萬"
+ },
+ "duxia.tile.m5": {
+  "who": "duxia",
+  "text": "五萬"
+ },
+ "duxia.tile.m6": {
+  "who": "duxia",
+  "text": "六萬"
+ },
+ "duxia.tile.m7": {
+  "who": "duxia",
+  "text": "七萬"
+ },
+ "duxia.tile.m8": {
+  "who": "duxia",
+  "text": "八萬"
+ },
+ "duxia.tile.m9": {
+  "who": "duxia",
+  "text": "九萬"
+ },
+ "duxia.tile.p1": {
+  "who": "duxia",
+  "text": "一筒"
+ },
+ "duxia.tile.p2": {
+  "who": "duxia",
+  "text": "二筒"
+ },
+ "duxia.tile.p3": {
+  "who": "duxia",
+  "text": "三筒"
+ },
+ "duxia.tile.p4": {
+  "who": "duxia",
+  "text": "四筒"
+ },
+ "duxia.tile.p5": {
+  "who": "duxia",
+  "text": "五筒"
+ },
+ "duxia.tile.p6": {
+  "who": "duxia",
+  "text": "六筒"
+ },
+ "duxia.tile.p7": {
+  "who": "duxia",
+  "text": "七筒"
+ },
+ "duxia.tile.p8": {
+  "who": "duxia",
+  "text": "八筒"
+ },
+ "duxia.tile.p9": {
+  "who": "duxia",
+  "text": "九筒"
+ },
+ "duxia.tile.s1": {
+  "who": "duxia",
+  "text": "一條"
+ },
+ "duxia.tile.s2": {
+  "who": "duxia",
+  "text": "二條"
+ },
+ "duxia.tile.s3": {
+  "who": "duxia",
+  "text": "三條"
+ },
+ "duxia.tile.s4": {
+  "who": "duxia",
+  "text": "四條"
+ },
+ "duxia.tile.s5": {
+  "who": "duxia",
+  "text": "五條"
+ },
+ "duxia.tile.s6": {
+  "who": "duxia",
+  "text": "六條"
+ },
+ "duxia.tile.s7": {
+  "who": "duxia",
+  "text": "七條"
+ },
+ "duxia.tile.s8": {
+  "who": "duxia",
+  "text": "八條"
+ },
+ "duxia.tile.s9": {
+  "who": "duxia",
+  "text": "九條"
+ },
+ "duxia.tile.z1": {
+  "who": "duxia",
+  "text": "東風"
+ },
+ "duxia.tile.z2": {
+  "who": "duxia",
+  "text": "南風"
+ },
+ "duxia.tile.z3": {
+  "who": "duxia",
+  "text": "西風"
+ },
+ "duxia.tile.z4": {
+  "who": "duxia",
+  "text": "北風"
+ },
+ "duxia.tile.z5": {
+  "who": "duxia",
+  "text": "紅中"
+ },
+ "duxia.tile.z6": {
+  "who": "duxia",
+  "text": "發財"
+ },
+ "duxia.tile.z7": {
+  "who": "duxia",
+  "text": "白板"
+ },
+ "duxia.call.chi": {
+  "who": "duxia",
+  "text": "吃！"
+ },
+ "duxia.call.pon": {
+  "who": "duxia",
+  "text": "碰！"
+ },
+ "duxia.call.kong": {
+  "who": "duxia",
+  "text": "槓！"
+ },
+ "duxia.call.hu": {
+  "who": "duxia",
+  "text": "胡！",
+  "rate": "+16%",
+  "pitch": "+6Hz"
+ },
+ "duxia.call.tsumo": {
+  "who": "duxia",
+  "text": "自摸！",
+  "rate": "+16%",
+  "pitch": "+6Hz"
+ },
+ "duxia.line.hello.0": {
+  "who": "duxia",
+  "text": "行走江湖，講的是一個義字"
+ },
+ "duxia.line.hello.1": {
+  "who": "duxia",
+  "text": "朋友，今天各憑本事"
+ },
+ "duxia.line.pon.0": {
+  "who": "duxia",
+  "text": "碰！"
+ },
+ "duxia.line.chi.0": {
+  "who": "duxia",
+  "text": "吃！"
+ },
+ "duxia.line.kong.0": {
+  "who": "duxia",
+  "text": "槓！"
+ },
+ "duxia.line.ting.0": {
+  "who": "duxia",
+  "text": "差一張，就收工了"
+ },
+ "duxia.line.tsumo.0": {
+  "who": "duxia",
+  "text": "自摸！願賭服輸！"
+ },
+ "duxia.line.ron.0": {
+  "who": "duxia",
+  "text": "胡！朋友，承讓了"
+ },
+ "duxia.line.dealIn.0": {
+  "who": "duxia",
+  "text": "好，這張算我的"
+ },
+ "duxia.line.otherWin.0": {
+  "who": "duxia",
+  "text": "好身手！"
+ },
+ "duxia.line.exhausted.0": {
+  "who": "duxia",
+  "text": "流局，再來"
+ },
+ "duxia.line.matchWin.0": {
+  "who": "duxia",
+  "text": "贏得光明正大"
+ },
+ "duxia.line.matchLose.0": {
+  "who": "duxia",
+  "text": "輸了就是輸了，我服"
+ },
+ "duxia.line.skill.0": {
+  "who": "duxia",
+  "text": "讓我看看你的底牌"
+ },
+ "duxia.line.reply.0": {
+  "who": "duxia",
+  "text": "朋友，嘴上功夫沒用"
+ },
+ "duxia.line.reply.1": {
+  "who": "duxia",
+  "text": "有膽識，我欣賞"
+ },
+ "duxia.line.friend.0": {
+  "who": "duxia",
+  "text": "朋友！又見面了"
+ },
+ "duxia.line.friend.1": {
+  "who": "duxia",
+  "text": "有你在，這桌才有意思"
+ },
+ "dusheng.tile.m1": {
+  "who": "dusheng",
+  "text": "一萬"
+ },
+ "dusheng.tile.m2": {
+  "who": "dusheng",
+  "text": "二萬"
+ },
+ "dusheng.tile.m3": {
+  "who": "dusheng",
+  "text": "三萬"
+ },
+ "dusheng.tile.m4": {
+  "who": "dusheng",
+  "text": "四萬"
+ },
+ "dusheng.tile.m5": {
+  "who": "dusheng",
+  "text": "五萬"
+ },
+ "dusheng.tile.m6": {
+  "who": "dusheng",
+  "text": "六萬"
+ },
+ "dusheng.tile.m7": {
+  "who": "dusheng",
+  "text": "七萬"
+ },
+ "dusheng.tile.m8": {
+  "who": "dusheng",
+  "text": "八萬"
+ },
+ "dusheng.tile.m9": {
+  "who": "dusheng",
+  "text": "九萬"
+ },
+ "dusheng.tile.p1": {
+  "who": "dusheng",
+  "text": "一筒"
+ },
+ "dusheng.tile.p2": {
+  "who": "dusheng",
+  "text": "二筒"
+ },
+ "dusheng.tile.p3": {
+  "who": "dusheng",
+  "text": "三筒"
+ },
+ "dusheng.tile.p4": {
+  "who": "dusheng",
+  "text": "四筒"
+ },
+ "dusheng.tile.p5": {
+  "who": "dusheng",
+  "text": "五筒"
+ },
+ "dusheng.tile.p6": {
+  "who": "dusheng",
+  "text": "六筒"
+ },
+ "dusheng.tile.p7": {
+  "who": "dusheng",
+  "text": "七筒"
+ },
+ "dusheng.tile.p8": {
+  "who": "dusheng",
+  "text": "八筒"
+ },
+ "dusheng.tile.p9": {
+  "who": "dusheng",
+  "text": "九筒"
+ },
+ "dusheng.tile.s1": {
+  "who": "dusheng",
+  "text": "一條"
+ },
+ "dusheng.tile.s2": {
+  "who": "dusheng",
+  "text": "二條"
+ },
+ "dusheng.tile.s3": {
+  "who": "dusheng",
+  "text": "三條"
+ },
+ "dusheng.tile.s4": {
+  "who": "dusheng",
+  "text": "四條"
+ },
+ "dusheng.tile.s5": {
+  "who": "dusheng",
+  "text": "五條"
+ },
+ "dusheng.tile.s6": {
+  "who": "dusheng",
+  "text": "六條"
+ },
+ "dusheng.tile.s7": {
+  "who": "dusheng",
+  "text": "七條"
+ },
+ "dusheng.tile.s8": {
+  "who": "dusheng",
+  "text": "八條"
+ },
+ "dusheng.tile.s9": {
+  "who": "dusheng",
+  "text": "九條"
+ },
+ "dusheng.tile.z1": {
+  "who": "dusheng",
+  "text": "東風"
+ },
+ "dusheng.tile.z2": {
+  "who": "dusheng",
+  "text": "南風"
+ },
+ "dusheng.tile.z3": {
+  "who": "dusheng",
+  "text": "西風"
+ },
+ "dusheng.tile.z4": {
+  "who": "dusheng",
+  "text": "北風"
+ },
+ "dusheng.tile.z5": {
+  "who": "dusheng",
+  "text": "紅中"
+ },
+ "dusheng.tile.z6": {
+  "who": "dusheng",
+  "text": "發財"
+ },
+ "dusheng.tile.z7": {
+  "who": "dusheng",
+  "text": "白板"
+ },
+ "dusheng.call.chi": {
+  "who": "dusheng",
+  "text": "吃！"
+ },
+ "dusheng.call.pon": {
+  "who": "dusheng",
+  "text": "碰！"
+ },
+ "dusheng.call.kong": {
+  "who": "dusheng",
+  "text": "槓！"
+ },
+ "dusheng.call.hu": {
+  "who": "dusheng",
+  "text": "胡啦！",
+  "rate": "+20%",
+  "pitch": "+18Hz"
+ },
+ "dusheng.call.tsumo": {
+  "who": "dusheng",
+  "text": "自摸！",
+  "rate": "+20%",
+  "pitch": "+18Hz"
+ },
+ "dusheng.line.hello.0": {
+  "who": "dusheng",
+  "text": "我的特異功能，今天狀態很好！"
+ },
+ "dusheng.line.hello.1": {
+  "who": "dusheng",
+  "text": "大家好，我是來拿冠軍的"
+ },
+ "dusheng.line.pon.0": {
+  "who": "dusheng",
+  "text": "碰！哈哈！"
+ },
+ "dusheng.line.chi.0": {
+  "who": "dusheng",
+  "text": "吃！"
+ },
+ "dusheng.line.kong.0": {
+  "who": "dusheng",
+  "text": "槓！超能力發動！"
+ },
+ "dusheng.line.ting.0": {
+  "who": "dusheng",
+  "text": "我感應到了！"
+ },
+ "dusheng.line.tsumo.0": {
+  "who": "dusheng",
+  "text": "自摸！透視眼發功！"
+ },
+ "dusheng.line.ron.0": {
+  "who": "dusheng",
+  "text": "胡啦！你的牌我早就看穿了"
+ },
+ "dusheng.line.dealIn.0": {
+  "who": "dusheng",
+  "text": "哎呀，功力不夠"
+ },
+ "dusheng.line.otherWin.0": {
+  "who": "dusheng",
+  "text": "你是不是也有特異功能？"
+ },
+ "dusheng.line.exhausted.0": {
+  "who": "dusheng",
+  "text": "流局，功力要充電"
+ },
+ "dusheng.line.matchWin.0": {
+  "who": "dusheng",
+  "text": "我就說我有特異功能嘛！"
+ },
+ "dusheng.line.matchLose.0": {
+  "who": "dusheng",
+  "text": "今天功力耗盡了……"
+ },
+ "dusheng.line.skill.0": {
+  "who": "dusheng",
+  "text": "變！"
+ },
+ "dusheng.line.reply.0": {
+  "who": "dusheng",
+  "text": "你這樣講，我要生氣了喔！"
+ },
+ "dusheng.line.reply.1": {
+  "who": "dusheng",
+  "text": "哼，看我的特異功能！"
+ },
+ "dusheng.line.friend.0": {
+  "who": "dusheng",
+  "text": "好兄弟！你也有特異功能嗎？"
+ },
+ "dusheng.line.friend.1": {
+  "who": "dusheng",
+  "text": "你來了，我功力大增！"
+ },
  "me-f.tile.m1": {
   "who": "me-f",
   "text": "一萬"
@@ -4636,5 +6700,101 @@
  "zheng.banter.23": {
   "who": "zheng",
   "text": "我讀的是你的表情。"
+ },
+ "shange.banter.24": {
+  "who": "shange",
+  "text": "老闆，店不用顧喔？"
+ },
+ "daqing.banter.24": {
+  "who": "daqing",
+  "text": "老婆在顧啦，你唱你的歌。"
+ },
+ "daqing.banter.25": {
+  "who": "daqing",
+  "text": "陳記的，今天糕仔有沒有特價？"
+ },
+ "chenji.banter.25": {
+  "who": "chenji",
+  "text": "你胡一把，我送你一盒。"
+ },
+ "chenji.banter.26": {
+  "who": "chenji",
+  "text": "別唱了，專心打。"
+ },
+ "shange.banter.26": {
+  "who": "shange",
+  "text": "唱歌才會手氣好啦！"
+ },
+ "daqing.banter.27": {
+  "who": "daqing",
+  "text": "這把讓我一下啦！"
+ },
+ "shange.banter.27": {
+  "who": "shange",
+  "text": "讓你可以，先聽我唱完一首。"
+ },
+ "xiaoliu.banter.28": {
+  "who": "xiaoliu",
+  "text": "小豪，你大牌做好了沒？快一點啦！"
+ },
+ "xiaohao.banter.28": {
+  "who": "xiaohao",
+  "text": "急什麼，豪的東西要慢慢來。"
+ },
+ "xiaohao.banter.29": {
+  "who": "xiaohao",
+  "text": "小員，你怎麼都不講話？"
+ },
+ "xiaoyuan.banter.29": {
+  "who": "xiaoyuan",
+  "text": "……在算你的牌。"
+ },
+ "xiaoyuan.banter.30": {
+  "who": "xiaoyuan",
+  "text": "小劉，你剛剛打太快了。"
+ },
+ "xiaoliu.banter.30": {
+  "who": "xiaoliu",
+  "text": "快才會贏啦！"
+ },
+ "xiaoliu.banter.31": {
+  "who": "xiaoliu",
+  "text": "小員，你是不是聽了？"
+ },
+ "xiaoyuan.banter.31": {
+  "who": "xiaoyuan",
+  "text": "……你猜。"
+ },
+ "dusheng.banter.32": {
+  "who": "dusheng",
+  "text": "前輩，你那塊巧克力可以分我一口嗎？"
+ },
+ "dushen.banter.32": {
+  "who": "dushen",
+  "text": "贏了這局，整盒給你。"
+ },
+ "duxia.banter.33": {
+  "who": "duxia",
+  "text": "聖哥，別用特異功能，公平點。"
+ },
+ "dusheng.banter.33": {
+  "who": "dusheng",
+  "text": "我哪有！我是用眼睛看的！"
+ },
+ "dushen.banter.34": {
+  "who": "dushen",
+  "text": "你的眼神，洩漏了你的牌。"
+ },
+ "duxia.banter.34": {
+  "who": "duxia",
+  "text": "彼此彼此。"
+ },
+ "dusheng.banter.35": {
+  "who": "dusheng",
+  "text": "俠哥，我感應到你快胡了！"
+ },
+ "duxia.banter.35": {
+  "who": "duxia",
+  "text": "感應得到，擋得住嗎？"
  }
 }
