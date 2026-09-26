@@ -415,10 +415,20 @@ button.mt {
 }
 
 .ladder {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  display: flex;
   gap: 10px;
   align-items: center;
+  /* 六關：一次看四關多一點，左右滑 */
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  padding: 6px 2px 12px;
+  scrollbar-width: thin;
+}
+
+.ladder > .stage-card {
+  flex: 0 0 calc((100% - 30px) / 4.3);
+  scroll-snap-align: start;
 }
 
 .stage-card {
@@ -454,6 +464,12 @@ button.mt {
 }
 .stage-card:nth-child(4) {
   background: #ece3ff;
+}
+.stage-card:nth-child(5) {
+  background: #dcecf7;
+}
+.stage-card:nth-child(6) {
+  background: #ffe0e4;
 }
 
 .stage-card.locked {
@@ -3953,7 +3969,7 @@ kbd {
 
 .stage-pick {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 6px;
 }
 

@@ -143,7 +143,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
         </svg>
       </button>
       <span className="round-info">
-        東風圈 第 {m.handNo} 局
+        {WIND_CHAR[h.roundWind]}風圈 第 {m.handNo} 局
         <small>
           莊 {dealerName}
           {m.streak ? `・連 ${m.streak}` : ''}
@@ -215,7 +215,8 @@ function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
           </span>
         ) : (
           <span className="c-center">
-            東<small>{m.handNo}</small>
+            {WIND_CHAR[h.roundWind]}
+            <small>{m.handNo}</small>
           </span>
         )}
       </div>

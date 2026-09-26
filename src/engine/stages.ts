@@ -1,6 +1,6 @@
 // 闖關：一關一個場景、三個對手、底／台。拿第一過關，解鎖下一關和一款桌布。
 
-export type StageRule = 'raffle' | 'newyear' | 'boss'
+export type StageRule = 'raffle' | 'newyear' | 'boss' | 'storm' | 'final'
 
 export interface Stage {
   id: number
@@ -13,6 +13,8 @@ export interface Stage {
   base: number
   perTai: number
   startPoints: number
+  /** 打幾圈（1 = 東風圈；2 = 東風、南風兩圈） */
+  rounds?: number
   /** 過關解鎖的桌布 */
   reward: TableSkin
 }
@@ -31,6 +33,8 @@ export const SKINS: Record<string, TableSkin> = {
   peach: { id: 'peach', name: '蜜桃橘', color: '#ff8a65', rim: '#f0764f', edge: '#d35d38' },
   grape: { id: 'grape', name: '葡萄紫', color: '#8b5cf6', rim: '#7a49ea', edge: '#5f33c4' },
   gold: { id: 'gold', name: '雀神金', color: '#f2b705', rim: '#dca300', edge: '#b58500' },
+  storm: { id: 'storm', name: '颱風藍', color: '#3c6e9e', rim: '#2f5d8a', edge: '#214669' },
+  ruby: { id: 'ruby', name: '冠軍紅', color: '#d7263d', rim: '#bd1f33', edge: '#951628' },
 }
 
 export const STAGES: readonly Stage[] = [
@@ -79,5 +83,30 @@ export const STAGES: readonly Stage[] = [
     perTai: 500,
     startPoints: 100000,
     reward: SKINS.gold,
+  },
+  {
+    id: 4,
+    name: '颱風夜民宿',
+    place: '海邊民宿客廳，外面風雨交加',
+    rule: 'storm',
+    ruleText: '颱風假打通宵：打東風、南風兩圈',
+    opponents: ['captain', 'xiuqin', 'leo'],
+    base: 2500,
+    perTai: 600,
+    startPoints: 120000,
+    rounds: 2,
+    reward: SKINS.storm,
+  },
+  {
+    id: 5,
+    name: '全國麻將大賽',
+    place: '小巨蛋決賽，全台轉播中',
+    rule: 'final',
+    ruleText: '決賽加碼：自摸多算 1 台',
+    opponents: ['acai', 'nova', 'zheng'],
+    base: 3000,
+    perTai: 800,
+    startPoints: 150000,
+    reward: SKINS.ruby,
   },
 ]

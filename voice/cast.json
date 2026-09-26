@@ -147,6 +147,81 @@
   }
  },
  {
+  "id": "captain",
+  "name": "船長阿海",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-2%",
+   "pitch": "-14Hz",
+   "fx": [
+    "gruff",
+    "hearty"
+   ]
+  }
+ },
+ {
+  "id": "xiuqin",
+  "name": "秀琴姐",
+  "voice": {
+   "voice": "zh-TW-HsiaoChenNeural",
+   "rate": "+4%",
+   "pitch": "-4Hz",
+   "fx": [
+    "warm"
+   ]
+  }
+ },
+ {
+  "id": "leo",
+  "name": "Leo",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "+6%",
+   "pitch": "+8Hz",
+   "fx": [
+    "bright"
+   ]
+  }
+ },
+ {
+  "id": "acai",
+  "name": "阿財伯",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-12%",
+   "pitch": "-6Hz",
+   "fx": [
+    "elder",
+    "warm"
+   ]
+  }
+ },
+ {
+  "id": "nova",
+  "name": "Nova",
+  "voice": {
+   "voice": "zh-TW-HsiaoYuNeural",
+   "rate": "+16%",
+   "pitch": "+4Hz",
+   "fx": [
+    "bright",
+    "loud"
+   ]
+  }
+ },
+ {
+  "id": "zheng",
+  "name": "鄭警官",
+  "voice": {
+   "voice": "zh-TW-YunJheNeural",
+   "rate": "-8%",
+   "pitch": "-16Hz",
+   "fx": [
+    "raspy"
+   ]
+  }
+ },
+ {
   "id": "me-f",
   "name": "你（女聲）",
   "voice": {

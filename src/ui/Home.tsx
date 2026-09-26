@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import { STAGES } from '../engine/stages'
 import { dailyInfo } from '../daily'
@@ -21,6 +21,13 @@ export function Home() {
   const todo = claimable(progress)
   const daily = dailyInfo()
   const doneToday = progress.dailyBest?.date === daily.date ? progress.dailyBest : null
+  // 關卡太多放不下：一打開就捲到你現在打到的那一關
+  const ladder = useRef<HTMLElement>(null)
+  useEffect(() => {
+    const el = ladder.current
+    const card = el?.children[Math.min(progress.cleared, STAGES.length - 1)] as HTMLElement | undefined
+    if (el && card && progress.cleared >= 3) el.scrollLeft = card.offsetLeft - el.offsetLeft - 8
+  }, [progress.cleared])
 
   return (
     <div className="home">
@@ -86,7 +93,7 @@ export function Home() {
         </p>
       </section>
 
-      <section className="ladder" aria-label="闖關">
+      <section className="ladder" aria-label="闖關" ref={ladder}>
         {STAGES.map((st, i) => {
           const locked = i > progress.cleared
           const done = i < progress.cleared

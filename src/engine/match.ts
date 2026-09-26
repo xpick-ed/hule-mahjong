@@ -55,7 +55,7 @@ export interface MatchState {
   dealer: number
   /** 連莊次數 */
   streak: number
-  /** 換過幾次莊；換滿 4 次東風圈結束 */
+  /** 換過幾次莊；換滿 4 次（兩圈的關卡是 8 次）結束；第 5–8 次是南風圈 */
   passes: number
   handNo: number
   hand: T.HandState
@@ -147,6 +147,13 @@ export function styleOf(m: MatchState, seat: number): AiStyle {
 }
 
 export const rulesOf = (m: MatchState): T.Rules => m.rules ?? T.DEFAULT_RULES
+
+/** 這一關打幾圈（東風圈 1；颱風夜打東風、南風 2 圈） */
+export const roundsOf = (m: MatchState) => STAGES[m.stage]?.rounds ?? 1
+/** 現在是哪一圈：0 東風圈、1 南風圈 */
+export const roundWindOf = (m: MatchState) => Math.min(3, Math.floor(m.passes / 4))
+/** 這一局打完如果換莊，整場就結束了 */
+export const lastRound = (m: MatchState) => m.passes >= 4 * roundsOf(m) - 1
 
 /**
  * 電腦下一步前要等多久（毫秒，一般速度）。r 是 0–1 的亂數：每次想的時間不一樣。
@@ -376,6 +383,11 @@ function settle(m: MatchState) {
     const payers = win.from === null ? [0, 1, 2, 3].filter((s) => s !== w) : [win.from]
     // 過年紅包：自摸三家都付兩倍
     const mult = rule === 'newyear' && win.from === null ? 2 : 1
+    // 全國大賽決賽：自摸多算 1 台（算進台數裡，結算畫面看得到）
+    if (rule === 'final' && win.from === null && !win.score.items.some((x) => x.name === '決賽加碼')) {
+      win.score.items.push({ name: '決賽加碼', tai: 1 })
+      win.score.total += 1
+    }
     if (mult > 1) extras.push({ label: '過年紅包：自摸三家付兩倍' })
     // 尾牙摸彩：你胡的牌裡有紅中就抽獎
     const withRed = [...win.hand, ...h.seats[w].melds.flatMap((x) => x.tiles)].some((t) => t.kind === 'z5')
@@ -420,14 +432,14 @@ export function nextHand(m: MatchState): MatchState {
       r.streak = 0
       r.passes++
     }
-    if (r.passes >= 4 || r.points.some((p) => p < 0)) {
+    if (r.passes >= 4 * roundsOf(r) || r.points.some((p) => p < 0)) {
       r.phase = 'end'
       return
     }
     r.handNo++
     r.result = null
     r.peek = null
-    r.hand = T.newHand(r, r.dealer, 0, rulesOf(r))
+    r.hand = T.newHand(r, r.dealer, roundWindOf(r), rulesOf(r))
     r.phase = 'play'
   })
 }

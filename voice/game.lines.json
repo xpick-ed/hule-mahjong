@@ -2709,6 +2709,1390 @@
   "who": "coco",
   "text": "偷看一下下～聊天室不要說喔"
  },
+ "captain.tile.m1": {
+  "who": "captain",
+  "text": "一萬"
+ },
+ "captain.tile.m2": {
+  "who": "captain",
+  "text": "二萬"
+ },
+ "captain.tile.m3": {
+  "who": "captain",
+  "text": "三萬"
+ },
+ "captain.tile.m4": {
+  "who": "captain",
+  "text": "四萬"
+ },
+ "captain.tile.m5": {
+  "who": "captain",
+  "text": "五萬"
+ },
+ "captain.tile.m6": {
+  "who": "captain",
+  "text": "六萬"
+ },
+ "captain.tile.m7": {
+  "who": "captain",
+  "text": "七萬"
+ },
+ "captain.tile.m8": {
+  "who": "captain",
+  "text": "八萬"
+ },
+ "captain.tile.m9": {
+  "who": "captain",
+  "text": "九萬"
+ },
+ "captain.tile.p1": {
+  "who": "captain",
+  "text": "一筒"
+ },
+ "captain.tile.p2": {
+  "who": "captain",
+  "text": "二筒"
+ },
+ "captain.tile.p3": {
+  "who": "captain",
+  "text": "三筒"
+ },
+ "captain.tile.p4": {
+  "who": "captain",
+  "text": "四筒"
+ },
+ "captain.tile.p5": {
+  "who": "captain",
+  "text": "五筒"
+ },
+ "captain.tile.p6": {
+  "who": "captain",
+  "text": "六筒"
+ },
+ "captain.tile.p7": {
+  "who": "captain",
+  "text": "七筒"
+ },
+ "captain.tile.p8": {
+  "who": "captain",
+  "text": "八筒"
+ },
+ "captain.tile.p9": {
+  "who": "captain",
+  "text": "九筒"
+ },
+ "captain.tile.s1": {
+  "who": "captain",
+  "text": "一條"
+ },
+ "captain.tile.s2": {
+  "who": "captain",
+  "text": "二條"
+ },
+ "captain.tile.s3": {
+  "who": "captain",
+  "text": "三條"
+ },
+ "captain.tile.s4": {
+  "who": "captain",
+  "text": "四條"
+ },
+ "captain.tile.s5": {
+  "who": "captain",
+  "text": "五條"
+ },
+ "captain.tile.s6": {
+  "who": "captain",
+  "text": "六條"
+ },
+ "captain.tile.s7": {
+  "who": "captain",
+  "text": "七條"
+ },
+ "captain.tile.s8": {
+  "who": "captain",
+  "text": "八條"
+ },
+ "captain.tile.s9": {
+  "who": "captain",
+  "text": "九條"
+ },
+ "captain.tile.z1": {
+  "who": "captain",
+  "text": "東風"
+ },
+ "captain.tile.z2": {
+  "who": "captain",
+  "text": "南風"
+ },
+ "captain.tile.z3": {
+  "who": "captain",
+  "text": "西風"
+ },
+ "captain.tile.z4": {
+  "who": "captain",
+  "text": "北風"
+ },
+ "captain.tile.z5": {
+  "who": "captain",
+  "text": "紅中"
+ },
+ "captain.tile.z6": {
+  "who": "captain",
+  "text": "發財"
+ },
+ "captain.tile.z7": {
+  "who": "captain",
+  "text": "白板"
+ },
+ "captain.call.chi": {
+  "who": "captain",
+  "text": "吃！"
+ },
+ "captain.call.pon": {
+  "who": "captain",
+  "text": "碰！"
+ },
+ "captain.call.kong": {
+  "who": "captain",
+  "text": "槓！"
+ },
+ "captain.call.hu": {
+  "who": "captain",
+  "text": "胡啦！",
+  "rate": "+8%",
+  "pitch": "-6Hz"
+ },
+ "captain.call.tsumo": {
+  "who": "captain",
+  "text": "自摸！",
+  "rate": "+8%",
+  "pitch": "-6Hz"
+ },
+ "captain.line.hello.0": {
+  "who": "captain",
+  "text": "風再大，牌照打！"
+ },
+ "captain.line.hello.1": {
+  "who": "captain",
+  "text": "今天不出海，陪你們摸兩圈"
+ },
+ "captain.line.pon.0": {
+  "who": "captain",
+  "text": "碰！收網！"
+ },
+ "captain.line.pon.1": {
+  "who": "captain",
+  "text": "碰啦！"
+ },
+ "captain.line.chi.0": {
+  "who": "captain",
+  "text": "吃一口"
+ },
+ "captain.line.kong.0": {
+  "who": "captain",
+  "text": "槓！大魚上鉤！"
+ },
+ "captain.line.ting.0": {
+  "who": "captain",
+  "text": "浪要來了喔"
+ },
+ "captain.line.tsumo.0": {
+  "who": "captain",
+  "text": "自摸！滿載而歸！"
+ },
+ "captain.line.ron.0": {
+  "who": "captain",
+  "text": "胡啦！謝謝你的魚"
+ },
+ "captain.line.dealIn.0": {
+  "who": "captain",
+  "text": "哎呀，漏網了"
+ },
+ "captain.line.otherWin.0": {
+  "who": "captain",
+  "text": "好啦，這網給你"
+ },
+ "captain.line.exhausted.0": {
+  "who": "captain",
+  "text": "流局，跟颱風一樣過去就好"
+ },
+ "captain.line.matchWin.0": {
+  "who": "captain",
+  "text": "今晚大豐收！"
+ },
+ "captain.line.matchLose.0": {
+  "who": "captain",
+  "text": "明天天氣好了再來！"
+ },
+ "captain.line.reply.0": {
+  "who": "captain",
+  "text": "少年仔，海上講話要小心"
+ },
+ "captain.line.reply.1": {
+  "who": "captain",
+  "text": "哈哈哈，有膽量"
+ },
+ "captain.line.friend.0": {
+  "who": "captain",
+  "text": "你來了！船長請你喝熱茶"
+ },
+ "captain.line.friend.1": {
+  "who": "captain",
+  "text": "颱風天有你在就不無聊"
+ },
+ "xiuqin.tile.m1": {
+  "who": "xiuqin",
+  "text": "一萬"
+ },
+ "xiuqin.tile.m2": {
+  "who": "xiuqin",
+  "text": "二萬"
+ },
+ "xiuqin.tile.m3": {
+  "who": "xiuqin",
+  "text": "三萬"
+ },
+ "xiuqin.tile.m4": {
+  "who": "xiuqin",
+  "text": "四萬"
+ },
+ "xiuqin.tile.m5": {
+  "who": "xiuqin",
+  "text": "五萬"
+ },
+ "xiuqin.tile.m6": {
+  "who": "xiuqin",
+  "text": "六萬"
+ },
+ "xiuqin.tile.m7": {
+  "who": "xiuqin",
+  "text": "七萬"
+ },
+ "xiuqin.tile.m8": {
+  "who": "xiuqin",
+  "text": "八萬"
+ },
+ "xiuqin.tile.m9": {
+  "who": "xiuqin",
+  "text": "九萬"
+ },
+ "xiuqin.tile.p1": {
+  "who": "xiuqin",
+  "text": "一筒"
+ },
+ "xiuqin.tile.p2": {
+  "who": "xiuqin",
+  "text": "二筒"
+ },
+ "xiuqin.tile.p3": {
+  "who": "xiuqin",
+  "text": "三筒"
+ },
+ "xiuqin.tile.p4": {
+  "who": "xiuqin",
+  "text": "四筒"
+ },
+ "xiuqin.tile.p5": {
+  "who": "xiuqin",
+  "text": "五筒"
+ },
+ "xiuqin.tile.p6": {
+  "who": "xiuqin",
+  "text": "六筒"
+ },
+ "xiuqin.tile.p7": {
+  "who": "xiuqin",
+  "text": "七筒"
+ },
+ "xiuqin.tile.p8": {
+  "who": "xiuqin",
+  "text": "八筒"
+ },
+ "xiuqin.tile.p9": {
+  "who": "xiuqin",
+  "text": "九筒"
+ },
+ "xiuqin.tile.s1": {
+  "who": "xiuqin",
+  "text": "一條"
+ },
+ "xiuqin.tile.s2": {
+  "who": "xiuqin",
+  "text": "二條"
+ },
+ "xiuqin.tile.s3": {
+  "who": "xiuqin",
+  "text": "三條"
+ },
+ "xiuqin.tile.s4": {
+  "who": "xiuqin",
+  "text": "四條"
+ },
+ "xiuqin.tile.s5": {
+  "who": "xiuqin",
+  "text": "五條"
+ },
+ "xiuqin.tile.s6": {
+  "who": "xiuqin",
+  "text": "六條"
+ },
+ "xiuqin.tile.s7": {
+  "who": "xiuqin",
+  "text": "七條"
+ },
+ "xiuqin.tile.s8": {
+  "who": "xiuqin",
+  "text": "八條"
+ },
+ "xiuqin.tile.s9": {
+  "who": "xiuqin",
+  "text": "九條"
+ },
+ "xiuqin.tile.z1": {
+  "who": "xiuqin",
+  "text": "東風"
+ },
+ "xiuqin.tile.z2": {
+  "who": "xiuqin",
+  "text": "南風"
+ },
+ "xiuqin.tile.z3": {
+  "who": "xiuqin",
+  "text": "西風"
+ },
+ "xiuqin.tile.z4": {
+  "who": "xiuqin",
+  "text": "北風"
+ },
+ "xiuqin.tile.z5": {
+  "who": "xiuqin",
+  "text": "紅中"
+ },
+ "xiuqin.tile.z6": {
+  "who": "xiuqin",
+  "text": "發財"
+ },
+ "xiuqin.tile.z7": {
+  "who": "xiuqin",
+  "text": "白板"
+ },
+ "xiuqin.call.chi": {
+  "who": "xiuqin",
+  "text": "吃～"
+ },
+ "xiuqin.call.pon": {
+  "who": "xiuqin",
+  "text": "碰！"
+ },
+ "xiuqin.call.kong": {
+  "who": "xiuqin",
+  "text": "槓！"
+ },
+ "xiuqin.call.hu": {
+  "who": "xiuqin",
+  "text": "胡囉！",
+  "rate": "+14%",
+  "pitch": "+4Hz"
+ },
+ "xiuqin.call.tsumo": {
+  "who": "xiuqin",
+  "text": "自摸！",
+  "rate": "+14%",
+  "pitch": "+4Hz"
+ },
+ "xiuqin.line.hello.0": {
+  "who": "xiuqin",
+  "text": "來來來，先喝碗薑湯再打"
+ },
+ "xiuqin.line.hello.1": {
+  "who": "xiuqin",
+  "text": "停電了也沒關係，我有蠟燭"
+ },
+ "xiuqin.line.pon.0": {
+  "who": "xiuqin",
+  "text": "碰～這張我收下了"
+ },
+ "xiuqin.line.chi.0": {
+  "who": "xiuqin",
+  "text": "吃一下喔"
+ },
+ "xiuqin.line.kong.0": {
+  "who": "xiuqin",
+  "text": "槓！加菜加菜！"
+ },
+ "xiuqin.line.ting.0": {
+  "who": "xiuqin",
+  "text": "嗯～差不多可以開飯了"
+ },
+ "xiuqin.line.tsumo.0": {
+  "who": "xiuqin",
+  "text": "自摸！宵夜我請！"
+ },
+ "xiuqin.line.ron.0": {
+  "who": "xiuqin",
+  "text": "胡囉～不好意思啦"
+ },
+ "xiuqin.line.dealIn.0": {
+  "who": "xiuqin",
+  "text": "哎唷，給你給你"
+ },
+ "xiuqin.line.otherWin.0": {
+  "who": "xiuqin",
+  "text": "好手氣耶"
+ },
+ "xiuqin.line.exhausted.0": {
+  "who": "xiuqin",
+  "text": "流局，來吃點心"
+ },
+ "xiuqin.line.matchWin.0": {
+  "who": "xiuqin",
+  "text": "今晚住宿費打八折！"
+ },
+ "xiuqin.line.matchLose.0": {
+  "who": "xiuqin",
+  "text": "下次颱風再來挑戰～"
+ },
+ "xiuqin.line.reply.0": {
+  "who": "xiuqin",
+  "text": "喲，客人很有精神喔"
+ },
+ "xiuqin.line.reply.1": {
+  "who": "xiuqin",
+  "text": "再嗆就沒有宵夜吃喔"
+ },
+ "xiuqin.line.friend.0": {
+  "who": "xiuqin",
+  "text": "老客人來了！房間幫你留好了"
+ },
+ "xiuqin.line.friend.1": {
+  "who": "xiuqin",
+  "text": "你來我就去煮麵"
+ },
+ "leo.tile.m1": {
+  "who": "leo",
+  "text": "一萬"
+ },
+ "leo.tile.m2": {
+  "who": "leo",
+  "text": "二萬"
+ },
+ "leo.tile.m3": {
+  "who": "leo",
+  "text": "三萬"
+ },
+ "leo.tile.m4": {
+  "who": "leo",
+  "text": "四萬"
+ },
+ "leo.tile.m5": {
+  "who": "leo",
+  "text": "五萬"
+ },
+ "leo.tile.m6": {
+  "who": "leo",
+  "text": "六萬"
+ },
+ "leo.tile.m7": {
+  "who": "leo",
+  "text": "七萬"
+ },
+ "leo.tile.m8": {
+  "who": "leo",
+  "text": "八萬"
+ },
+ "leo.tile.m9": {
+  "who": "leo",
+  "text": "九萬"
+ },
+ "leo.tile.p1": {
+  "who": "leo",
+  "text": "一筒"
+ },
+ "leo.tile.p2": {
+  "who": "leo",
+  "text": "二筒"
+ },
+ "leo.tile.p3": {
+  "who": "leo",
+  "text": "三筒"
+ },
+ "leo.tile.p4": {
+  "who": "leo",
+  "text": "四筒"
+ },
+ "leo.tile.p5": {
+  "who": "leo",
+  "text": "五筒"
+ },
+ "leo.tile.p6": {
+  "who": "leo",
+  "text": "六筒"
+ },
+ "leo.tile.p7": {
+  "who": "leo",
+  "text": "七筒"
+ },
+ "leo.tile.p8": {
+  "who": "leo",
+  "text": "八筒"
+ },
+ "leo.tile.p9": {
+  "who": "leo",
+  "text": "九筒"
+ },
+ "leo.tile.s1": {
+  "who": "leo",
+  "text": "一條"
+ },
+ "leo.tile.s2": {
+  "who": "leo",
+  "text": "二條"
+ },
+ "leo.tile.s3": {
+  "who": "leo",
+  "text": "三條"
+ },
+ "leo.tile.s4": {
+  "who": "leo",
+  "text": "四條"
+ },
+ "leo.tile.s5": {
+  "who": "leo",
+  "text": "五條"
+ },
+ "leo.tile.s6": {
+  "who": "leo",
+  "text": "六條"
+ },
+ "leo.tile.s7": {
+  "who": "leo",
+  "text": "七條"
+ },
+ "leo.tile.s8": {
+  "who": "leo",
+  "text": "八條"
+ },
+ "leo.tile.s9": {
+  "who": "leo",
+  "text": "九條"
+ },
+ "leo.tile.z1": {
+  "who": "leo",
+  "text": "東風"
+ },
+ "leo.tile.z2": {
+  "who": "leo",
+  "text": "南風"
+ },
+ "leo.tile.z3": {
+  "who": "leo",
+  "text": "西風"
+ },
+ "leo.tile.z4": {
+  "who": "leo",
+  "text": "北風"
+ },
+ "leo.tile.z5": {
+  "who": "leo",
+  "text": "紅中"
+ },
+ "leo.tile.z6": {
+  "who": "leo",
+  "text": "發財"
+ },
+ "leo.tile.z7": {
+  "who": "leo",
+  "text": "白板"
+ },
+ "leo.call.chi": {
+  "who": "leo",
+  "text": "吃！"
+ },
+ "leo.call.pon": {
+  "who": "leo",
+  "text": "碰！"
+ },
+ "leo.call.kong": {
+  "who": "leo",
+  "text": "槓！"
+ },
+ "leo.call.hu": {
+  "who": "leo",
+  "text": "胡了！",
+  "rate": "+16%",
+  "pitch": "+16Hz"
+ },
+ "leo.call.tsumo": {
+  "who": "leo",
+  "text": "自摸！",
+  "rate": "+16%",
+  "pitch": "+16Hz"
+ },
+ "leo.line.hello.0": {
+  "who": "leo",
+  "text": "哈囉！我在學台灣麻將！"
+ },
+ "leo.line.hello.1": {
+  "who": "leo",
+  "text": "颱風好可怕，打麻將比較不可怕"
+ },
+ "leo.line.pon.0": {
+  "who": "leo",
+  "text": "碰！我會說碰了！"
+ },
+ "leo.line.chi.0": {
+  "who": "leo",
+  "text": "吃！這個我知道"
+ },
+ "leo.line.kong.0": {
+  "who": "leo",
+  "text": "槓！是這樣用嗎？"
+ },
+ "leo.line.ting.0": {
+  "who": "leo",
+  "text": "我好像……聽了？"
+ },
+ "leo.line.tsumo.0": {
+  "who": "leo",
+  "text": "自摸！太好了！"
+ },
+ "leo.line.ron.0": {
+  "who": "leo",
+  "text": "胡了！真的嗎？"
+ },
+ "leo.line.dealIn.0": {
+  "who": "leo",
+  "text": "喔不！"
+ },
+ "leo.line.otherWin.0": {
+  "who": "leo",
+  "text": "好厲害！教我！"
+ },
+ "leo.line.exhausted.0": {
+  "who": "leo",
+  "text": "流局是什麼？沒人贏？"
+ },
+ "leo.line.matchWin.0": {
+  "who": "leo",
+  "text": "我要寫在旅遊日記！"
+ },
+ "leo.line.matchLose.0": {
+  "who": "leo",
+  "text": "台灣麻將好難，但是好好玩"
+ },
+ "leo.line.skill.0": {
+  "who": "leo",
+  "text": "新手的好運氣，來吧！"
+ },
+ "leo.line.reply.0": {
+  "who": "leo",
+  "text": "我聽不懂，可是我覺得你在嗆我"
+ },
+ "leo.line.reply.1": {
+  "who": "leo",
+  "text": "謝謝？"
+ },
+ "leo.line.friend.0": {
+  "who": "leo",
+  "text": "朋友！你又來了！"
+ },
+ "leo.line.friend.1": {
+  "who": "leo",
+  "text": "我練習了很多，這次會贏你！"
+ },
+ "acai.tile.m1": {
+  "who": "acai",
+  "text": "一萬"
+ },
+ "acai.tile.m2": {
+  "who": "acai",
+  "text": "二萬"
+ },
+ "acai.tile.m3": {
+  "who": "acai",
+  "text": "三萬"
+ },
+ "acai.tile.m4": {
+  "who": "acai",
+  "text": "四萬"
+ },
+ "acai.tile.m5": {
+  "who": "acai",
+  "text": "五萬"
+ },
+ "acai.tile.m6": {
+  "who": "acai",
+  "text": "六萬"
+ },
+ "acai.tile.m7": {
+  "who": "acai",
+  "text": "七萬"
+ },
+ "acai.tile.m8": {
+  "who": "acai",
+  "text": "八萬"
+ },
+ "acai.tile.m9": {
+  "who": "acai",
+  "text": "九萬"
+ },
+ "acai.tile.p1": {
+  "who": "acai",
+  "text": "一筒"
+ },
+ "acai.tile.p2": {
+  "who": "acai",
+  "text": "二筒"
+ },
+ "acai.tile.p3": {
+  "who": "acai",
+  "text": "三筒"
+ },
+ "acai.tile.p4": {
+  "who": "acai",
+  "text": "四筒"
+ },
+ "acai.tile.p5": {
+  "who": "acai",
+  "text": "五筒"
+ },
+ "acai.tile.p6": {
+  "who": "acai",
+  "text": "六筒"
+ },
+ "acai.tile.p7": {
+  "who": "acai",
+  "text": "七筒"
+ },
+ "acai.tile.p8": {
+  "who": "acai",
+  "text": "八筒"
+ },
+ "acai.tile.p9": {
+  "who": "acai",
+  "text": "九筒"
+ },
+ "acai.tile.s1": {
+  "who": "acai",
+  "text": "一條"
+ },
+ "acai.tile.s2": {
+  "who": "acai",
+  "text": "二條"
+ },
+ "acai.tile.s3": {
+  "who": "acai",
+  "text": "三條"
+ },
+ "acai.tile.s4": {
+  "who": "acai",
+  "text": "四條"
+ },
+ "acai.tile.s5": {
+  "who": "acai",
+  "text": "五條"
+ },
+ "acai.tile.s6": {
+  "who": "acai",
+  "text": "六條"
+ },
+ "acai.tile.s7": {
+  "who": "acai",
+  "text": "七條"
+ },
+ "acai.tile.s8": {
+  "who": "acai",
+  "text": "八條"
+ },
+ "acai.tile.s9": {
+  "who": "acai",
+  "text": "九條"
+ },
+ "acai.tile.z1": {
+  "who": "acai",
+  "text": "東風"
+ },
+ "acai.tile.z2": {
+  "who": "acai",
+  "text": "南風"
+ },
+ "acai.tile.z3": {
+  "who": "acai",
+  "text": "西風"
+ },
+ "acai.tile.z4": {
+  "who": "acai",
+  "text": "北風"
+ },
+ "acai.tile.z5": {
+  "who": "acai",
+  "text": "紅中"
+ },
+ "acai.tile.z6": {
+  "who": "acai",
+  "text": "發財"
+ },
+ "acai.tile.z7": {
+  "who": "acai",
+  "text": "白板"
+ },
+ "acai.call.chi": {
+  "who": "acai",
+  "text": "吃。"
+ },
+ "acai.call.pon": {
+  "who": "acai",
+  "text": "碰。"
+ },
+ "acai.call.kong": {
+  "who": "acai",
+  "text": "槓。"
+ },
+ "acai.call.hu": {
+  "who": "acai",
+  "text": "胡。",
+  "rate": "-2%",
+  "pitch": "+2Hz"
+ },
+ "acai.call.tsumo": {
+  "who": "acai",
+  "text": "自摸。",
+  "rate": "-2%",
+  "pitch": "+2Hz"
+ },
+ "acai.line.hello.0": {
+  "who": "acai",
+  "text": "南部來的，請多指教"
+ },
+ "acai.line.hello.1": {
+  "who": "acai",
+  "text": "打了一輩子，第一次上電視"
+ },
+ "acai.line.pon.0": {
+  "who": "acai",
+  "text": "碰，足讚！"
+ },
+ "acai.line.chi.0": {
+  "who": "acai",
+  "text": "吃，拍謝喔"
+ },
+ "acai.line.kong.0": {
+  "who": "acai",
+  "text": "槓，穩穩啊來"
+ },
+ "acai.line.ting.0": {
+  "who": "acai",
+  "text": "差不多囉"
+ },
+ "acai.line.tsumo.0": {
+  "who": "acai",
+  "text": "自摸，歹勢歹勢"
+ },
+ "acai.line.ron.0": {
+  "who": "acai",
+  "text": "胡，承讓"
+ },
+ "acai.line.dealIn.0": {
+  "who": "acai",
+  "text": "唉，老花眼"
+ },
+ "acai.line.otherWin.0": {
+  "who": "acai",
+  "text": "少年仔有夠厲害"
+ },
+ "acai.line.exhausted.0": {
+  "who": "acai",
+  "text": "流局，喝茶"
+ },
+ "acai.line.matchWin.0": {
+  "who": "acai",
+  "text": "冠軍獎盃要帶回去給孫子看"
+ },
+ "acai.line.matchLose.0": {
+  "who": "acai",
+  "text": "輸給年輕人，心甘情願"
+ },
+ "acai.line.reply.0": {
+  "who": "acai",
+  "text": "少年仔，氣定神閒才會贏"
+ },
+ "acai.line.reply.1": {
+  "who": "acai",
+  "text": "呵呵，好膽"
+ },
+ "acai.line.friend.0": {
+  "who": "acai",
+  "text": "老朋友，今天也好好打"
+ },
+ "acai.line.friend.1": {
+  "who": "acai",
+  "text": "看到你就想起我年輕的時候"
+ },
+ "nova.tile.m1": {
+  "who": "nova",
+  "text": "一萬"
+ },
+ "nova.tile.m2": {
+  "who": "nova",
+  "text": "二萬"
+ },
+ "nova.tile.m3": {
+  "who": "nova",
+  "text": "三萬"
+ },
+ "nova.tile.m4": {
+  "who": "nova",
+  "text": "四萬"
+ },
+ "nova.tile.m5": {
+  "who": "nova",
+  "text": "五萬"
+ },
+ "nova.tile.m6": {
+  "who": "nova",
+  "text": "六萬"
+ },
+ "nova.tile.m7": {
+  "who": "nova",
+  "text": "七萬"
+ },
+ "nova.tile.m8": {
+  "who": "nova",
+  "text": "八萬"
+ },
+ "nova.tile.m9": {
+  "who": "nova",
+  "text": "九萬"
+ },
+ "nova.tile.p1": {
+  "who": "nova",
+  "text": "一筒"
+ },
+ "nova.tile.p2": {
+  "who": "nova",
+  "text": "二筒"
+ },
+ "nova.tile.p3": {
+  "who": "nova",
+  "text": "三筒"
+ },
+ "nova.tile.p4": {
+  "who": "nova",
+  "text": "四筒"
+ },
+ "nova.tile.p5": {
+  "who": "nova",
+  "text": "五筒"
+ },
+ "nova.tile.p6": {
+  "who": "nova",
+  "text": "六筒"
+ },
+ "nova.tile.p7": {
+  "who": "nova",
+  "text": "七筒"
+ },
+ "nova.tile.p8": {
+  "who": "nova",
+  "text": "八筒"
+ },
+ "nova.tile.p9": {
+  "who": "nova",
+  "text": "九筒"
+ },
+ "nova.tile.s1": {
+  "who": "nova",
+  "text": "一條"
+ },
+ "nova.tile.s2": {
+  "who": "nova",
+  "text": "二條"
+ },
+ "nova.tile.s3": {
+  "who": "nova",
+  "text": "三條"
+ },
+ "nova.tile.s4": {
+  "who": "nova",
+  "text": "四條"
+ },
+ "nova.tile.s5": {
+  "who": "nova",
+  "text": "五條"
+ },
+ "nova.tile.s6": {
+  "who": "nova",
+  "text": "六條"
+ },
+ "nova.tile.s7": {
+  "who": "nova",
+  "text": "七條"
+ },
+ "nova.tile.s8": {
+  "who": "nova",
+  "text": "八條"
+ },
+ "nova.tile.s9": {
+  "who": "nova",
+  "text": "九條"
+ },
+ "nova.tile.z1": {
+  "who": "nova",
+  "text": "東風"
+ },
+ "nova.tile.z2": {
+  "who": "nova",
+  "text": "南風"
+ },
+ "nova.tile.z3": {
+  "who": "nova",
+  "text": "西風"
+ },
+ "nova.tile.z4": {
+  "who": "nova",
+  "text": "北風"
+ },
+ "nova.tile.z5": {
+  "who": "nova",
+  "text": "紅中"
+ },
+ "nova.tile.z6": {
+  "who": "nova",
+  "text": "發財"
+ },
+ "nova.tile.z7": {
+  "who": "nova",
+  "text": "白板"
+ },
+ "nova.call.chi": {
+  "who": "nova",
+  "text": "吃！"
+ },
+ "nova.call.pon": {
+  "who": "nova",
+  "text": "碰！"
+ },
+ "nova.call.kong": {
+  "who": "nova",
+  "text": "槓！"
+ },
+ "nova.call.hu": {
+  "who": "nova",
+  "text": "胡！",
+  "rate": "+26%",
+  "pitch": "+12Hz"
+ },
+ "nova.call.tsumo": {
+  "who": "nova",
+  "text": "自摸！",
+  "rate": "+26%",
+  "pitch": "+12Hz"
+ },
+ "nova.line.hello.0": {
+  "who": "nova",
+  "text": "準備好了嗎？手速拉滿！"
+ },
+ "nova.line.hello.1": {
+  "who": "nova",
+  "text": "今天目標：全場最快胡牌"
+ },
+ "nova.line.pon.0": {
+  "who": "nova",
+  "text": "碰！手速！"
+ },
+ "nova.line.chi.0": {
+  "who": "nova",
+  "text": "吃！連段！"
+ },
+ "nova.line.kong.0": {
+  "who": "nova",
+  "text": "槓！爆發！"
+ },
+ "nova.line.ting.0": {
+  "who": "nova",
+  "text": "大招準備好了"
+ },
+ "nova.line.tsumo.0": {
+  "who": "nova",
+  "text": "自摸！完美操作！"
+ },
+ "nova.line.ron.0": {
+  "who": "nova",
+  "text": "胡！你走位失誤了"
+ },
+ "nova.line.dealIn.0": {
+  "who": "nova",
+  "text": "這把我的鍋"
+ },
+ "nova.line.otherWin.0": {
+  "who": "nova",
+  "text": "好啦，下把再來"
+ },
+ "nova.line.exhausted.0": {
+  "who": "nova",
+  "text": "平手，加賽！"
+ },
+ "nova.line.matchWin.0": {
+  "who": "nova",
+  "text": "冠軍到手，感謝觀眾！"
+ },
+ "nova.line.matchLose.0": {
+  "who": "nova",
+  "text": "回去看重播檢討"
+ },
+ "nova.line.skill.0": {
+  "who": "nova",
+  "text": "換一張，操作一下"
+ },
+ "nova.line.reply.0": {
+  "who": "nova",
+  "text": "嘴砲沒有用，實力說話"
+ },
+ "nova.line.reply.1": {
+  "who": "nova",
+  "text": "截圖了喔"
+ },
+ "nova.line.friend.0": {
+  "who": "nova",
+  "text": "老隊友！這場我們一起衝"
+ },
+ "nova.line.friend.1": {
+  "who": "nova",
+  "text": "你的打法我研究過了"
+ },
+ "zheng.tile.m1": {
+  "who": "zheng",
+  "text": "一萬"
+ },
+ "zheng.tile.m2": {
+  "who": "zheng",
+  "text": "二萬"
+ },
+ "zheng.tile.m3": {
+  "who": "zheng",
+  "text": "三萬"
+ },
+ "zheng.tile.m4": {
+  "who": "zheng",
+  "text": "四萬"
+ },
+ "zheng.tile.m5": {
+  "who": "zheng",
+  "text": "五萬"
+ },
+ "zheng.tile.m6": {
+  "who": "zheng",
+  "text": "六萬"
+ },
+ "zheng.tile.m7": {
+  "who": "zheng",
+  "text": "七萬"
+ },
+ "zheng.tile.m8": {
+  "who": "zheng",
+  "text": "八萬"
+ },
+ "zheng.tile.m9": {
+  "who": "zheng",
+  "text": "九萬"
+ },
+ "zheng.tile.p1": {
+  "who": "zheng",
+  "text": "一筒"
+ },
+ "zheng.tile.p2": {
+  "who": "zheng",
+  "text": "二筒"
+ },
+ "zheng.tile.p3": {
+  "who": "zheng",
+  "text": "三筒"
+ },
+ "zheng.tile.p4": {
+  "who": "zheng",
+  "text": "四筒"
+ },
+ "zheng.tile.p5": {
+  "who": "zheng",
+  "text": "五筒"
+ },
+ "zheng.tile.p6": {
+  "who": "zheng",
+  "text": "六筒"
+ },
+ "zheng.tile.p7": {
+  "who": "zheng",
+  "text": "七筒"
+ },
+ "zheng.tile.p8": {
+  "who": "zheng",
+  "text": "八筒"
+ },
+ "zheng.tile.p9": {
+  "who": "zheng",
+  "text": "九筒"
+ },
+ "zheng.tile.s1": {
+  "who": "zheng",
+  "text": "一條"
+ },
+ "zheng.tile.s2": {
+  "who": "zheng",
+  "text": "二條"
+ },
+ "zheng.tile.s3": {
+  "who": "zheng",
+  "text": "三條"
+ },
+ "zheng.tile.s4": {
+  "who": "zheng",
+  "text": "四條"
+ },
+ "zheng.tile.s5": {
+  "who": "zheng",
+  "text": "五條"
+ },
+ "zheng.tile.s6": {
+  "who": "zheng",
+  "text": "六條"
+ },
+ "zheng.tile.s7": {
+  "who": "zheng",
+  "text": "七條"
+ },
+ "zheng.tile.s8": {
+  "who": "zheng",
+  "text": "八條"
+ },
+ "zheng.tile.s9": {
+  "who": "zheng",
+  "text": "九條"
+ },
+ "zheng.tile.z1": {
+  "who": "zheng",
+  "text": "東風"
+ },
+ "zheng.tile.z2": {
+  "who": "zheng",
+  "text": "南風"
+ },
+ "zheng.tile.z3": {
+  "who": "zheng",
+  "text": "西風"
+ },
+ "zheng.tile.z4": {
+  "who": "zheng",
+  "text": "北風"
+ },
+ "zheng.tile.z5": {
+  "who": "zheng",
+  "text": "紅中"
+ },
+ "zheng.tile.z6": {
+  "who": "zheng",
+  "text": "發財"
+ },
+ "zheng.tile.z7": {
+  "who": "zheng",
+  "text": "白板"
+ },
+ "zheng.call.chi": {
+  "who": "zheng",
+  "text": "吃。"
+ },
+ "zheng.call.pon": {
+  "who": "zheng",
+  "text": "碰。"
+ },
+ "zheng.call.kong": {
+  "who": "zheng",
+  "text": "槓。"
+ },
+ "zheng.call.hu": {
+  "who": "zheng",
+  "text": "胡。",
+  "rate": "+2%",
+  "pitch": "-8Hz"
+ },
+ "zheng.call.tsumo": {
+  "who": "zheng",
+  "text": "自摸。",
+  "rate": "+2%",
+  "pitch": "-8Hz"
+ },
+ "zheng.line.hello.0": {
+  "who": "zheng",
+  "text": "三十年刑警，誰在聽牌我一看就知道"
+ },
+ "zheng.line.hello.1": {
+  "who": "zheng",
+  "text": "各位，請多指教"
+ },
+ "zheng.line.pon.0": {
+  "who": "zheng",
+  "text": "碰。案情有進展"
+ },
+ "zheng.line.chi.0": {
+  "who": "zheng",
+  "text": "吃。"
+ },
+ "zheng.line.kong.0": {
+  "who": "zheng",
+  "text": "槓。收網"
+ },
+ "zheng.line.ting.0": {
+  "who": "zheng",
+  "text": "嫌疑人快落網了"
+ },
+ "zheng.line.tsumo.0": {
+  "who": "zheng",
+  "text": "證據確鑿，自摸"
+ },
+ "zheng.line.ron.0": {
+  "who": "zheng",
+  "text": "抓到了，就是你"
+ },
+ "zheng.line.dealIn.0": {
+  "who": "zheng",
+  "text": "……這次看走眼"
+ },
+ "zheng.line.otherWin.0": {
+  "who": "zheng",
+  "text": "漂亮，我沒看出來"
+ },
+ "zheng.line.exhausted.0": {
+  "who": "zheng",
+  "text": "流局，懸案"
+ },
+ "zheng.line.matchWin.0": {
+  "who": "zheng",
+  "text": "結案"
+ },
+ "zheng.line.matchLose.0": {
+  "who": "zheng",
+  "text": "這案子，我會再查"
+ },
+ "zheng.line.skill.0": {
+  "who": "zheng",
+  "text": "讓我看看你的底牌"
+ },
+ "zheng.line.reply.0": {
+  "who": "zheng",
+  "text": "你講話的時候眼睛在飄"
+ },
+ "zheng.line.reply.1": {
+  "who": "zheng",
+  "text": "我記下來了"
+ },
+ "zheng.line.friend.0": {
+  "who": "zheng",
+  "text": "又見面了，老搭檔"
+ },
+ "zheng.line.friend.1": {
+  "who": "zheng",
+  "text": "你今天的眼神，很有自信"
+ },
  "me-f.tile.m1": {
   "who": "me-f",
   "text": "一萬"
@@ -3188,5 +4572,69 @@
  "longge.banter.15": {
   "who": "longge",
   "text": "在我的館子，沒有這種事。"
+ },
+ "captain.banter.16": {
+  "who": "captain",
+  "text": "少年仔，你們那邊沒有颱風喔？"
+ },
+ "leo.banter.16": {
+  "who": "leo",
+  "text": "我們有暴風雪，可是沒有麻將！"
+ },
+ "xiuqin.banter.17": {
+  "who": "xiuqin",
+  "text": "阿海，少喝一點，你又要亂碰了。"
+ },
+ "captain.banter.17": {
+  "who": "captain",
+  "text": "沒醉沒醉，碰得很準啦！"
+ },
+ "leo.banter.18": {
+  "who": "leo",
+  "text": "秀琴姐，宵夜好了嗎？"
+ },
+ "xiuqin.banter.18": {
+  "who": "xiuqin",
+  "text": "胡一把就給你吃～"
+ },
+ "captain.banter.19": {
+  "who": "captain",
+  "text": "秀琴，停電了要不要點蠟燭？"
+ },
+ "xiuqin.banter.19": {
+  "who": "xiuqin",
+  "text": "早就準備好了，打到天亮都沒問題。"
+ },
+ "nova.banter.20": {
+  "who": "nova",
+  "text": "阿伯，你手速好慢喔！"
+ },
+ "acai.banter.20": {
+  "who": "acai",
+  "text": "少年仔，慢慢來比較快。"
+ },
+ "zheng.banter.21": {
+  "who": "zheng",
+  "text": "小姐，你剛剛眼睛飄了一下。"
+ },
+ "nova.banter.21": {
+  "who": "nova",
+  "text": "警官，這裡不是偵訊室啦！"
+ },
+ "acai.banter.22": {
+  "who": "acai",
+  "text": "警官，你看牌還是看人？"
+ },
+ "zheng.banter.22": {
+  "who": "zheng",
+  "text": "都看。牌不會說謊，人會。"
+ },
+ "nova.banter.23": {
+  "who": "nova",
+  "text": "警官，你是不是在讀我的牌？"
+ },
+ "zheng.banter.23": {
+  "who": "zheng",
+  "text": "我讀的是你的表情。"
  }
 }

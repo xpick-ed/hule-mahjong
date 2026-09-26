@@ -38,6 +38,14 @@ const CAST: Record<string, { name: string; voice: Voice; calls: Calls }> = {
   queshen: { name: '雀神', voice: { voice: M1, rate: '-14%', pitch: '-20Hz', fx: ['mystic'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
   longge: { name: '龍哥', voice: { voice: M1, rate: '-6%', pitch: '-16Hz', fx: ['gruff'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
   coco: { name: 'Coco', voice: { voice: F2, rate: '+14%', pitch: '+8Hz', fx: ['bright', 'loud'] }, calls: ['吃！', '碰！', '槓！', '胡啦～！', '自摸！！'] },
+  // 第 5 關：颱風夜民宿
+  captain: { name: '船長阿海', voice: { voice: M1, rate: '-2%', pitch: '-14Hz', fx: ['gruff', 'hearty'] }, calls: ['吃！', '碰！', '槓！', '胡啦！', '自摸！'] },
+  xiuqin: { name: '秀琴姐', voice: { voice: F1, rate: '+4%', pitch: '-4Hz', fx: ['warm'] }, calls: ['吃～', '碰！', '槓！', '胡囉！', '自摸！'] },
+  leo: { name: 'Leo', voice: { voice: M1, rate: '+6%', pitch: '+8Hz', fx: ['bright'] }, calls: ['吃！', '碰！', '槓！', '胡了！', '自摸！'] },
+  // 第 6 關：全國麻將大賽
+  acai: { name: '阿財伯', voice: { voice: M1, rate: '-12%', pitch: '-6Hz', fx: ['elder', 'warm'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
+  nova: { name: 'Nova', voice: { voice: F2, rate: '+16%', pitch: '+4Hz', fx: ['bright', 'loud'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
+  zheng: { name: '鄭警官', voice: { voice: M1, rate: '-8%', pitch: '-16Hz', fx: ['raspy'] }, calls: ['吃。', '碰。', '槓。', '胡。', '自摸。'] },
   // 你自己的聲音（設定裡選女聲／男聲）：只有報牌和喊牌，沒有台詞
   'me-f': { name: '你（女聲）', voice: { voice: F2, rate: '+0%', pitch: '+0Hz', fx: ['plain'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },
   'me-m': { name: '你（男聲）', voice: { voice: M1, rate: '+0%', pitch: '+0Hz', fx: ['plain'] }, calls: ['吃！', '碰！', '槓！', '胡！', '自摸！'] },

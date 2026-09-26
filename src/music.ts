@@ -4,12 +4,14 @@
 //   party    公司尾牙：熱鬧的迪斯可
 //   newyear  過年回老家：五聲音階、木魚、鑼
 //   boss     雀神挑戰：小調、緊張
+//   storm    颱風夜民宿：慢、小調、雨聲，偶爾打雷
+//   final    全國麻將大賽：快、大調、鼓點很重
 // 旋律用固定種子產生（每次聽到的都一樣），一輪 16 小節：A A B A，下一輪換一點變化。
 
 import { audioContext } from './sfx'
 import { speaking } from './voice'
 
-export type MusicMood = 'home' | 'alley' | 'party' | 'newyear' | 'boss'
+export type MusicMood = 'home' | 'alley' | 'party' | 'newyear' | 'boss' | 'storm' | 'final'
 
 type Lead = 'pluck' | 'bell' | 'square' | 'epiano'
 
@@ -32,9 +34,11 @@ interface Song {
   pad: number
   /** 過年：木魚、每 8 小節一聲鑼 */
   festive?: boolean
+  /** 颱風：一直下雨，每 8 小節打一次雷 */
+  rain?: boolean
 }
 
-const SONGS: Record<MusicMood, Song> = {
+const SONGS: Record<string, Song> & Record<Exclude<MusicMood, 'storm' | 'final'>, Song> = {
   home: {
     bpm: 108,
     swing: 0.04,
@@ -127,6 +131,48 @@ const SONGS: Record<MusicMood, Song> = {
     pad: 0.8,
   },
 }
+
+// 兩首新的（颱風夜、全國大賽）接在後面
+const MORE_SONGS: Record<'storm' | 'final', Song> = {
+  storm: {
+    bpm: 84,
+    swing: 0.08,
+    chords: [
+      [50, 53, 57],
+      [46, 50, 53],
+      [53, 57, 60],
+      [48, 52, 55],
+    ],
+    scale: [62, 65, 67, 69, 72, 74, 77],
+    lead: 'epiano',
+    density: 0.3,
+    kick: 'x.......x.x.....',
+    snare: '....x.......x...',
+    hat: '..x...x...x...x.',
+    bass: '0.......0...1...',
+    pad: 0.9,
+    rain: true,
+  },
+  final: {
+    bpm: 126,
+    swing: 0,
+    chords: [
+      [48, 52, 55],
+      [55, 59, 62],
+      [57, 60, 64],
+      [53, 57, 60],
+    ],
+    scale: [72, 74, 76, 79, 81, 84, 86],
+    lead: 'square',
+    density: 0.58,
+    kick: 'x...x...x...x...',
+    snare: '....x..x....x...',
+    hat: 'xxxxxxxxxxxxxxxx',
+    bass: '0.0.o.0.0.0.o.0.',
+    pad: 0.6,
+  },
+}
+Object.assign(SONGS, MORE_SONGS)
 
 const hz = (midi: number) => 440 * 2 ** ((midi - 69) / 12)
 
@@ -408,6 +454,15 @@ function play(song: Song, s: number, t: number) {
   if (song.kick[cell] === 'x') kick(t)
   if (song.snare[cell] === 'x') hiss(t, 'bandpass', 1800, 0.22, 0.14)
   if (song.hat[cell] === 'x') hiss(t, 'highpass', 7500, cell % 4 === 0 ? 0.06 : 0.04, 0.035)
+  if (song.rain) {
+    // 雨聲：每一拍一小段柔柔的雜訊，連起來就是一直在下雨
+    if (cell % 4 === 0) hiss(t, 'lowpass', 2600, 0.035, (60 / song.bpm) * 1.1)
+    // 遠處打雷
+    if (cell === 0 && bar % 8 === 4) {
+      hiss(t, 'lowpass', 180, 0.5, 2.4)
+      osc('sine', 48, t, 2.2, 0.18, 0.05)
+    }
+  }
   if (song.festive) {
     if (cell % 4 === 2) woodblock(t, cell === 6 || cell === 14)
     if (cell === 0 && bar % 8 === 0) gong(t)

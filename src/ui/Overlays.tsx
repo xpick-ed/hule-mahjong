@@ -52,7 +52,7 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   const others = wins.filter((x) => x !== w)
   const keep = !wins.length || wins.some((x) => x.seat === m.dealer)
   const cap = M.rulesOf(m).streakCap
-  const last = m.passes >= 3 && (!keep || (cap > 0 && m.streak >= cap))
+  const last = M.lastRound(m) && (!keep || (cap > 0 && m.streak >= cap))
   const myDiscards = m.hand.seats[0].discards.length
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
@@ -264,9 +264,11 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     : m.tutorial
       ? `引導局完成！第 ${place} 名`
       : first
-        ? hasNext
-          ? `過關！${stage.name}拿第一`
-          : '你就是新的雀神！'
+        ? stage.id === 5
+          ? '你是全國冠軍！'
+          : stage.id === 3
+            ? '你就是新的雀神！'
+            : `過關！${stage.name}拿第一`
         : `第 ${place} 名`
   const sub = m.online
     ? `跟朋友連線・${stage.name}・${m.handNo} 局`

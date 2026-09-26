@@ -246,7 +246,7 @@ export function myName(s: Settings = useUI.getState().settings): string {
 export const useMyName = () => useUI((s) => s.settings.name.trim() || '你')
 
 export function moodFor(stage: number): MusicMood {
-  return (['alley', 'party', 'newyear', 'boss'] as const)[stage] ?? 'alley'
+  return (['alley', 'party', 'newyear', 'boss', 'storm', 'final'] as const)[stage] ?? 'alley'
 }
 
 /** 現在畫面該放的音樂（第一次點畫面、聲音解鎖時用） */
@@ -378,6 +378,12 @@ export const useUI = create<UI>((set, get) => {
     p = rec.p
     const st = P.recordStars(p, m)
     p = st.p
+    let unlocked = rec.unlocked
+    if (P.starCount(p) >= STAGES.length * 3) {
+      const u = P.unlock(p, ['allStars'])
+      p = u.p
+      unlocked = [...unlocked, ...u.unlocked]
+    }
     // 每日挑戰：一天只算第一場
     let dailyCounted: boolean | undefined
     if (m.daily) {
@@ -386,8 +392,8 @@ export const useUI = create<UI>((set, get) => {
     }
     setProgress(p)
     save(MATCH_KEY, null)
-    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked: rec.unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, dailyCounted } })
-    announce(rec.unlocked, 1800)
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, dailyCounted } })
+    announce(unlocked, 1800)
     if (first) sfx.win()
     else sfx.lose()
   }

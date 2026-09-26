@@ -388,3 +388,41 @@ describe('牌桌規則', () => {
     }
   })
 })
+
+describe('新關卡', () => {
+  it('颱風夜民宿：打兩圈，換莊 4 次後進南風圈，換滿 8 次才結束', () => {
+    let m = M.newMatch('storm', 4)
+    const otherWins = (mm: M.MatchState): M.HandResult => ({
+      win: { seat: (mm.dealer + 1) % 4, from: null, tile: { id: 1, kind: 'm1' }, score: { items: [], total: 0 }, hand: [] },
+      dealerItems: null,
+      payments: [],
+      deltas: [0, 0, 0, 0],
+      dealer: mm.dealer,
+      streak: 0,
+    })
+    for (let i = 0; i < 4; i++) {
+      m = { ...m, phase: 'handEnd', result: otherWins(m) }
+      m = M.nextHand(m)
+    }
+    expect(m.phase).toBe('play')
+    expect(m.hand.roundWind).toBe(1)
+    expect(M.lastRound(m)).toBe(false)
+    for (let i = 0; i < 3; i++) {
+      m = { ...m, phase: 'handEnd', result: otherWins(m) }
+      m = M.nextHand(m)
+    }
+    expect(M.lastRound(m)).toBe(true)
+    m = { ...m, phase: 'handEnd', result: otherWins(m) }
+    expect(M.nextHand(m).phase).toBe('end')
+  })
+  it('全國大賽：自摸多算 1 台（決賽加碼）', () => {
+    const m = M.newMatch('final', 5)
+    m.dealer = 1
+    m.hand = rig([hand16 + ' m6', 'z2', 'z3', 'z4'], 'z7', 0)
+    m.hand.dealer = 1
+    const r = M.tsumo(m).result!
+    expect(r.win!.score.items.map((x) => x.name)).toContain('決賽加碼')
+    const tai = r.win!.score.total
+    expect(r.payments.find((p) => p.seat === 2)!.amount).toBe(m.base + tai * m.perTai)
+  })
+})

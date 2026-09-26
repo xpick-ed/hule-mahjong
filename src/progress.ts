@@ -138,7 +138,7 @@ export function rankOf(pts: number) {
 
 // ---------- 一場結束的獎勵 ----------
 
-const STAGE_MULT = [1, 1.5, 2, 3]
+const STAGE_MULT = [1, 1.5, 2, 3, 3.5, 4]
 const PLACE_COINS = [300, 150, 80, 30]
 const PLACE_RANK = [40, 15, -5, -20]
 
@@ -323,6 +323,9 @@ export const ACHIEVEMENTS: readonly AchDef[] = [
   { id: 'clean', name: '滴水不漏', desc: '一整場沒放槍，還拿第一' },
   { id: 'clear1', name: '巷口出名', desc: '巷口麻將拿第一' },
   { id: 'clear4', name: '雀神退位', desc: '雀神挑戰拿第一' },
+  { id: 'storm', name: '颱風夜不睡', desc: '颱風夜民宿打完兩圈拿第一' },
+  { id: 'champion', name: '全國冠軍', desc: '全國麻將大賽拿第一' },
+  { id: 'allStars', name: '滿天星', desc: '每一關都拿到三顆星' },
   { id: 'hardFirst', name: '高手中的高手', desc: '高手難度拿第一' },
   { id: 'daily', name: '每日一局', desc: '打完一場每日挑戰' },
   { id: 'matches10', name: '常客', desc: '打完 10 場' },
@@ -333,7 +336,7 @@ export const ACHIEVEMENTS: readonly AchDef[] = [
 
 export const ACH: Record<string, AchDef> = Object.fromEntries(ACHIEVEMENTS.map((a) => [a.id, a]))
 
-function unlock(p: Progress, ids: string[]): { p: Progress; unlocked: AchDef[] } {
+export function unlock(p: Progress, ids: string[]): { p: Progress; unlocked: AchDef[] } {
   const fresh = ids.filter((id) => !p.ach[id])
   if (!fresh.length) return { p, unlocked: [] }
   const date = today()
@@ -429,7 +432,10 @@ export function recordMatch(p: Progress, m: M.MatchState, allChars: readonly str
   const dealtIn = m.history.some((x) => x.from === 0)
   if (first && !dealtIn) ids.push('clean')
   if (first && m.stage === 0) ids.push('clear1')
-  if (first && m.stage === STAGES.length - 1) ids.push('clear4')
+  const sid = STAGES[m.stage]?.id
+  if (first && sid === 3) ids.push('clear4')
+  if (first && sid === 4 && !m.daily && !m.online) ids.push('storm')
+  if (first && sid === 5 && !m.daily && !m.online) ids.push('champion')
   if (first && m.difficulty === 'hard') ids.push('hardFirst')
   if (m.daily) ids.push('daily')
   if (q.matches >= 10) ids.push('matches10')
@@ -461,6 +467,8 @@ export const STAR_GOALS: Record<number, StarGoal[]> = {
   1: [first, tsumoN(2), bigHand(4)],
   2: [first, tsumoN(1), withItem('胡一手混一色或清一色', ['混一色', '清一色'])],
   3: [first, bigHand(5), clean],
+  4: [first, tsumoN(3), bigHand(6)],
+  5: [first, tsumoN(2), clean],
 }
 
 export const starsOf = (p: Progress, stageId: number) => p.stars[stageId] ?? [false, false, false]
