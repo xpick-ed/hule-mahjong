@@ -6,6 +6,7 @@ import * as M from '../engine/match'
 import { canTsumo, need, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
 import { BACK } from '../progress'
+import { sfx } from '../sfx'
 import { tableSkin, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
@@ -48,6 +49,7 @@ export function MatchView() {
       <Opponent m={match} seat={1} side="right" />
       <MyArea m={match} />
       <Actions m={match} />
+      <TurnTimer m={match} />
       {match.phase === 'handEnd' && <CutIn key={`cut${match.handNo}`} m={match} />}
       {match.phase === 'handEnd' && <HandEnd key={`end${match.handNo}`} m={match} />}
       {match.phase === 'end' && <MatchEnd m={match} />}
@@ -210,6 +212,46 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
         )}
       </div>
     </>
+  )
+}
+
+/** 出牌倒數：輪到你（打牌或吃碰）才出現；時間到系統幫你打。開選單或教學時暫停 */
+function TurnTimer({ m }: { m: M.MatchState }) {
+  const turnTime = useUI((s) => s.settings.turnTime)
+  const paused = useUI((s) => s.menu || s.learn !== null)
+  const autoPlay = useUI((s) => s.autoPlay)
+  const key = M.waitingForYou(m) ? `${m.handNo}:${m.hand.eventN}:${m.hand.phase}` : ''
+  const total = turnTime * 1000
+  const [left, setLeft] = useState(total)
+  useEffect(() => setLeft(total), [key, total])
+  useEffect(() => {
+    if (!key || paused) return
+    let last = performance.now()
+    const id = window.setInterval(() => {
+      const now = performance.now()
+      const dt = now - last
+      last = now
+      setLeft((l) => l - dt)
+    }, 100)
+    return () => window.clearInterval(id)
+  }, [key, paused])
+  const secs = Math.max(0, Math.ceil(left / 1000))
+  const out = left <= 0
+  useEffect(() => {
+    if (key && !paused && secs > 0 && secs <= 5) sfx.timer(secs <= 3)
+    // 只在秒數變的時候嘀一聲
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secs])
+  useEffect(() => {
+    if (key && out) autoPlay()
+    // 歸零的那一下觸發一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [out])
+  if (!key) return null
+  return (
+    <span className={cls('timer', secs <= 5 && 'urgent')} style={{ '--p': Math.max(0, left / total) } as CSSProperties} role="timer" aria-label={`剩 ${secs} 秒`}>
+      <b>{secs}</b>
+    </span>
   )
 }
 

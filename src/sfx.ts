@@ -131,6 +131,10 @@ export const sfx = {
     ;[0, 2, 4, 7, 9, 12].forEach((i, k) => tone(penta(i), 0.4, { type: 'square', gain: 0.06, delay: 0.08 + k * 0.06 }))
     ;[0, 4, 7].forEach((i) => tone(392 * 2 ** (i / 12), 1.6, { type: 'triangle', gain: 0.1, delay: 0.5, attack: 0.02 }))
   },
+  // 倒數最後幾秒：短短的「嘀」
+  timer(urgent: boolean) {
+    tone(urgent ? 1320 : 990, 0.07, { type: 'square', gain: urgent ? 0.07 : 0.05 })
+  },
   exhausted() {
     tone(330, 0.5, { gain: 0.12, slideTo: 220 })
   },

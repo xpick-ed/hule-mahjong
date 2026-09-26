@@ -1574,9 +1574,14 @@ button.mt {
 .final-actions,
 .sheet-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   margin-top: 12px;
+}
+
+.sheet-actions .btn {
+  white-space: nowrap;
 }
 
 .overlay.dim {
@@ -1584,7 +1589,7 @@ button.mt {
 }
 
 .sheet {
-  width: 480px;
+  width: 560px;
 }
 
 .sheet h3 {
@@ -1827,6 +1832,381 @@ button.mt {
 
 .deltas.waiting .delta b {
   opacity: 0;
+}
+
+/* 學習中心 */
+.learn {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  gap: 14px;
+  width: calc(var(--W) - 40px);
+  max-width: 880px;
+  height: 360px;
+  padding: 14px;
+}
+
+.learn-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.learn-tabs > button:not(.btn) {
+  min-height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: #f4f6fa;
+  font-size: 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.learn-tabs > button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.learn-close {
+  margin-top: auto;
+}
+
+.learn-content {
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.learn-content h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.learn-tiles {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.learn-group {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.lesson {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100%;
+}
+
+.lesson-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.lesson-no {
+  font-family: var(--num);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.lesson-body p {
+  margin: 0 0 4px;
+  max-width: 62ch;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.lesson-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.example {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #e3f7ef;
+}
+
+.example small {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.lesson-nav {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dots {
+  display: flex;
+  gap: 5px;
+}
+
+.dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #e2e7f0;
+}
+
+.dots i.on {
+  background: var(--red);
+}
+
+.practice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.practice-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.score {
+  font-family: var(--num);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.practice-lead,
+.practice-tip {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.practice-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 18px 10px 10px;
+  border-radius: 14px;
+  background: var(--table);
+}
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.verdict p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.verdict.good {
+  background: #e3f7ef;
+}
+
+.verdict.bad {
+  background: #fff0f3;
+}
+
+.verdict b {
+  margin-right: 6px;
+  font-size: 15px;
+}
+
+.good-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.verdict .btn {
+  align-self: flex-end;
+}
+
+.rules-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.money {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff7d6;
+}
+
+.formula {
+  margin: 6px 0;
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--red);
+}
+
+.money ul {
+  margin: 0 0 8px;
+  padding-left: 1.2em;
+  font-size: 13.5px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.worked {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.note {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.tai-group h4 {
+  margin: 0 0 6px;
+  font-family: var(--num);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.tai-group ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tai-group li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #f4f6fa;
+}
+
+.rule-text {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  flex: 1 1 220px;
+}
+
+.rule-text b {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.rule-tai {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--red);
+}
+
+.rule-text p {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+/* 出牌倒數 */
+.timer {
+  --p: 1;
+  position: absolute;
+  right: 18px;
+  bottom: 88px;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: conic-gradient(var(--ink) calc(var(--p) * 360deg), #e2e7f0 0);
+  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
+}
+
+.timer::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.timer b {
+  position: relative;
+  font-family: var(--num);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.timer.urgent {
+  background: conic-gradient(var(--red) calc(var(--p) * 360deg), #ffd6de 0);
+  color: var(--red);
+  animation: urgent 0.5s ease-in-out infinite alternate;
+}
+
+.seg {
+  display: flex;
+  gap: 4px;
+}
+
+.seg button {
+  min-width: 42px;
+  height: 32px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f7;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.seg button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bg);
 }
 
 /* 絕招的大字：紫色 */
@@ -2238,6 +2618,12 @@ button.mt {
   to {
     opacity: 0;
     scale: 1.08;
+  }
+}
+
+@keyframes urgent {
+  to {
+    scale: 1.1;
   }
 }
 

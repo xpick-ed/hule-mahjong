@@ -3,8 +3,9 @@ import { CHARACTERS, TAUNTS, type LineKey } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
-import type { ClaimDecision, HandEvent } from './engine/table'
-import type { Kind } from './engine/tiles'
+import { chooseDiscard } from './engine/ai'
+import { canTsumo, type ClaimDecision, type HandEvent } from './engine/table'
+import { tileName, type Kind } from './engine/tiles'
 import { buzz, setSoundEnabled, sfx } from './sfx'
 import { preloadVoices, setVoiceEnabled, speak } from './voice'
 import * as P from './progress'
@@ -42,7 +43,14 @@ export interface Settings {
   myVoice: 'f' | 'm'
   fast: boolean
   hints: boolean
+  /** 你每一步可以想幾秒（10–60） */
+  turnTime: number
 }
+
+export const TURN_TIMES = [10, 15, 20, 30, 45, 60] as const
+
+/** 學習中心的分頁 */
+export type LearnTab = 'tips' | 'practice' | 'rules'
 
 export interface Bubble {
   text: string
@@ -66,7 +74,7 @@ interface UI {
   /** 大字特效（碰！吃！槓！） */
   callout: { seat: number; text: string; key: number } | null
   menu: boolean
-  help: boolean
+  learn: LearnTab | null
   missions: boolean
   shop: boolean
   /** 上一場的獎勵（結束畫面用） */
@@ -88,7 +96,9 @@ interface UI {
   step(): void
   nextHand(): void
   setMenu(on: boolean): void
-  setHelp(on: boolean): void
+  setLearn(tab: LearnTab | null): void
+  /** 時間到：系統幫你打 */
+  autoPlay(): void
   setSettings(s: Partial<Settings>): void
   setSkin(id: string): void
   setMissions(on: boolean): void
@@ -104,7 +114,7 @@ interface UI {
   processEvents(): void
 }
 
-const settings0: Settings = { sound: true, voice: true, myVoice: 'f', fast: false, hints: true, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
+const settings0: Settings = { sound: true, voice: true, myVoice: 'f', fast: false, hints: true, turnTime: 20, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
 setSoundEnabled(settings0.sound)
 setVoiceEnabled(settings0.voice)
 
@@ -202,7 +212,7 @@ export const useUI = create<UI>((set, get) => {
     moods: {},
     callout: null,
     menu: false,
-    help: false,
+    learn: null,
     missions: false,
     shop: false,
     rewards: null,
@@ -315,8 +325,31 @@ export const useUI = create<UI>((set, get) => {
     setMenu(menu) {
       set({ menu })
     },
-    setHelp(help) {
-      set({ help, menu: false })
+    setLearn(learn) {
+      set({ learn, menu: false })
+    },
+    autoPlay() {
+      const m = get().match
+      if (!m || !M.waitingForYou(m)) return
+      const h = m.hand
+      set({ mode: null, chiOpen: false, sel: null })
+      if (h.phase === 'claim') {
+        const o = h.options[0]!
+        get().claim(o.hu ? { type: 'hu' } : { type: 'pass' })
+        get().showToast(o.hu ? '時間到，幫你胡了' : '時間到，自動跳過')
+        return
+      }
+      if (canTsumo(h, 0)) {
+        get().tsumo()
+        get().showToast('時間到，幫你自摸了')
+        return
+      }
+      // 照電腦建議的打法幫你打一張
+      const t = chooseDiscard(h, 0, { speed: 0.5, defense: 0.5, greed: 0.2, mistakes: 0 }, { rng: (Date.now() >>> 0) || 1 })
+      if (apply((mm) => M.discard(mm, t.id))) {
+        sfx.discard()
+        get().showToast(`時間到，幫你打了${tileName(t.kind)}`)
+      }
     },
     setSettings(s) {
       const settings = { ...get().settings, ...s }

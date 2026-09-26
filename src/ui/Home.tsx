@@ -13,7 +13,7 @@ export function Home() {
   const start = useUI((s) => s.startStage)
   const resume = useUI((s) => s.resume)
   const setMenu = useUI((s) => s.setMenu)
-  const setHelp = useUI((s) => s.setHelp)
+  const setLearn = useUI((s) => s.setLearn)
   const setMissions = useUI((s) => s.setMissions)
   const setShop = useUI((s) => s.setShop)
   const saved = useMemo(() => savedMatch(), [])
@@ -58,8 +58,8 @@ export function Home() {
               繼續打：{STAGES[saved.stage].name}
             </button>
           )}
-          <button type="button" className="btn" onClick={() => setHelp(true)}>
-            台數表
+          <button type="button" className="btn" onClick={() => setLearn('tips')}>
+            教學
           </button>
           <button type="button" className="btn" onClick={() => setMenu(true)}>
             設定

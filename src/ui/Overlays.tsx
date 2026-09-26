@@ -3,7 +3,7 @@ import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
 import * as P from '../progress'
-import { useUI } from '../store'
+import { TURN_TIMES, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
 import { sfx } from '../sfx'
@@ -260,7 +260,7 @@ export function Menu() {
   const settings = useUI((s) => s.settings)
   const progress = useUI((s) => s.progress)
   const screen = useUI((s) => s.screen)
-  const { setMenu, setSettings, setHelp, toHome, setSkin } = useUI.getState()
+  const { setMenu, setSettings, setLearn, toHome, setSkin } = useUI.getState()
   return (
     <Sheet open={open} onClose={() => setMenu(false)} label="選單">
       <h3>設定</h3>
@@ -283,6 +283,16 @@ export function Menu() {
             {settings.myVoice === 'f' ? '女聲' : '男聲'}
           </button>
         </label>
+        <div className="row">
+          <span>你的出牌時間</span>
+          <div className="seg" role="group" aria-label="出牌時間">
+            {TURN_TIMES.map((t) => (
+              <button key={t} type="button" aria-pressed={settings.turnTime === t} onClick={() => setSettings({ turnTime: t })}>
+                {t}秒
+              </button>
+            ))}
+          </div>
+        </div>
         <label className="row">
           <span>電腦出牌速度</span>
           <button type="button" className="toggle" aria-pressed={settings.fast} onClick={() => setSettings({ fast: !settings.fast })}>
@@ -317,12 +327,15 @@ export function Menu() {
         </div>
       </div>
       <div className="sheet-actions">
-        <button type="button" className="btn" onClick={() => setHelp(true)}>
-          台數表
+        <button type="button" className="btn" onClick={() => setLearn('rules')}>
+          台數規則
+        </button>
+        <button type="button" className="btn" onClick={() => setLearn('tips')}>
+          胡牌技巧
         </button>
         {screen === 'match' && (
           <button type="button" className="btn" onClick={toHome}>
-            回首頁（會保留這一場）
+            回首頁（保留這一場）
           </button>
         )}
         <button type="button" className="btn primary" onClick={() => setMenu(false)}>
@@ -421,42 +434,6 @@ export function Shop() {
       <div className="sheet-actions">
         <button type="button" className="btn primary" onClick={() => setShop(false)}>
           關閉
-        </button>
-      </div>
-    </Sheet>
-  )
-}
-
-const TAI_TABLE: [number, string][] = [
-  [1, '莊家、門清、自摸、正花（每張）、圈風、門風、中發白（每組）、槓上開花、海底撈月、河底撈魚、獨聽'],
-  [2, '連莊（連 1 拉 1 起，每連一次 +2）、平胡、全求人、三暗刻、春夏秋冬／梅蘭竹菊（湊齊一組）'],
-  [3, '門清自摸（取代門清＋自摸）'],
-  [4, '碰碰胡、混一色、小三元'],
-  [5, '四暗刻'],
-  [8, '清一色、大三元、小四喜、五暗刻、嚦咕嚦咕、八仙過海'],
-  [16, '字一色、大四喜、天胡、地胡'],
-]
-
-export function Help() {
-  const open = useUI((s) => s.help)
-  const setHelp = useUI((s) => s.setHelp)
-  return (
-    <Sheet open={open} onClose={() => setHelp(false)} label="台數表">
-      <h3>台數表</h3>
-      <p className="help-lead">台灣十六張：湊 5 組面子＋1 對。放槍的人付「底＋台數×每台」，自摸三家都付。</p>
-      <table className="tai-table">
-        <tbody>
-          {TAI_TABLE.map(([t, s]) => (
-            <tr key={t}>
-              <th>{t} 台</th>
-              <td>{s}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="sheet-actions">
-        <button type="button" className="btn primary" onClick={() => setHelp(false)}>
-          知道了
         </button>
       </div>
     </Sheet>

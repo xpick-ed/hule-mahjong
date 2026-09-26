@@ -2,7 +2,8 @@ import { useUI } from '../store'
 import { Stage } from './bits'
 import { Home } from './Home'
 import { MatchView } from './MatchView'
-import { Help, Menu, Missions, Shop, Toast } from './Overlays'
+import { Learn } from './Learn'
+import { Menu, Missions, Shop, Toast } from './Overlays'
 
 export function App() {
   const screen = useUI((s) => s.screen)
@@ -10,7 +11,7 @@ export function App() {
     <Stage>
       {screen === 'home' ? <Home /> : <MatchView />}
       <Menu />
-      <Help />
+      <Learn />
       <Missions />
       <Shop />
       <Toast />
