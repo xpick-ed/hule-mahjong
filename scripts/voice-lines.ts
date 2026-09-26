@@ -24,10 +24,11 @@ const M1 = 'zh-TW-YunJheNeural' // 雲哲
 type Calls = [chi: string, pon: string, kong: string, hu: string, tsumo: string]
 
 // 2026-09-26 試聽後選定：美玲姐 A、林伯 A、二舅 A、阿嬤 B。其他人照同樣的思路配。
+// 之後第一關改名：美玲姐 → 大舅媽、林伯 → 鄒家雀神、阿凱 → 小姨丈（聲音不變）。
 const CAST: Record<string, { name: string; voice: Voice; calls: Calls }> = {
-  meiling: { name: '美玲姐', voice: { voice: F1, rate: '+12%', pitch: '+2Hz', fx: ['bright'] }, calls: ['吃！', '碰！', '槓！', '胡啦！', '自摸！'] },
-  lin: { name: '林伯', voice: { voice: M1, rate: '-12%', pitch: '-10Hz', fx: ['elder'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
-  kai: { name: '阿凱', voice: { voice: M1, rate: '+6%', pitch: '+6Hz', fx: ['plain'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
+  meiling: { name: '大舅媽', voice: { voice: F1, rate: '+12%', pitch: '+2Hz', fx: ['bright'] }, calls: ['吃！', '碰！', '槓！', '胡啦！', '自摸！'] },
+  lin: { name: '鄒家雀神', voice: { voice: M1, rate: '-12%', pitch: '-10Hz', fx: ['elder'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
+  kai: { name: '小姨丈', voice: { voice: M1, rate: '+6%', pitch: '+6Hz', fx: ['plain'] }, calls: ['吃。', '碰。', '槓。', '胡了。', '自摸。'] },
   wang: { name: '王經理', voice: { voice: M1, rate: '-4%', pitch: '-14Hz', fx: ['smooth'] }, calls: ['吃。', '碰！', '槓！', '胡了！', '自摸！'] },
   xiaomei: { name: '小美', voice: { voice: F2, rate: '+4%', pitch: '+10Hz', fx: ['bright'] }, calls: ['吃～', '碰！', '槓！', '胡了！', '自摸了！'] },
   jie: { name: '阿傑', voice: { voice: M1, rate: '+18%', pitch: '+2Hz', fx: ['loud'] }, calls: ['吃吃吃！', '碰！', '槓！', '胡！', '自摸！'] },

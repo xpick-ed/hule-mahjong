@@ -57,6 +57,10 @@ export interface Settings {
   rules: Rules
   /** 上次選的難度 */
   difficulty: M.Difficulty
+  /** 你的名字（空的就叫「你」） */
+  name: string
+  /** 第一次打開時問過名字了（填了或跳過） */
+  nameAsked: boolean
   /** 存檔版本 */
   v?: number
 }
@@ -112,6 +116,8 @@ interface UI {
   records: boolean
   /** 角色：'list' 是全部，角色 id 是那個人的頁面 */
   people: string | null
+  /** 問名字的畫面 */
+  nameSheet: boolean
   prematch: Prematch
   /** 上一場的獎勵（結束畫面用） */
   rewards: MatchRewards | null
@@ -149,6 +155,7 @@ interface UI {
   setMissions(on: boolean): void
   setShop(on: boolean): void
   setRecords(on: boolean): void
+  setNameSheet(on: boolean): void
   setPeople(id: string | null): void
   setOutfit(id: string, on: boolean): void
   claimMission(id: string): void
@@ -183,6 +190,8 @@ function loadSettings(): Settings {
     danger: false,
     turnTime: 20,
     difficulty: 'normal',
+    name: '',
+    nameAsked: false,
     ...rest,
     rules: { ...DEFAULT_RULES, ...(rest.rules ?? {}) },
     v: SETTINGS_VERSION,
@@ -193,6 +202,13 @@ const settings0 = loadSettings()
 setSfxVolume(settings0.sfxVol)
 setVoiceVolume(settings0.voiceVol)
 setMusicVolume(settings0.musicVol)
+
+/** 你的名字：沒填就叫「你」 */
+export function myName(s: Settings = useUI.getState().settings): string {
+  return s.name.trim() || '你'
+}
+
+export const useMyName = () => useUI((s) => s.settings.name.trim() || '你')
 
 export function moodFor(stage: number): MusicMood {
   return (['alley', 'party', 'newyear', 'boss'] as const)[stage] ?? 'alley'
@@ -314,7 +330,7 @@ export const useUI = create<UI>((set, get) => {
     let dailyCounted: boolean | undefined
     if (m.daily) {
       dailyCounted = p.dailyBest?.date !== m.daily
-      if (dailyCounted) p.dailyBest = { date: m.daily, place: M.ranking(m).indexOf(0) + 1, points: m.points[0], share: shareText(m) }
+      if (dailyCounted) p.dailyBest = { date: m.daily, place: M.ranking(m).indexOf(0) + 1, points: m.points[0], share: shareText(m, get().settings.name) }
     }
     setProgress(p)
     save(MATCH_KEY, null)
@@ -344,6 +360,8 @@ export const useUI = create<UI>((set, get) => {
     shop: false,
     records: false,
     people: null,
+    // 第一次打開（還沒問過名字、也沒有打過）先問名字
+    nameSheet: !settings0.nameAsked && !settings0.name,
     prematch: null,
     rewards: null,
     toast: null,
@@ -546,6 +564,9 @@ export const useUI = create<UI>((set, get) => {
     },
     setShop(on) {
       set({ shop: on })
+    },
+    setNameSheet(on) {
+      set({ nameSheet: on })
     },
     setRecords(on) {
       set({ records: on })

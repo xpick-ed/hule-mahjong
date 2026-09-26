@@ -30,7 +30,8 @@ export function DailyBoard({ m, date: d0 }: { m?: MatchState; date?: string }) {
   const counted = useUI((s) => s.rewards?.dailyCounted)
   const best = useUI((s) => (s.progress.dailyBest?.date === date ? s.progress.dailyBest : null))
   const [board, setBoard] = useState<Board | null | 'loading'>('loading')
-  const [name, setName] = useState(() => read(NAME_KEY))
+  const myName = useUI((s) => s.settings.name.trim())
+  const [name, setName] = useState(() => read(NAME_KEY) || myName)
   const [sent, setSent] = useState(() => !!read(sentKey(date)))
   const [busy, setBusy] = useState(false)
 

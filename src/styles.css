@@ -3723,6 +3723,45 @@ kbd {
   right: 60px;
 }
 
+
+/* ---------- 你的名字 ---------- */
+
+.me-chip .me-name {
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.text-input,
+.name-form input {
+  height: 34px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f7;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.text-input {
+  width: 180px;
+}
+
+.name-form input {
+  width: 100%;
+  height: 42px;
+  font-size: 17px;
+}
+
+.name-form .sheet-actions {
+  margin-top: 12px;
+}
+
 /* ---------- 動畫 ---------- */
 
 @keyframes fromMe {

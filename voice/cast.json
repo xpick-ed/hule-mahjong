@@ -1,7 +1,7 @@
 [
  {
   "id": "meiling",
-  "name": "美玲姐",
+  "name": "大舅媽",
   "voice": {
    "voice": "zh-TW-HsiaoChenNeural",
    "rate": "+12%",
@@ -13,7 +13,7 @@
  },
  {
   "id": "lin",
-  "name": "林伯",
+  "name": "鄒家雀神",
   "voice": {
    "voice": "zh-TW-YunJheNeural",
    "rate": "-12%",
@@ -25,7 +25,7 @@
  },
  {
   "id": "kai",
-  "name": "阿凱",
+  "name": "小姨丈",
   "voice": {
    "voice": "zh-TW-YunJheNeural",
    "rate": "+6%",

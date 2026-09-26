@@ -4,7 +4,7 @@ import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
 import { share, shareText } from '../daily'
 import * as P from '../progress'
-import { lookFor, TURN_TIMES, useUI } from '../store'
+import { lookFor, myName, TURN_TIMES, useUI } from '../store'
 import { LEVEL_UNLOCKS } from '../stories'
 import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
@@ -13,7 +13,7 @@ import { cls, CountUp, fmt, Tile } from './bits'
 import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
 import { DailyBoard } from './DailyBoard'
 
-const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? '你' : CHARACTERS[m.chars[seat]].name)
+const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? myName() : CHARACTERS[m.chars[seat]].name)
 
 export function Face({ m, seat, size = 34 }: { m: M.MatchState; seat: number; size?: number }) {
   const progress = useUI((s) => s.progress)
@@ -237,7 +237,7 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
   const place = order.indexOf(0) + 1
   const showToast = useUI((s) => s.showToast)
   const doShare = async () => {
-    const r = await share(shareText(m))
+    const r = await share(shareText(m, useUI.getState().settings.name))
     if (r === 'copied') showToast('戰績複製好了，貼給朋友吧')
     else if (r === 'failed') showToast('這個瀏覽器不能分享')
   }
@@ -400,6 +400,45 @@ export function Sheet({ open, onClose, children, label }: { open: boolean; onClo
   )
 }
 
+/** 名字最多幾個字（牌桌上的名牌放得下） */
+export const NAME_MAX = 8
+
+/** 第一次打開：問你叫什麼名字（可以跳過，之後在設定裡改） */
+export function NameSheet() {
+  const open = useUI((s) => s.nameSheet)
+  const saved = useUI((s) => s.settings.name)
+  const { setNameSheet, setSettings } = useUI.getState()
+  const [name, setName] = useState(saved)
+  if (!open) return null
+  const done = (n: string) => {
+    setSettings({ name: n.trim().slice(0, NAME_MAX), nameAsked: true })
+    setNameSheet(false)
+  }
+  return (
+    <Sheet open onClose={() => done(saved)} label="你的名字">
+      <form
+        className="name-form"
+        onSubmit={(e) => {
+          e.preventDefault()
+          done(name)
+        }}
+      >
+        <h3>你叫什麼名字？</h3>
+        <p className="help-lead">牌桌上、結算和排行榜會用這個名字。之後可以在「設定 → 遊戲」改。</p>
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder="例如：小明" aria-label="你的名字" autoFocus />
+        <div className="sheet-actions">
+          <button type="button" className="btn" onClick={() => done(saved)}>
+            先跳過
+          </button>
+          <button type="submit" className="btn primary" disabled={!name.trim()}>
+            好
+          </button>
+        </div>
+      </form>
+    </Sheet>
+  )
+}
+
 type MenuTab = 'sound' | 'game' | 'rules'
 
 function Vol({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
@@ -453,6 +492,17 @@ export function Menu() {
       )}
       {tab === 'game' && (
         <div className="settings">
+          <label className="row">
+            <span>你的名字</span>
+            <input
+              className="text-input"
+              value={settings.name}
+              onChange={(e) => setSettings({ name: e.target.value.slice(0, NAME_MAX), nameAsked: true })}
+              maxLength={NAME_MAX}
+              placeholder="你"
+              aria-label="你的名字"
+            />
+          </label>
           <div className="row">
             <span>你的出牌時間</span>
             <div className="seg" role="group" aria-label="出牌時間">

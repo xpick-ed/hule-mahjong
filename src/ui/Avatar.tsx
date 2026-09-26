@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { Look } from '../engine/characters'
-import type { Mood } from '../store'
+import { useMyName, type Mood } from '../store'
 
 // 扁平插畫頭像（viewBox 64×64）。頭髮、配件用參數組合，表情跟著牌局變：普通／開心／難過。
 
@@ -181,13 +181,15 @@ export const Avatar = memo(function Avatar({ look, mood = 'normal', size = 42 }:
   )
 })
 
-/** 你自己的頭像（簡單的圖案，不是人臉） */
+/** 你自己的頭像（簡單的圖案，不是人臉）：有填名字就放名字的第一個字 */
 export function MeBadge({ size = 30 }: { size?: number }) {
+  const ch = [...useMyName()][0]
+  const latin = /[\x00-\x7f]/.test(ch)
   return (
     <svg viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
       <circle cx="16" cy="16" r="16" fill="#1d2a4a" />
-      <text x="16" y="17" textAnchor="middle" dominantBaseline="central" fontSize="15" fontWeight="900" fill="#ffe066" fontFamily="var(--ui)">
-        你
+      <text x="16" y="17" textAnchor="middle" dominantBaseline="central" fontSize={latin ? 17 : 15} fontWeight="900" fill="#ffe066" fontFamily="var(--ui)">
+        {latin ? ch.toUpperCase() : ch}
       </text>
     </svg>
   )

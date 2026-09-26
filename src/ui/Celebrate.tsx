@@ -3,7 +3,7 @@ import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import type { WinScore } from '../engine/scoring'
 import { sfx } from '../sfx'
-import { lookFor, useUI } from '../store'
+import { lookFor, myName, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 
 /** 大牌：有 4 台以上的牌型（碰碰胡、混一色、小三元……）就算，回傳要秀的名字 */
@@ -35,7 +35,7 @@ export function CutIn({ m }: { m: M.MatchState }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   if (!on || !w || !big) return null
-  const name = w.seat === 0 ? '你' : CHARACTERS[m.chars[w.seat]].name
+  const name = w.seat === 0 ? myName() : CHARACTERS[m.chars[w.seat]].name
   return (
     <div className="cutin" role="status" aria-label={`${name}胡了${big.title}`}>
       <div className="cutin-rays" aria-hidden="true" />

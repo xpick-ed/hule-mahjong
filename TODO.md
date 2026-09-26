@@ -16,6 +16,8 @@
 - 60 個測試全過；瀏覽器實測引導局、覆盤、危險牌、一炮多響結算、角色、戰績、設定、每日挑戰、排行榜送出（本機 D1，重播驗證擋得住作弊）
 - 試玩版更新到第 8 版：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL（排行榜在試玩版不能用，要正式上線）
 
+**Doing（2026-09-26 下午）：** 你的名字（第一次打開問、設定可改、牌桌和結算都用）；第一關對手改名：大舅媽、鄒家雀神、小姨丈（4 句台詞改寫重新配音）；危險牌提示預設關。
+
 **Next:**
 1. Cloudflare：後台建出來的是 Worker（不是 Pages），已改成 Worker 的設定（wrangler.toml：[assets] ＋ worker/index.ts）。
    push 後會自動重跑部署；Worker 名字要跟 wrangler.toml 的 name（hule）一樣

@@ -24,9 +24,9 @@ interface Seat {
   flowers?: string[]
 }
 
-const TOP: Seat = { name: '美玲姐', wind: '北', score: '24,300', discards: ks('z4 m1 s9 p9 z2 m5 s6'), concealed: 16 }
+const TOP: Seat = { name: '大舅媽', wind: '北', score: '24,300', discards: ks('z4 m1 s9 p9 z2 m5 s6'), concealed: 16 }
 const LEFT: Seat = {
-  name: '林伯',
+  name: '鄒家雀神',
   wind: '東',
   score: '26,400',
   dealer: true,
@@ -35,7 +35,7 @@ const LEFT: Seat = {
   melds: [ks('m6 m7 m8')],
   flowers: ks('f5 f6'),
 }
-const RIGHT: Seat = { name: '阿凱', wind: '西', score: '22,800', discards: ks('m1 z6 p9 s8 m3 p4 z1'), concealed: 16 }
+const RIGHT: Seat = { name: '小姨丈', wind: '西', score: '22,800', discards: ks('m1 z6 p9 s8 m3 p4 z1'), concealed: 16 }
 
 function Tile({ kind, w, hot }: { kind: string; w: number; hot?: boolean }) {
   return (
@@ -136,7 +136,7 @@ export function MockTable({ theme }: { theme: string }) {
           </svg>
         </button>
         <span className="round-info">
-          東風圈 第 2 局<small>莊 林伯・連 1</small>
+          東風圈 第 2 局<small>莊 鄒家雀神・連 1</small>
         </span>
         <span className="left-count">
           剩 <b>58</b> 張

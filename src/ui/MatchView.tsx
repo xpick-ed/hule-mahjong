@@ -9,7 +9,7 @@ import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
 import { BACK } from '../progress'
 import { dangerMap, publicThreats } from '../review'
 import { sfx } from '../sfx'
-import { lookFor, tableSkin, useUI } from '../store'
+import { lookFor, myName, tableSkin, useMyName, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
 import { CutIn } from './Celebrate'
@@ -134,7 +134,8 @@ function TopStrip({ m }: { m: M.MatchState }) {
   const skill = useUI((s) => s.skill)
   const mode = useUI((s) => s.mode)
   const h = m.hand
-  const dealerName = m.dealer === 0 ? '你' : CHARACTERS[m.chars[m.dealer]].name
+  const me = useMyName()
+  const dealerName = m.dealer === 0 ? me : CHARACTERS[m.chars[m.dealer]].name
   const lucky = h.luckySeat === 0
   return (
     <header className="strip">
@@ -175,11 +176,13 @@ function TopStrip({ m }: { m: M.MatchState }) {
 
 function MeChip({ m }: { m: M.MatchState }) {
   const myBubble = useUI((s) => s.bubbles[0])
+  const name = useUI((s) => s.settings.name.trim())
   const h = m.hand
   return (
     <div className={cls('me-chip', h.turn === 0 && h.phase !== 'over' && 'active')}>
       <span className="seat-wind">{WIND_CHAR[seatWind(h, 0)]}</span>
       <MeBadge size={20} />
+      {name && <span className="me-name">{name}</span>}
       <span className="pscore">{fmt(m.points[0])}</span>
       {m.dealer === 0 && <span className="dealer">莊</span>}
       <TauntButton />
@@ -202,7 +205,7 @@ function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
       <div
         className={cls('compass', `turn-${turnSide}`, timer.active && 'ticking', timer.active && timer.secs <= 5 && 'urgent')}
         style={{ '--p': timer.frac } as CSSProperties}
-        aria-label={`輪到${h.turn === 0 ? '你' : CHARACTERS[m.chars[h.turn]].name}`}
+        aria-label={`輪到${h.turn === 0 ? myName() : CHARACTERS[m.chars[h.turn]].name}`}
       >
         <span className="c-bottom">{WIND_CHAR[seatWind(h, 0)]}</span>
         <span className="c-right">{WIND_CHAR[seatWind(h, 1)]}</span>

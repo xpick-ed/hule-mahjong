@@ -245,11 +245,11 @@
  },
  "meiling.line.reply.1": {
   "who": "meiling",
-  "text": "好啦好啦，姐姐讓你"
+  "text": "好啦好啦，舅媽讓你"
  },
  "meiling.line.friend.0": {
   "who": "meiling",
-  "text": "欸你又來了！姐姐最喜歡跟你打"
+  "text": "欸你又來了！舅媽最喜歡跟你打"
  },
  "meiling.line.friend.1": {
   "who": "meiling",
@@ -421,7 +421,7 @@
  },
  "lin.line.hello.1": {
   "who": "lin",
-  "text": "年輕人，讓伯伯教你"
+  "text": "年輕人，讓我教你兩招"
  },
  "lin.line.pon.0": {
   "who": "lin",
@@ -481,7 +481,7 @@
  },
  "lin.line.friend.1": {
   "who": "lin",
-  "text": "跟你打牌，伯伯很放心"
+  "text": "跟你打牌，我很放心"
  },
  "kai.tile.m1": {
   "who": "kai",
