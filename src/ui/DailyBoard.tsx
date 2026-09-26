@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchBoard, submitScore, type Board } from '../daily'
 import type { MatchState } from '../engine/match'
-import { useUI } from '../store'
+import { useMyName, useUI } from '../store'
 import { cls, fmt } from './bits'
 
 const NAME_KEY = 'hule.name'
@@ -30,7 +30,7 @@ export function DailyBoard({ m, date: d0 }: { m?: MatchState; date?: string }) {
   const counted = useUI((s) => s.rewards?.dailyCounted)
   const best = useUI((s) => (s.progress.dailyBest?.date === date ? s.progress.dailyBest : null))
   const [board, setBoard] = useState<Board | null | 'loading'>('loading')
-  const myName = useUI((s) => s.settings.name.trim())
+  const myName = useMyName()
   const [name, setName] = useState(() => read(NAME_KEY) || myName)
   const [sent, setSent] = useState(() => !!read(sentKey(date)))
   const [busy, setBusy] = useState(false)

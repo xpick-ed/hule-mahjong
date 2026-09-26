@@ -174,7 +174,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
 
 function MeChip({ m }: { m: M.MatchState }) {
   const myBubble = useUI((s) => s.bubbles[0])
-  const name = useUI((s) => s.settings.name.trim())
+  const name = useMyName()
   const h = m.hand
   return (
     <div className={cls('me-chip', h.turn === 0 && h.phase !== 'over' && 'active')}>

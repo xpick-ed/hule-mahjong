@@ -240,12 +240,15 @@ setSfxVolume(settings0.sfxVol)
 setVoiceVolume(settings0.voiceVol)
 setMusicVolume(settings0.musicVol)
 
-/** 你的名字：沒填就叫「你」 */
+/** 沒填名字時的預設 */
+export const DEFAULT_NAME = '小明'
+
+/** 你的名字：沒填就叫「小明」 */
 export function myName(s: Settings = useUI.getState().settings): string {
-  return s.name.trim() || '你'
+  return s.name.trim() || DEFAULT_NAME
 }
 
-export const useMyName = () => useUI((s) => s.settings.name.trim() || '你')
+export const useMyName = () => useUI((s) => s.settings.name.trim() || DEFAULT_NAME)
 
 export function moodFor(stage: number): MusicMood {
   return (['alley', 'party', 'newyear', 'boss', 'storm', 'final'] as const)[stage] ?? 'alley'
@@ -424,7 +427,7 @@ export const useUI = create<UI>((set, get) => {
     conn = new RoomConn({
       code,
       create,
-      name: settings.name.trim() || '玩家',
+      name: settings.name.trim() || DEFAULT_NAME,
       voice: settings.myVoice,
       onStatus: (status, why) => {
         if (status === 'closed') {
@@ -551,8 +554,7 @@ export const useUI = create<UI>((set, get) => {
       clearRoomFromUrl()
       const code = fromUrl ?? savedRoom()
       if (!code || get().online) return
-      // 還沒有名字：先開房間畫面填名字
-      if (!get().settings.name.trim()) return set({ onlineSheet: code, nameSheet: false })
+      // 點邀請連結進來：直接加入（沒填名字就用預設的「小明」，之後可以在設定改），不先問名字
       if (fromUrl) set({ nameSheet: false })
       get().joinRoom(code)
     },

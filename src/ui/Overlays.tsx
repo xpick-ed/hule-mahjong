@@ -508,7 +508,7 @@ export function NameSheet() {
       >
         <h3>你叫什麼名字？</h3>
         <p className="help-lead">牌桌上、結算和排行榜會用這個名字。之後可以在「設定 → 遊戲」改。</p>
-        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder="例如：小明" aria-label="你的名字" autoFocus />
+        <input value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder="小明" aria-label="你的名字" autoFocus />
         <div className="sheet-actions">
           <button type="button" className="btn" onClick={() => done(saved)}>
             先跳過
@@ -583,7 +583,7 @@ export function Menu() {
               value={settings.name}
               onChange={(e) => setSettings({ name: e.target.value.slice(0, NAME_MAX), nameAsked: true })}
               maxLength={NAME_MAX}
-              placeholder="你"
+              placeholder="小明"
               aria-label="你的名字"
             />
           </label>

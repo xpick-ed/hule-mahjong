@@ -5,7 +5,7 @@ import { CHARACTERS } from '../engine/characters'
 import { ROOM_RE } from '../engine/online'
 import { STAGES } from '../engine/stages'
 import { canPlayOnline, inviteLink, SITE } from '../net'
-import { TURN_TIMES, useUI } from '../store'
+import { DEFAULT_NAME, TURN_TIMES, useUI } from '../store'
 import { cls } from './bits'
 import { NAME_MAX, Sheet } from './Overlays'
 import { PlayerBadge } from './seat'
@@ -13,12 +13,18 @@ import { PlayerBadge } from './seat'
 /** 首頁「跟朋友打」：開新房間，或輸入朋友給的房號加入 */
 export function OnlineSheet() {
   const open = useUI((s) => s.onlineSheet)
+  if (!open) return null
+  // 每次打開重新建一次，房號（從邀請連結帶進來的）才會填好
+  return <OnlineSheetBody key={String(open)} initialCode={typeof open === 'string' ? open : ''} />
+}
+
+function OnlineSheetBody({ initialCode }: { initialCode: string }) {
   const saved = useUI((s) => s.settings.name)
   const { setOnlineSheet, setSettings, createRoom, joinRoom } = useUI.getState()
   const [name, setName] = useState(saved)
-  const [code, setCode] = useState(typeof open === 'string' ? open : '')
-  if (!open) return null
-  const nameOk = !!name.trim()
+  const [code, setCode] = useState(initialCode)
+  // 名字可以不填：用預設的「小明」
+  const nameOk = true
   const codeOk = ROOM_RE.test(code)
   const keepName = () => setSettings({ name: name.trim().slice(0, NAME_MAX), nameAsked: true })
   return (
@@ -31,7 +37,7 @@ export function OnlineSheet() {
         ) : null}
         <label className="row name-row">
           <span>你的名字</span>
-          <input className="text-input" value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder="朋友會看到這個名字" aria-label="你的名字" />
+          <input className="text-input" value={name} onChange={(e) => setName(e.target.value)} maxLength={NAME_MAX} placeholder={DEFAULT_NAME} aria-label="你的名字" />
         </label>
         <div className="online-choices">
           <button
@@ -68,7 +74,7 @@ export function OnlineSheet() {
             </button>
           </form>
         </div>
-        {!nameOk && <p className="pm-small">先填名字，朋友才知道你是誰。</p>}
+        <p className="pm-small">沒填名字的話，朋友看到的是「{DEFAULT_NAME}」。</p>
       </div>
     </Sheet>
   )

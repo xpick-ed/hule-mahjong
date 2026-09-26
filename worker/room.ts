@@ -63,12 +63,21 @@ const OFFLINE_DELAY = 1500
 const HAND_END_WAIT = 30000
 const TURN_TIMES = [10, 15, 20, 30, 45, 60]
 
+/** 房間裡名字重複（例如兩個都沒填、都叫小明）：後來的加編號 */
+function uniqueName(name: string, others: { name: string }[]): string {
+  if (!others.some((o) => o.name === name)) return name
+  for (let i = 2; ; i++) {
+    const n = `${name.slice(0, 7)}${i}`
+    if (!others.some((o) => o.name === n)) return n
+  }
+}
+
 const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
 const cleanName = (s: string) =>
   s
     .replace(/[\u0000-\u001f\u007f<>]/g, '')
     .trim()
-    .slice(0, 8) || '玩家'
+    .slice(0, 8) || '小明'
 
 export class Room {
   private ctx: DOState
@@ -139,10 +148,10 @@ export class Room {
     if (!p) {
       if (s.phase === 'playing') return this.reject(ws, '這一桌已經開打了，等他們打完這場再加入')
       if (s.players.length >= 4) return this.reject(ws, '房間滿了（最多 4 個人）')
-      p = { pid, name, voice, host: s.players.length === 0 }
+      p = { pid, name: uniqueName(name, s.players), voice, host: s.players.length === 0 }
       s.players.push(p)
     } else {
-      p.name = name
+      p.name = uniqueName(name, s.players.filter((x) => x !== p))
       p.voice = voice
     }
     // 同一個人從別的分頁連進來：舊的那條斷掉
