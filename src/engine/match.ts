@@ -4,7 +4,7 @@
 import { chooseClaim, chooseDiscard, chooseSelf, type AiStyle } from './ai'
 import { shanten, toCounts } from './analysis'
 import { CHARACTERS } from './characters'
-import { hashSeed, pick, rand, randInt, shuffle } from './rng'
+import { hashSeed, pick, rand, randInt, shuffle, type HasRng } from './rng'
 import { dealerItems, type TaiItem } from './scoring'
 import { STAGES } from './stages'
 import * as T from './table'
@@ -78,7 +78,24 @@ export interface MatchState {
   ticks?: number
   /** 每日挑戰：你的動作紀錄，同一個種子可以完整重播 */
   log?: Act[]
+  /** 哪些座位是真人（連線對打）；沒有這欄就是只有座位 0 是你 */
+  humans?: boolean[]
+  /** 連線對打：沒有絕招、電腦也不用絕招 */
+  online?: boolean
+  /** 連線對打時每個座位是誰（只有給畫面看的那份有） */
+  players?: SeatPlayer[]
 }
+
+export interface SeatPlayer {
+  name: string
+  human: boolean
+  /** 真人報牌用的聲音 */
+  voice?: 'f' | 'm'
+  connected?: boolean
+}
+
+/** 你的一步（不含步數）：打牌、吃碰胡過、自摸、槓 */
+export type Move = [kind: 'd', tileId: number] | [kind: 'c', decision: T.ClaimDecision] | [kind: 't'] | [kind: 'k', tile: Kind]
 
 /** 你的一個動作：[電腦走到第幾步, 種類, 參數] */
 export type Act =
@@ -102,7 +119,14 @@ export interface MatchOptions {
   difficulty?: Difficulty
   daily?: string
   tutorial?: boolean
+  /** 連線對打：哪些座位是真人 */
+  humans?: boolean[]
 }
+
+const SOLO = [true, false, false, false]
+
+/** 這個座位是不是真人 */
+export const isHuman = (m: MatchState, seat: number) => (m.humans ?? SOLO)[seat]
 
 const fail = (msg: string): never => {
   throw new T.RuleError(msg)
@@ -141,11 +165,12 @@ export function winsOf(r: { win: T.WinInfo | null; also?: T.WinInfo[] } | null |
   return r?.win ? [r.win, ...(r.also ?? [])] : []
 }
 
-/** 剛有人打牌：電腦馬上決定要不要吃碰胡（你的決定等畫面） */
+/** 剛有人打牌：電腦馬上決定要不要吃碰胡（真人的決定等他們按） */
 function autoDecide(m: MatchState) {
   const h = m.hand
   if (h.phase !== 'claim') return
-  for (let s = 1; s < 4; s++) {
+  for (let s = 0; s < 4; s++) {
+    if (isHuman(m, s)) continue
     const o = h.options[s]
     if (o && !h.decisions[s]) T.decide(h, s, chooseClaim(h, s, o, styleOf(m, s), m))
   }
@@ -176,7 +201,16 @@ export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {
     ...(opt.daily ? { daily: opt.daily } : {}),
     ...(opt.tutorial ? { tutorial: true } : {}),
   } as unknown as MatchState
-  m.chars = ['me', ...shuffle(m, [...stage.opponents])]
+  const opponents = shuffle(m, [...stage.opponents])
+  m.chars = ['me', ...opponents]
+  if (opt.humans) {
+    // 連線對打：真人座位記 'me'，其他座位依序坐電腦；沒有絕招
+    let k = 0
+    m.chars = opt.humans.map((h) => (h ? 'me' : opponents[k++]))
+    m.humans = [...opt.humans]
+    m.online = true
+    m.skills = { swap: 0, peek: 0, lucky: 0 }
+  }
   m.dealer = randInt(m, 4)
   m.hand = T.newHand(m, m.dealer, 0, rulesOf(m))
   // 引導局：發一手好上手的牌（差兩步就聽牌，一般起手大多差四步）
@@ -193,33 +227,42 @@ export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {
   return m
 }
 
-// ---------- 你的動作 ----------
+// ---------- 真人的動作 ----------
 
-export function discard(m: MatchState, tileId: number): MatchState {
+/** 座位 seat 的真人做一步；連線時每個人都用這個，單機的你是座位 0 */
+export function act(m: MatchState, seat: number, mv: Move): MatchState {
   return edit(m, (r) => {
-    T.discardTile(r.hand, 0, tileId)
-    r.peek = null
-    autoDecide(r)
+    if (r.phase !== 'play') fail('這一局已經結束了')
+    if (!isHuman(r, seat)) fail('這不是你的位子')
+    const h = r.hand
+    if (mv[0] === 'd') {
+      T.discardTile(h, seat, mv[1])
+      if (seat === 0) r.peek = null
+      autoDecide(r)
+    } else if (mv[0] === 't') T.tsumo(h, seat)
+    else if (mv[0] === 'k') {
+      T.selfKong(h, seat, mv[1])
+      // 加槓可能被搶槓：電腦馬上決定要不要胡
+      autoDecide(r)
+    } else {
+      T.decide(h, seat, mv[1])
+      if (T.allDecided(h)) T.resolveClaims(h)
+    }
   })
 }
 
-export function tsumo(m: MatchState): MatchState {
-  return edit(m, (r) => T.tsumo(r.hand, 0))
-}
+export const discard = (m: MatchState, tileId: number) => act(m, 0, ['d', tileId])
+export const tsumo = (m: MatchState) => act(m, 0, ['t'])
+export const kong = (m: MatchState, kind: Kind) => act(m, 0, ['k', kind])
+export const claim = (m: MatchState, d: T.ClaimDecision) => act(m, 0, ['c', d])
 
-export function kong(m: MatchState, kind: Kind): MatchState {
-  return edit(m, (r) => {
-    T.selfKong(r.hand, 0, kind)
-    // 加槓可能被搶槓：電腦馬上決定要不要胡
-    autoDecide(r)
-  })
-}
-
-export function claim(m: MatchState, d: T.ClaimDecision): MatchState {
-  return edit(m, (r) => {
-    T.decide(r.hand, 0, d)
-    if (T.allDecided(r.hand)) T.resolveClaims(r.hand)
-  })
+/** 時間到或斷線：替這個真人做一步（能胡就胡，不然照電腦的建議打） */
+export function autoMove(m: MatchState, seat: number, rng: HasRng): Move | null {
+  if (!waitingFor(m, seat)) return null
+  const h = m.hand
+  if (h.phase === 'claim') return ['c', h.options[seat]!.hu ? { type: 'hu' } : { type: 'pass' }]
+  if (T.canTsumo(h, seat)) return ['t']
+  return ['d', chooseDiscard(h, seat, { speed: 0.5, defense: 0.5, greed: 0.2, mistakes: 0 }, rng).id]
 }
 
 export function useSkill(m: MatchState, id: SkillId, arg?: number): MatchState {
@@ -242,18 +285,26 @@ export function useSkill(m: MatchState, id: SkillId, arg?: number): MatchState {
 
 // ---------- 推動流程 ----------
 
-/** 現在是不是在等你 */
-export function waitingForYou(m: MatchState): boolean {
+/** 現在是不是在等這個座位（打牌，或決定要不要吃碰胡） */
+export function waitingFor(m: MatchState, seat: number): boolean {
   if (m.phase !== 'play') return false
   const h = m.hand
-  if (h.phase === 'discard') return h.turn === 0
-  if (h.phase === 'claim') return !!h.options[0] && !h.decisions[0]
+  if (h.phase === 'discard') return h.turn === seat
+  if (h.phase === 'claim') return !!h.options[seat] && !h.decisions[seat]
   return false
 }
 
-/** 做一個「不用等你」的動作：電腦出牌／吃碰結算。沒事可做就回傳原本那份 */
+/** 現在是不是在等你（座位 0） */
+export const waitingForYou = (m: MatchState) => waitingFor(m, 0)
+
+/** 還沒動作的真人座位 */
+export function humansPending(m: MatchState): number[] {
+  return [0, 1, 2, 3].filter((s) => isHuman(m, s) && waitingFor(m, s))
+}
+
+/** 做一個「不用等真人」的動作：電腦出牌／吃碰結算。沒事可做就回傳原本那份 */
 export function step(m: MatchState): MatchState {
-  if (m.phase !== 'play' || waitingForYou(m)) return m
+  if (m.phase !== 'play' || humansPending(m).length) return m
   const h = m.hand
   if (h.phase === 'claim') {
     return edit(m, (r) => {
@@ -262,7 +313,7 @@ export function step(m: MatchState): MatchState {
       T.resolveClaims(r.hand)
     })
   }
-  if (h.phase === 'discard' && h.turn !== 0) {
+  if (h.phase === 'discard' && !isHuman(m, h.turn)) {
     return edit(m, (r) => {
       r.ticks = (r.ticks ?? 0) + 1
       const seat = r.hand.turn
@@ -284,7 +335,7 @@ export function step(m: MatchState): MatchState {
 /** 會用絕招的對手，在合適的時機用一下（每場有次數） */
 function aiSkill(m: MatchState, seat: number) {
   const sk = CHARACTERS[m.chars[seat]].skill
-  if (!sk || m.difficulty === 'easy' || m.tutorial) return
+  if (!sk || m.difficulty === 'easy' || m.tutorial || m.online) return
   m.aiSkills ??= {}
   const left = m.aiSkills[seat] ?? sk.uses
   if (left <= 0 || rand(m) > (m.difficulty === 'hard' ? 0.5 : 0.35)) return
