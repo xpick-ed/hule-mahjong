@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { headline, makeBragCard } from '../brag'
+import { canPlayOnline } from '../net'
 import { myName, useUI } from '../store'
 import { Sheet } from './Overlays'
 
@@ -32,6 +33,8 @@ export function BragSheet() {
   const file = img ? new File([img.blob], `胡了-${headline(snap)}.png`, { type: 'image/png' }) : null
   const canShare = !!file && typeof navigator.canShare === 'function' && navigator.canShare({ files: [file] })
   const canCopy = typeof ClipboardItem !== 'undefined' && !!navigator.clipboard?.write
+  // claude.ai 的試玩版不能下載檔案：改成在圖片上長按／右鍵另存
+  const canSave = canPlayOnline()
   const share = async () => {
     try {
       await navigator.share({ files: [file!], text: `胡了！${headline(snap)} ${snap.tai} 台` })
@@ -61,16 +64,20 @@ export function BragSheet() {
         </div>
         <div className="brag-side">
           <h3>炫耀卡</h3>
-          <p className="help-lead">把這一手傳給朋友看。手機按「分享」可以直接傳到 LINE。</p>
+          <p className="help-lead">
+            把這一手傳給朋友看。手機按「分享」可以直接傳到 LINE。{!canSave && '也可以在圖片上長按（電腦按右鍵）另存。'}
+          </p>
           <div className="brag-actions">
             {canShare && (
               <button type="button" className="btn primary" onClick={share}>
                 分享
               </button>
             )}
-            <button type="button" className={canShare ? 'btn' : 'btn primary'} disabled={!img} onClick={download}>
-              存圖
-            </button>
+            {canSave && (
+              <button type="button" className={canShare ? 'btn' : 'btn primary'} disabled={!img} onClick={download}>
+                存圖
+              </button>
+            )}
             {canCopy && (
               <button type="button" className="btn" disabled={!img} onClick={copy}>
                 複製圖片
