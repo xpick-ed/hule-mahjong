@@ -161,6 +161,12 @@ export const sfx = {
   click() {
     noise(0.03, { freq: 2500, q: 1.5, gain: 0.15 })
   },
+  // 擲骰子：骰子在碗裡喀啦喀啦滾，最後停下來
+  dice() {
+    const hits = [0, 0.07, 0.12, 0.2, 0.26, 0.35, 0.41, 0.52, 0.6, 0.72]
+    hits.forEach((t, k) => noise(0.03, { freq: 2600 + ((k * 530) % 1400), q: 4, gain: 0.3 - k * 0.018, delay: t }))
+    tone(1800, 0.05, { type: 'triangle', gain: 0.05, delay: 0.8 })
+  },
 }
 
 /** 支援的裝置（Android）才會震；iOS 網頁沒有震動 API */

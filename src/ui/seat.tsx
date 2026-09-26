@@ -1,9 +1,9 @@
 // 每個座位是誰：你、連線的朋友、或電腦角色。名字和頭像都從這裡拿。
 
-import { CHARACTERS } from '../engine/characters'
+import { CHARACTERS, type Look } from '../engine/characters'
 import type { MatchState } from '../engine/match'
 import { lookFor, myName, useUI, type Mood } from '../store'
-import { Avatar, MeBadge } from './Avatar'
+import { Avatar, MyFace } from './Avatar'
 
 /** 連線的朋友（不是你） */
 export const isFriend = (m: MatchState, seat: number) => seat !== 0 && !!m.players?.[seat]?.human
@@ -15,8 +15,9 @@ export function seatName(m: MatchState, seat: number): string {
 
 const FRIEND_COLORS = ['#1d2a4a', '#ef3d5c', '#3a6df0', '#13a37f']
 
-/** 朋友的頭像：圓圈放名字第一個字，每個座位一個顏色 */
-export function PlayerBadge({ name, seat, size = 30 }: { name: string; seat: number; size?: number }) {
+/** 朋友的頭像：有換造型就用他的造型，不然是圓圈放名字第一個字，每個座位一個顏色 */
+export function PlayerBadge({ name, seat, size = 30, look, mood }: { name: string; seat: number; size?: number; look?: Look; mood?: Mood }) {
+  if (look) return <Avatar look={look} mood={mood} size={size} />
   const ch = [...name.trim()][0] ?? '?'
   const latin = /[\x00-\x7f]/.test(ch)
   return (
@@ -32,8 +33,8 @@ export function PlayerBadge({ name, seat, size = 30 }: { name: string; seat: num
 /** 任何座位的頭像 */
 export function SeatFace({ m, seat, size = 34, mood }: { m: MatchState; seat: number; size?: number; mood?: Mood }) {
   const progress = useUI((s) => s.progress)
-  if (seat === 0) return <MeBadge size={size} />
-  if (isFriend(m, seat)) return <PlayerBadge name={seatName(m, seat)} seat={seat} size={size} />
+  if (seat === 0) return <MyFace size={size} mood={mood} />
+  if (isFriend(m, seat)) return <PlayerBadge name={seatName(m, seat)} seat={seat} size={size} look={m.players?.[seat]?.look} mood={mood} />
   const id = m.chars[seat]
   if (!CHARACTERS[id]) return <PlayerBadge name={seatName(m, seat)} seat={seat} size={size} />
   return <Avatar look={lookFor(progress, id)} mood={mood} size={size} />

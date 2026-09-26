@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { chooseDiscard } from './engine/ai'
 import { BANTER, CHARACTERS, tauntText, type LineKey, type Look } from './engine/characters'
+import { cleanLook } from './engine/looks'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { LADDER, SKINS, STAGES } from './engine/stages'
@@ -16,6 +17,7 @@ import { judgeDiscard, pickNotes, type ReviewNote } from './review'
 import { goLandscape } from './screen'
 import { buzz, setSfxVolume, sfx } from './sfx'
 import { STORIES } from './stories'
+import { costOf } from './wardrobe'
 import { preloadVoices, setVoiceVolume, speak } from './voice'
 
 const MATCH_KEY = 'hule.match.v2'
@@ -55,6 +57,8 @@ export interface Settings {
   danger: boolean
   /** 你每一步可以想幾秒（10–60） */
   turnTime: number
+  /** 每一局開始先擲骰子 */
+  dice: boolean
   /** 牌桌規則（下一場開始生效） */
   rules: Rules
   /** 上次選的難度 */
@@ -92,8 +96,17 @@ export interface OnlineInfo {
   ready: number[]
 }
 
+/** 開局擲骰子：wait 等你（你當莊）、roll 骰子在滾、show 看點數 */
+export interface DiceState {
+  hand: number
+  /** 誰擲（莊家） */
+  by: number
+  faces: number[]
+  stage: 'wait' | 'roll' | 'show'
+}
+
 /** 開打前的確認畫面：選難度、提醒會蓋掉沒打完的那場 */
-export type Prematch = { stage: number; daily?: string; survival?: boolean; tourney?: boolean } | null
+export type Prematch = { stage: number; daily?: string; survival?: boolean; tourney?: boolean; blitz?: boolean } | null
 
 export interface MatchRewards {
   r: P.Rewards
@@ -143,6 +156,10 @@ interface UI {
   people: string | null
   /** 問名字的畫面 */
   nameSheet: boolean
+  /** 我的造型 */
+  lookSheet: boolean
+  /** 算台幫手 */
+  calc: boolean
   /** 炫耀卡：要做成圖的那一手 */
   bragSnap: P.HandSnap | null
   prematch: Prematch
@@ -158,8 +175,12 @@ interface UI {
   review: ReviewNote[]
   /** 這一局有喊「快了」的對手（危險牌提示會把他算進去） */
   heardTing: boolean[]
+  /** 這一局宿敵的事：誰變成宿敵、跟誰報仇成功 */
+  rivalNotes: P.RivalEvent[]
   /** 引導局：看過的提示 */
   guideSeen: string[]
+  /** 開局擲骰子（擲完才開始打） */
+  dice: DiceState | null
 
   setOnlineSheet(v: boolean | string): void
   /** 開一個新房間（你是房主） */
@@ -171,7 +192,7 @@ interface UI {
   /** 打開網頁時：從邀請連結、或上次沒離開的房間連回去 */
   bootOnline(): void
   openStage(p: Prematch): void
-  startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean; survival?: M.Survival }): void
+  startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean; survival?: M.Survival; blitz?: boolean }): void
   resume(): void
   toHome(): void
   tapTile(id: number): void
@@ -183,6 +204,10 @@ interface UI {
   setChiOpen(on: boolean): void
   step(): void
   nextHand(): void
+  /** 你當莊：擲骰子 */
+  rollDice(): void
+  /** 骰子看完了（或點一下跳過） */
+  endDice(): void
   setMenu(on: boolean): void
   setLearn(tab: LearnTab | null, focus?: { ch: string; i: number }): void
   /** 時間到：系統幫你打 */
@@ -193,6 +218,12 @@ interface UI {
   setShop(on: boolean): void
   setRecords(on: boolean): void
   setNameSheet(on: boolean): void
+  setLookSheet(on: boolean): void
+  /** 換上造型（沒買過的東西一起買）；成功回傳 true */
+  saveLook(look: Look): boolean
+  /** 改回用名字當頭像 */
+  resetLook(): void
+  setCalc(on: boolean): void
   /** 打開炫耀卡（null 關掉） */
   brag(snap: P.HandSnap | null): void
   setPeople(id: string | null): void
@@ -228,6 +259,7 @@ function loadSettings(): Settings {
     hints: true,
     danger: false,
     turnTime: 20,
+    dice: true,
     difficulty: 'normal',
     name: '',
     nameAsked: false,
@@ -353,6 +385,26 @@ export const useUI = create<UI>((set, get) => {
     announce(rec.unlocked, 2400)
     collect(m)
     set({ review: pickNotes(get().notes, m) })
+    rivals(m)
+  }
+
+  /** 宿敵：放槍給同一個人兩次就變宿敵；讓他付錢給你就報仇成功 */
+  const rivals = (m: M.MatchState) => {
+    const rv = P.recordRivals(get().progress, m)
+    if (rv.p !== get().progress) setProgress(rv.p)
+    announce(rv.unlocked, 4200)
+    if (!rv.events.length) return
+    set({ rivalNotes: rv.events })
+    rv.events.forEach((ev, i) => {
+      window.setTimeout(() => {
+        if (get().match?.handNo !== m.handNo) return
+        if (ev.kind === 'revenge') {
+          callout(0, '報仇！')
+          sfx.coin()
+          get().say(ev.seat, 'revenged')
+        } else get().say(ev.seat, 'rival')
+      }, 1700 + i * 1000)
+    })
   }
 
   /** 你胡了：收進牌型圖鑑，第一次收集到的跳提示 */
@@ -367,7 +419,7 @@ export const useUI = create<UI>((set, get) => {
     let p = { ...get().progress }
     p.matches++
     const first = M.ranking(m)[0] === 0
-    if (first && !m.daily && !m.survival && !STAGES[m.stage].tournament) {
+    if (first && !m.daily && !m.survival && !m.blitz && !STAGES[m.stage].tournament) {
       p.wins++
       if (m.stage >= p.cleared) {
         p.cleared = m.stage + 1
@@ -420,7 +472,13 @@ export const useUI = create<UI>((set, get) => {
     else sfx.lose()
   }
 
-  const newHandState = { notes: [] as ReviewNote[], review: [] as ReviewNote[], heardTing: [false, false, false, false] }
+  const newHandState = { notes: [] as ReviewNote[], review: [] as ReviewNote[], heardTing: [false, false, false, false], rivalNotes: [] as P.RivalEvent[] }
+
+  /** 新的一局要不要先擲骰子（連線、引導局不擲；開局就結束的也不擲） */
+  const diceFor = (m: M.MatchState | null): DiceState | null => {
+    if (!m || !get().settings.dice || m.online || m.tutorial || m.phase !== 'play' || m.hand.phase === 'over') return null
+    return { hand: m.handNo, by: m.dealer, faces: M.diceOf(m), stage: m.dealer === 0 ? 'wait' : 'roll' }
+  }
 
   // ---------- 連線對打 ----------
 
@@ -439,6 +497,7 @@ export const useUI = create<UI>((set, get) => {
       create,
       name: settings.name.trim() || DEFAULT_NAME,
       voice: settings.myVoice,
+      look: get().progress.myLook,
       onStatus: (status, why) => {
         if (status === 'closed') {
           conn = null
@@ -459,7 +518,7 @@ export const useUI = create<UI>((set, get) => {
         }
       },
     })
-    set({ online: { code, status: 'connecting', room: null, deadline: null, ready: [] }, onlineSheet: false, screen: 'room', match: null, menu: false })
+    set({ online: { code, status: 'connecting', room: null, deadline: null, ready: [] }, onlineSheet: false, screen: 'room', match: null, menu: false, dice: null })
     playMusic('home')
   }
 
@@ -532,6 +591,8 @@ export const useUI = create<UI>((set, get) => {
     people: null,
     // 第一次打開（還沒問過名字、也沒有打過）先問名字
     nameSheet: !settings0.nameAsked && !settings0.name,
+    lookSheet: false,
+    calc: false,
     bragSnap: null,
     prematch: null,
     rewards: null,
@@ -540,6 +601,7 @@ export const useUI = create<UI>((set, get) => {
     seenHand: 0,
     ...newHandState,
     guideSeen: [],
+    dice: null,
 
     setOnlineSheet(v) {
       set({ onlineSheet: v })
@@ -585,13 +647,14 @@ export const useUI = create<UI>((set, get) => {
         match = M.newMatch(newSeed(), st, { rules: settings.rules, difficulty: loop > 1 ? 'hard' : 'normal', survival: opt.survival })
       } else {
         const tutorial = !!opt.tutorial
+        const blitz = !!opt.blitz && !tutorial
         const difficulty = tutorial ? 'easy' : STAGES[stage].tournament ? 'normal' : (opt.difficulty ?? settings.difficulty)
-        match = M.newMatch(newSeed(), stage, { rules: settings.rules, difficulty, tutorial })
+        match = M.newMatch(newSeed(), stage, { rules: settings.rules, difficulty, tutorial, blitz })
         if (!tutorial && opt.difficulty && opt.difficulty !== settings.difficulty) get().setSettings({ difficulty: opt.difficulty })
         // 商店買的絕招補給這一場用
-        // （錦標賽只能用那一站的特別道具，補給留到下一場闖關）
+        // （錦標賽只能用那一站的特別道具、閃電局太短，補給留到下一場闖關）
         const { bonus } = progress
-        if (!STAGES[stage].items && (bonus.swap || bonus.peek || bonus.lucky)) {
+        if (!STAGES[stage].items && !blitz && (bonus.swap || bonus.peek || bonus.lucky)) {
           for (const k of Object.keys(bonus) as P.ShopSkill[]) match.skills[k] = (match.skills[k] ?? 0) + bonus[k]
           setProgress({ ...get().progress, bonus: { swap: 0, peek: 0, lucky: 0 } })
         }
@@ -612,17 +675,25 @@ export const useUI = create<UI>((set, get) => {
         rewards: null,
         prematch: null,
         guideSeen: [],
+        dice: diceFor(match),
         ...newHandState,
       })
       preloadFor(match, settings.myVoice)
       playMusic(moodFor(match.stage))
       sfx.shuffle()
-      // 開場：隨便一個對手打招呼（好感度夠的角色會講專屬台詞）；有特別規則就提醒一下
-      const seat = 1 + Math.floor(Math.random() * 3)
-      const friendly = P.affinityLevel(get().progress.affinity[match.chars[seat]] ?? 0).lv >= 3
-      window.setTimeout(() => get().say(seat, friendly && Math.random() < 0.7 ? 'friend' : 'hello'), 500)
+      // 開場：宿敵在這桌的話他先嗆你；不然隨便一個對手打招呼（好感度夠的角色會講專屬台詞）；有特別規則就提醒一下
+      const rival = match.tutorial ? undefined : [1, 2, 3].find((s) => P.isRival(get().progress, match.chars[s]))
+      if (rival) {
+        window.setTimeout(() => get().say(rival, 'rival'), 500)
+        window.setTimeout(() => get().showToast(`宿敵${CHARACTERS[match.chars[rival]].name}也在這桌：讓他付錢給你就能報仇`), 3200)
+      } else {
+        const seat = 1 + Math.floor(Math.random() * 3)
+        const friendly = P.affinityLevel(get().progress.affinity[match.chars[seat]] ?? 0).lv >= 3
+        window.setTimeout(() => get().say(seat, friendly && Math.random() < 0.7 ? 'friend' : 'hello'), 500)
+      }
       const rule = STAGES[match.stage].ruleText
       if (match.daily) window.setTimeout(() => get().showToast(`每日挑戰：今天大家的牌都一樣${rule ? `。${rule}` : ''}`), 1200)
+      else if (match.blitz) window.setTimeout(() => get().showToast(`閃電局：只打 ${M.BLITZ.hands} 局，每一步 ${M.BLITZ.turnTime} 秒`), 1200)
       else if (rule) window.setTimeout(() => get().showToast(rule), 1200)
       get().processEvents()
     },
@@ -630,7 +701,7 @@ export const useUI = create<UI>((set, get) => {
       const match = savedMatch()
       if (!match) return
       void goLandscape()
-      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, seenHand: match.handNo, prematch: null, ...newHandState })
+      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, seenHand: match.handNo, prematch: null, dice: null, ...newHandState })
       preloadFor(match, get().settings.myVoice)
       playMusic(moodFor(match.stage))
     },
@@ -740,8 +811,16 @@ export const useUI = create<UI>((set, get) => {
         conn?.send({ t: 'next' })
         return
       }
-      apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null, ...newHandState }, ['n'])
+      const next = apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null, ...newHandState }, ['n'])
       sfx.shuffle()
+      if (next) set({ dice: diceFor(next) })
+    },
+    rollDice() {
+      const d = get().dice
+      if (d?.stage === 'wait') set({ dice: { ...d, stage: 'roll' } })
+    },
+    endDice() {
+      if (get().dice) set({ dice: null })
     },
 
     setMenu(menu) {
@@ -799,6 +878,34 @@ export const useUI = create<UI>((set, get) => {
     },
     setNameSheet(on) {
       set({ nameSheet: on })
+    },
+    setLookSheet(on) {
+      set({ lookSheet: on })
+    },
+    saveLook(look) {
+      const p = get().progress
+      const clean = cleanLook(look)
+      if (!clean) return false
+      const c = costOf(p, clean)
+      if (c.locked.length) {
+        get().showToast(`還沒解鎖：${c.locked[0].name}（${c.locked[0].unlock!.text}）`)
+        return false
+      }
+      if (p.coins < c.coins) {
+        get().showToast('金幣不夠')
+        return false
+      }
+      setProgress({ ...p, coins: p.coins - c.coins, wardrobe: [...p.wardrobe, ...c.buy.map((x) => x.id)], myLook: clean })
+      if (c.coins) sfx.coin()
+      get().showToast(c.coins ? `買好了，換上新造型` : '換好了')
+      return true
+    },
+    resetLook() {
+      setProgress({ ...get().progress, myLook: null })
+      get().showToast('頭像改回名字的第一個字')
+    },
+    setCalc(on) {
+      set({ calc: on })
     },
     brag(snap) {
       set({ bragSnap: snap })
@@ -994,7 +1101,7 @@ export const useUI = create<UI>((set, get) => {
           mood(e.from, 'sad')
           window.setTimeout(() => say(e.from!, 'dealIn', 0.8), 900)
         } else {
-          for (const s of [1, 2, 3]) if (s !== e.seat) mood(s, 'sad')
+          for (const s of [0, 1, 2, 3]) if (s !== e.seat) mood(s, 'sad')
         }
         break
       }

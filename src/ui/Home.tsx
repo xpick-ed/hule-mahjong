@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { CHARACTERS } from '../engine/characters'
+import * as M from '../engine/match'
 import { LADDER, STAGES, TOURNEY } from '../engine/stages'
 import { dailyInfo } from '../daily'
 import { claimable, rankOf, starsOf } from '../progress'
 import { lookFor, savedMatch, useUI } from '../store'
-import { Avatar } from './Avatar'
+import { Avatar, MyFace } from './Avatar'
 import { cls, fmt, Tile } from './bits'
 
 const FAN = ['m1', 'p5', 's1', 'z5', 'z1', 's9', 'm9']
@@ -54,6 +55,10 @@ export function Home() {
         <button type="button" className="top-btn" onClick={() => setPeople('list')}>
           角色
         </button>
+        <button type="button" className="top-btn look-btn" onClick={() => useUI.getState().setLookSheet(true)}>
+          <MyFace size={22} />
+          造型
+        </button>
         <button type="button" className="top-btn" onClick={() => setRecords(true)}>
           戰績
         </button>
@@ -72,6 +77,7 @@ export function Home() {
           {saved && (
             <button type="button" className="btn primary" onClick={resume}>
               繼續打：{STAGES[saved.stage].name}
+              {saved.blitz ? '（閃電局）' : ''}
             </button>
           )}
           <button type="button" className={cls('btn daily-btn', !saved && 'primary')} onClick={() => openStage({ stage: daily.stage, daily: daily.date })}>
@@ -81,12 +87,17 @@ export function Home() {
           <button type="button" className="btn online-btn" onClick={() => useUI.getState().setOnlineSheet(true)}>
             跟朋友打
           </button>
-          <button type="button" className="btn" onClick={() => setLearn('tips')}>
-            教學
-          </button>
-          <button type="button" className="btn" onClick={() => setMenu(true)}>
-            設定
-          </button>
+          <span className="home-sub">
+            <button type="button" className="btn small" onClick={() => setLearn('tips')}>
+              教學
+            </button>
+            <button type="button" className="btn small calc-btn" onClick={() => useUI.getState().setCalc(true)}>
+              算台
+            </button>
+            <button type="button" className="btn small" onClick={() => setMenu(true)}>
+              設定
+            </button>
+          </span>
         </div>
         <p className="record">
           打過 {progress.matches} 場・拿第一 {progress.wins} 次
@@ -173,6 +184,25 @@ export function Home() {
                 ? '再拿一次冠軍'
                 : `挑戰：${TOURNEY[progress.tourneyCleared].name}`}
           </span>
+        </button>
+        <button
+          type="button"
+          className={cls('stage-card', 'blitz-card', progress.cleared < 1 && 'locked')}
+          disabled={progress.cleared < 1}
+          onClick={() => openStage({ stage: Math.min(progress.cleared, LADDER.length - 1), blitz: true })}
+        >
+          <span className="stage-no">快速模式</span>
+          <span className="stage-name">閃電局</span>
+          <span className="stage-place">等公車、午休剛好打一場。選一關，對手照舊。</span>
+          <span className="blitz-facts">
+            <span>
+              <b>{M.BLITZ.hands}</b>局
+            </span>
+            <span>
+              每步<b>{M.BLITZ.turnTime}</b>秒
+            </span>
+          </span>
+          <span className="stage-cta">{progress.cleared < 1 ? '過第一關解鎖' : '選關卡開打'}</span>
         </button>
       </section>
     </div>

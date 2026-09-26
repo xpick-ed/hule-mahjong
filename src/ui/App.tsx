@@ -10,6 +10,8 @@ import { OnlineSheet, RoomView } from './Online'
 import { People } from './People'
 import { PreMatch } from './PreMatch'
 import { Records } from './Records'
+import { WardrobeSheet } from './Wardrobe'
+import { Calc } from './Calc'
 
 export function App() {
   const screen = useUI((s) => s.screen)
@@ -25,6 +27,8 @@ export function App() {
       <Shop />
       <Records />
       <People />
+      <WardrobeSheet />
+      <Calc />
       <NameSheet />
       <OnlineSheet />
       <BragSheet />

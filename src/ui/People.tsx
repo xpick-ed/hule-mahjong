@@ -55,7 +55,10 @@ function List() {
             <li key={id}>
               <button type="button" className={cls('person', !met && 'unmet')} onClick={() => met && setPeople(id)} disabled={!met}>
                 <Avatar look={lookFor(p, id)} size={40} />
-                <b>{met ? CHARACTERS[id].name : '？？？'}</b>
+                <b>
+                  {met ? CHARACTERS[id].name : '？？？'}
+                  {P.isRival(p, id) && <em className="rival-tag">宿敵</em>}
+                </b>
                 {met ? <Hearts lv={lv} /> : <small>在「{stage.name}」遇到</small>}
               </button>
             </li>
@@ -108,6 +111,11 @@ function Detail({ id }: { id: string }) {
         {vs && (
           <small className="pd-vs">
             一起打過 {vs.played} 場，名次比他高 {vs.above} 場
+          </small>
+        )}
+        {(p.grudge[id] ?? 0) > 0 && (
+          <small className={cls('pd-grudge', P.isRival(p, id) && 'on')}>
+            {P.isRival(p, id) ? `宿敵：你放槍給他 ${p.grudge[id]} 次還沒討回來` : `你放槍給他 ${p.grudge[id]} 次，再一次就變宿敵`}
           </small>
         )}
       </div>

@@ -142,7 +142,7 @@ export function RoomView() {
             <ul>
               {room.players.map((p, i) => (
                 <li key={i} className={cls(!p.connected && 'gone')}>
-                  <PlayerBadge name={p.name} seat={i} size={30} />
+                  <PlayerBadge name={p.name} seat={i} size={30} look={p.look} />
                   <b>{p.name}</b>
                   {p.host && <em className="tag host">房主</em>}
                   {i === room.you && <em className="tag you">你</em>}

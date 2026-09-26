@@ -20,7 +20,15 @@ export function PreMatch() {
   if (!pm) return null
   return (
     <Sheet open onClose={() => open(null)} label="開打">
-      {pm.tourney ? <TourneyBody first={pm.stage} /> : pm.survival ? <SurvivalBody /> : <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />}
+      {pm.tourney ? (
+        <TourneyBody first={pm.stage} />
+      ) : pm.survival ? (
+        <SurvivalBody />
+      ) : pm.blitz ? (
+        <BlitzBody first={pm.stage} />
+      ) : (
+        <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />
+      )}
     </Sheet>
   )
 }
@@ -257,6 +265,61 @@ function TourneyBody({ first }: { first: number }) {
           </button>
         )}
         <button type="button" className="btn primary" onClick={() => startStage(pick)}>
+          開打：{stage.name}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+/** 閃電局：選一關（過了的關卡都能選）、選難度 */
+function BlitzBody({ first }: { first: number }) {
+  const settings = useUI((s) => s.settings)
+  const progress = useUI((s) => s.progress)
+  const { startStage, openStage } = useUI.getState()
+  const saved = useMemo(() => savedMatch(), [])
+  const [pick, setPick] = useState(first)
+  const [diff, setDiff] = useState<M.Difficulty>(settings.difficulty)
+  const stage = STAGES[pick]
+  return (
+    <div className="prematch">
+      <header className="pm-head">
+        <span className="pm-no">快速模式</span>
+        <h3>閃電局</h3>
+      </header>
+      <p className="pm-small">
+        只打 {M.BLITZ.hands} 局，每一步 {M.BLITZ.turnTime} 秒，電腦也出得快，大概 5 分鐘打完。金幣、段位減半，拿第一不算過關、不算星星。
+      </p>
+      <div className="stage-pick blitz-pick" role="group" aria-label="關卡">
+        {LADDER.map((s, i) => (
+          <button key={s.id} type="button" aria-pressed={pick === i} disabled={i > progress.cleared} onClick={() => setPick(i)}>
+            <b>{s.name}</b>
+            <small>{i > progress.cleared ? '還沒解鎖' : s.opponents.map((id) => CHARACTERS[id].name).join('、')}</small>
+          </button>
+        ))}
+      </div>
+      <div className="pm-diff">
+        <div className="seg" role="group" aria-label="難度">
+          {LEVELS.map((lv) => (
+            <button key={lv} type="button" aria-pressed={diff === lv} onClick={() => setDiff(lv)}>
+              {M.DIFFICULTY[lv].name}
+            </button>
+          ))}
+        </div>
+        <p className="pm-small">
+          底 {fmt(stage.base)}・每台 {fmt(stage.perTai)}。{M.DIFFICULTY[diff].desc}
+        </p>
+      </div>
+      {saved && (
+        <p className="pm-warn" role="alert">
+          你還有一場「{STAGES[saved.stage].name}」打到第 {saved.handNo} 局。開新的一場，那一場就沒了。
+        </p>
+      )}
+      <div className="sheet-actions">
+        <button type="button" className="btn" onClick={() => openStage(null)}>
+          取消
+        </button>
+        <button type="button" className="btn primary" onClick={() => startStage(pick, { difficulty: diff, blitz: true })}>
           開打：{stage.name}
         </button>
       </div>

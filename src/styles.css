@@ -4730,3 +4730,723 @@ kbd {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* ---------- 閃電局 ---------- */
+
+.stage-card.blitz-card {
+  background: linear-gradient(160deg, var(--purple), #5b34c9);
+  color: #fff;
+}
+
+.blitz-card .stage-no,
+.blitz-card .stage-place {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.blitz-card .stage-name {
+  color: var(--bg);
+}
+
+.blitz-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.blitz-facts b {
+  margin: 0 3px;
+  font-family: var(--num);
+  font-size: 26px;
+  line-height: 1.1;
+  color: var(--bg);
+}
+
+.blitz-card .stage-cta {
+  background: var(--bg);
+  color: #4a28b0;
+  box-shadow: 0 3px 0 #d9b93a;
+}
+
+.blitz-card.locked .stage-cta {
+  background: transparent;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.blitz-pick {
+  margin: 4px 0 2px;
+}
+
+
+/* ---------- 開局擲骰子 ---------- */
+
+.dice-layer {
+  position: absolute;
+  inset: 32px 0 0;
+  z-index: 18;
+  display: grid;
+  place-items: center;
+  background: rgba(29, 42, 74, 0.18);
+  cursor: pointer;
+  animation: fade 0.2s;
+}
+
+.dice-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  min-width: 280px;
+  padding: 14px 22px 16px;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 6px 0 rgba(29, 42, 74, 0.2);
+  animation: popIn 0.3s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+.dice-who {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+/* 碗：骰子在裡面滾 */
+.dice-row {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  border-radius: 50% / 38%;
+  background: radial-gradient(ellipse at 50% 35%, #ffffff 0 30%, #eaf6f2 60%, #cfe9e1);
+  box-shadow:
+    inset 0 -6px 0 rgba(31, 138, 112, 0.18),
+    0 3px 0 rgba(29, 42, 74, 0.12);
+}
+
+.die-wrap {
+  display: block;
+  filter: drop-shadow(0 3px 0 rgba(29, 42, 74, 0.18));
+}
+
+.dice-card.roll .die-wrap {
+  animation: tumble 0.28s linear infinite;
+  animation-delay: calc(var(--i) * -0.09s);
+}
+
+.dice-card.show .die-wrap {
+  animation: landDie 0.35s cubic-bezier(0.2, 1.5, 0.4, 1) both;
+  animation-delay: calc(var(--i) * 0.06s);
+}
+
+@keyframes tumble {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(3px, -6px) rotate(90deg);
+  }
+  50% {
+    transform: translate(-2px, -2px) rotate(180deg);
+  }
+  75% {
+    transform: translate(-4px, -7px) rotate(270deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(360deg);
+  }
+}
+
+@keyframes landDie {
+  from {
+    transform: scale(1.25) rotate(-12deg);
+  }
+  to {
+    transform: none;
+  }
+}
+
+.dice-result {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.dice-result b {
+  font-family: var(--num);
+  font-size: 26px;
+  color: var(--red);
+}
+
+.dice-result.muted {
+  color: var(--muted);
+}
+
+.dice-btn {
+  min-width: 160px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dice-card.roll .die-wrap,
+  .dice-card.show .die-wrap {
+    animation: none;
+  }
+}
+
+
+/* ---------- 宿敵 ---------- */
+
+.pname .rival-tag {
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 var(--red-edge);
+}
+
+.extra.rival-note {
+  background: #ffe0e4;
+  color: var(--red-edge);
+}
+
+.extra.rival-note.revenge {
+  background: var(--red);
+  color: #fff;
+  box-shadow: 0 3px 0 var(--red-edge);
+}
+
+.extra.rival-note.revenge b {
+  color: var(--bg);
+}
+
+.pd-grudge {
+  width: 100%;
+  color: var(--muted);
+}
+
+.pd-grudge.on {
+  color: var(--red);
+}
+
+.person .rival-tag {
+  margin-left: 4px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--red);
+  color: #fff;
+  font-style: normal;
+  font-size: 9px;
+  vertical-align: 2px;
+}
+
+
+/* ---------- 我的造型 ---------- */
+
+.top-btn.look-btn {
+  padding-left: 5px;
+  gap: 5px;
+}
+
+.top-btn.look-btn svg {
+  border-radius: 50%;
+}
+
+.wardrobe {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+}
+
+.wd-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.wd-preview {
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  box-shadow: 0 5px 0 rgba(29, 42, 74, 0.14);
+}
+
+.wd-name {
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.wd-tip {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.wd-main {
+  min-width: 0;
+}
+
+.wd-tabs {
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.wd-tabs button {
+  height: 30px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+.wd-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+  gap: 6px;
+}
+
+.wd-grid.swatches {
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+}
+
+.wd-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 4px 5px;
+  border: 0;
+  border-radius: 14px;
+  background: #eef1f7;
+  cursor: pointer;
+}
+
+.wd-item.on {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.wd-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 2px rgba(29, 42, 74, 0.12);
+}
+
+.wd-item.on .wd-swatch {
+  box-shadow:
+    inset 0 0 0 2px rgba(29, 42, 74, 0.12),
+    0 0 0 2px var(--bg);
+}
+
+.wd-label {
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.wd-price,
+.wd-lock {
+  position: absolute;
+  top: -4px;
+  right: -3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--orange);
+  color: #fff;
+  font-family: var(--num);
+  font-style: normal;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 var(--orange-edge);
+}
+
+.wd-lock {
+  background: var(--purple);
+  font-family: var(--ui);
+  box-shadow: 0 2px 0 var(--purple-edge);
+}
+
+.wd-note {
+  margin: 8px 0 0;
+}
+
+
+/* ---------- 算台幫手 ---------- */
+
+.calc {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: calc(var(--W) - 24px);
+  max-width: 940px;
+  height: 372px;
+  max-height: calc(100% - 12px);
+  padding: 10px 14px 12px;
+  overflow: hidden;
+}
+
+.calc-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calc-head h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.calc-sub {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.calc-hand {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  min-height: 54px;
+  padding: 10px 10px 8px;
+  border-radius: 14px;
+  background: var(--table);
+  box-shadow: inset 0 -4px 0 var(--table-edge);
+}
+
+.calc-meld {
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.calc-meld .mt.dim {
+  filter: brightness(0.6) saturate(0.2);
+}
+
+.calc-concealed {
+  display: flex;
+  align-items: flex-end;
+}
+
+.calc-win {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.calc-win small {
+  position: absolute;
+  top: -9px;
+  z-index: 1;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--red);
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 15px;
+  color: #fff;
+}
+
+.calc-flowers {
+  display: flex;
+  margin-left: 6px;
+}
+
+.calc-empty {
+  align-self: center;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.calc-count {
+  margin-left: auto;
+  align-self: center;
+  font-family: var(--num);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+}
+
+.calc-body {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 14px;
+  min-height: 0;
+  flex: 1;
+}
+
+.calc-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calc-modes {
+  align-self: flex-start;
+  margin-bottom: 2px;
+}
+
+.calc-modes button {
+  height: 28px;
+  padding: 0 11px;
+  font-size: 13px;
+}
+
+.calc-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.calc-row .mt.dim {
+  opacity: 0.35;
+}
+
+.calc-row.flowers {
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.calc-row.flowers .mt.sel {
+  translate: 0 -4px;
+}
+
+.calc-row.flowers small {
+  align-self: center;
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--muted);
+}
+
+.calc-side {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.calc-result {
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: #fff3c4;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.5;
+}
+
+.calc-result.muted {
+  background: #eef1f7;
+  color: var(--muted);
+}
+
+.calc-result.win {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 12px;
+  align-items: center;
+}
+
+.calc-total {
+  grid-row: span 2;
+  font-size: 15px;
+}
+
+.calc-total b {
+  font-family: var(--num);
+  font-size: 40px;
+  line-height: 1;
+  color: var(--red);
+}
+
+.calc-total small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.calc-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calc-items li {
+  display: inline-flex;
+  gap: 4px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 12px;
+}
+
+.calc-items li b {
+  font-family: var(--num);
+  color: var(--red);
+}
+
+.calc-items li.dealer-item {
+  background: var(--ink);
+  color: #fff;
+}
+
+.calc-items li.dealer-item b {
+  color: var(--bg);
+}
+
+.calc-pay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.calc-pay b {
+  font-family: var(--num);
+  color: var(--red);
+}
+
+.calc-title {
+  display: block;
+  font-size: 14px;
+}
+
+.calc-waits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 4px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.calc-waits li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.calc-waits li b {
+  font-family: var(--num);
+  color: var(--red);
+}
+
+.calc-waits li small {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.calc-note {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.calc-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.calc-opt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.calc-opt > span:first-child {
+  flex: none;
+  width: 70px;
+  color: var(--muted);
+}
+
+.calc-opt .seg button {
+  height: 26px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepper button {
+  width: 26px;
+  height: 26px;
+  border: 0;
+  border-radius: 50%;
+  background: #eef1f7;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.stepper b {
+  min-width: 44px;
+  text-align: center;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.calc-chip {
+  height: 26px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f7;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.calc-chip.on {
+  background: var(--red);
+  color: #fff;
+}
+
+/* 首頁次要的按鈕：教學、算台、設定排一排（放得下就跟「跟朋友打」同一行） */
+.home-sub {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.home-sub .btn.small {
+  padding: 4px 12px;
+}

@@ -3,7 +3,22 @@
 import type { AiStyle } from './ai'
 
 export type Hair = 'perm' | 'short' | 'spiky' | 'bald' | 'bun' | 'long' | 'bob' | 'slick' | 'ponytail'
-export type Extra = 'glasses' | 'sunglasses' | 'cap' | 'earrings' | 'mustache' | 'beard' | 'bow' | 'tie' | 'headphones'
+export type Extra =
+  | 'glasses'
+  | 'sunglasses'
+  | 'cap'
+  | 'earrings'
+  | 'mustache'
+  | 'beard'
+  | 'bow'
+  | 'tie'
+  | 'headphones'
+  // 你自己的造型才有的
+  | 'helmet'
+  | 'douli'
+  | 'headband'
+  | 'crown'
+  | 'hairflower'
 
 export interface Look {
   skin: string
@@ -34,6 +49,10 @@ export type LineKey =
   | 'reply'
   /** 好感度 Lv3 以上的開場招呼 */
   | 'friend'
+  /** 宿敵：你又放槍給他、或開場看到你 */
+  | 'rival'
+  /** 你報仇成功（宿敵付錢給你） */
+  | 'revenged'
 
 export interface Character {
   id: string
@@ -74,6 +93,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['下次再找你們報仇！'],
       reply: ['欸～你很囂張喔', '好啦好啦，舅媽讓你'],
       friend: ['欸你又來了！舅媽最喜歡跟你打', '今天幫你留了最好的位子喔'],
+      rival: ['又是你喔？舅媽今天又要收你錢了～', '你是不是專門來送舅媽紅包的？'],
+      revenged: ['唉唷，被你討回去了啦'],
     },
   },
   lin: {
@@ -98,6 +119,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['後生可畏喔'],
       reply: ['年輕人，沉住氣', '呵呵，好好好'],
       friend: ['你來啦，茶剛泡好', '跟你打牌，我很放心'],
+      rival: ['年輕人，又是你啊', '上次那幾張，還記得吧？'],
+      revenged: ['好，這下扯平了'],
     },
   },
   kai: {
@@ -121,6 +144,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['回去調一下參數'],
       reply: ['嘴砲不影響機率', '我記下來了'],
       friend: ['根據紀錄，跟你打我最開心', '你的打法我建模了，還是看不懂'],
+      rival: ['你放槍給我的機率，高得不正常', '根據紀錄，你是我的提款機'],
+      revenged: ['……好，這筆我重新計算'],
     },
   },
   wang: {
@@ -144,6 +169,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['今天先讓你們贏'],
       reply: ['年輕人很有衝勁嘛', '這個態度我喜歡'],
       friend: ['你來了，今天我請客', '年終考績，你是 A'],
+      rival: ['又是你，年終靠你了', '你是我今年最好的客戶'],
+      revenged: ['好，這次算你贏回去'],
     },
   },
   xiaomei: {
@@ -167,6 +194,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['下次我會更努力的！'],
       reply: ['嗚嗚，不要兇我啦', '好啦，我快一點'],
       friend: ['你又來了～今天也請多指教！', '跟你打牌我比較不緊張耶'],
+      rival: ['又是你！謝謝你一直幫我～', '你是不是故意讓我的？'],
+      revenged: ['嗚嗚，被你討回去了'],
     },
   },
   jie: {
@@ -190,6 +219,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['輸了？不可能！再一場！'],
       reply: ['你才慢咧！', '來啊，誰怕誰'],
       friend: ['兄弟！打完一起去續攤', '你來我就開心，快坐快坐'],
+      rival: ['老客戶又來了！', '你每次都送我，太夠意思了吧'],
+      revenged: ['哇，被你反殺！'],
     },
   },
   ama: {
@@ -216,6 +247,8 @@ export const CHARACTERS: Record<string, Character> = {
       reply: ['乖孫，對阿嬤講話要客氣', '哎唷，嘴巴這麼甜'],
       friend: ['乖孫來了！阿嬤煮了湯圓', '跟阿嬤打，輸了也有紅包拿'],
       skill: ['阿嬤看一下你的牌喔～'],
+      rival: ['乖孫，又來送阿嬤零用錢喔？', '你每次都打給阿嬤，阿嬤記得喔'],
+      revenged: ['哎唷，乖孫討回去了'],
     },
   },
   erjiu: {
@@ -239,6 +272,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['明年……明年一定'],
       reply: ['小朋友，二舅教你做人', '哈哈，有種！'],
       friend: ['來來來，二舅今天跟你同一國！', '你來了，二舅的紅包有救了'],
+      rival: ['哈哈，又是你！二舅的招財貓！', '你是不是二舅失散多年的提款機？'],
+      revenged: ['好小子，有你的！'],
     },
   },
   biaomei: {
@@ -262,6 +297,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['我本來就只是湊人數的'],
       reply: ['喔，好喔', '你好吵喔'],
       friend: ['欸你來了，我剛好不想寫報告', '今天換我罩你'],
+      rival: ['又是你喔，好喔', '你是不是每次都放給我？'],
+      revenged: ['蛤，被你討回去了'],
     },
   },
   queshen: {
@@ -287,6 +324,8 @@ export const CHARACTERS: Record<string, Character> = {
       reply: ['……哼。', '話多的人，牌會亂。'],
       friend: ['……你來了。', '……坐。今天，好好打。'],
       skill: ['……牌，過來。'],
+      rival: ['又是你。', '你的牌，我看得很清楚。'],
+      revenged: ['……扯平了。'],
     },
   },
   longge: {
@@ -312,6 +351,8 @@ export const CHARACTERS: Record<string, Character> = {
       reply: ['在我的館子，說話小心點', '哼，嘴上功夫'],
       friend: ['你來了，老位子幫你留著', '在我的館子，你是自己人'],
       skill: ['換一張，手氣就回來了'],
+      rival: ['你欠我的，還沒還完', '又是你，在我館子裡要小心'],
+      revenged: ['哼，這筆帳清了'],
     },
   },
   coco: {
@@ -337,6 +378,8 @@ export const CHARACTERS: Record<string, Character> = {
       reply: ['聊天室說你好好笑', '欸，這段我要剪起來'],
       friend: ['聊天室！我的好朋友來了～', '今天跟你一起開台好不好'],
       skill: ['偷看一下下～聊天室不要說喔'],
+      rival: ['聊天室在問，你是不是我請來的？', '又是你！觀眾最愛看你送分了'],
+      revenged: ['欸欸欸，這段不要播！'],
     },
   },
   // ---------- 第 5 關：颱風夜民宿 ----------
@@ -362,6 +405,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['明天天氣好了再來！'],
       reply: ['少年仔，海上講話要小心', '哈哈哈，有膽量'],
       friend: ['你來了！船長請你喝熱茶', '颱風天有你在就不無聊'],
+      rival: ['又是你這條魚！', '少年仔，你每次都自己游進我的網'],
+      revenged: ['哈哈，這次換我被釣了'],
     },
   },
   xiuqin: {
@@ -386,6 +431,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['下次颱風再來挑戰～'],
       reply: ['喲，客人很有精神喔', '再嗆就沒有宵夜吃喔'],
       friend: ['老客人來了！房間幫你留好了', '你來我就去煮麵'],
+      rival: ['又是你呀，宵夜錢你付喔', '你是不是很喜歡請姐姐吃宵夜？'],
+      revenged: ['好啦好啦，宵夜姐姐請'],
     },
   },
   leo: {
@@ -412,6 +459,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['新手的好運氣，來吧！'],
       reply: ['我聽不懂，可是我覺得你在嗆我', '謝謝？'],
       friend: ['朋友！你又來了！', '我練習了很多，這次會贏你！'],
+      rival: ['又是你！我的好朋友！', '你是我的幸運符嗎？'],
+      revenged: ['喔不，你回來了！'],
     },
   },
   // ---------- 第 6 關：全國麻將大賽 ----------
@@ -437,6 +486,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['輸給年輕人，心甘情願'],
       reply: ['少年仔，氣定神閒才會贏', '呵呵，好膽'],
       friend: ['老朋友，今天也好好打', '看到你就想起我年輕的時候'],
+      rival: ['少年仔，又是你喔', '你每次都來阿伯這裡繳學費'],
+      revenged: ['呵呵，被你討回去了'],
     },
   },
   nova: {
@@ -463,6 +514,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['換一張，操作一下'],
       reply: ['嘴砲沒有用，實力說話', '截圖了喔'],
       friend: ['老隊友！這場我們一起衝', '你的打法我研究過了'],
+      rival: ['又是你，送頭仔', '你是我的固定經驗值'],
+      revenged: ['被反打了，這波我的'],
     },
   },
   zheng: {
@@ -489,6 +542,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['讓我看看你的底牌'],
       reply: ['你講話的時候眼睛在飄', '我記下來了'],
       friend: ['又見面了，老搭檔', '你今天的眼神，很有自信'],
+      rival: ['又是你，我記得你的臉', '你有前科喔，上次放了好幾槍'],
+      revenged: ['好，這次換我被抓'],
     },
   },
 
@@ -515,6 +570,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['輸了沒關係，歌照唱！'],
       reply: ['年輕人，嗓門大不代表會贏喔', '好好好，唱首歌給你聽'],
       friend: ['你來了！協會的人都在問你', '跟你打牌，心情像唱山歌一樣好'],
+      rival: ['又是你呀，來來來，唱一首送給你', '你每次都捧我的場，真感心'],
+      revenged: ['哎呀，這下換我走音了'],
     },
   },
   daqing: {
@@ -539,6 +596,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['下禮拜再來把本撈回來'],
       reply: ['少年仔，嘴甜一點才會做生意', '你這樣講，我要漲價喔'],
       friend: ['老主顧來了！今天打折', '你來我店裡，茶隨便喝'],
+      rival: ['老主顧又來了！', '你的帳，我這裡記了好幾筆喔'],
+      revenged: ['好，帳清了，算你狠'],
     },
   },
   chenji: {
@@ -563,6 +622,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['年輕人厲害，老街要交給你們了'],
       reply: ['呵呵，火氣不要那麼大', '好啦，聽你的'],
       friend: ['你又來啦，老位子給你坐', '來，先吃塊老街的糕仔'],
+      rival: ['又是你喔，歹勢又要收你錢', '你是我店裡的常客了'],
+      revenged: ['好，這下扯平了'],
     },
   },
   // ---------- 全國錦標賽 第 2 站：竹東鎮比賽 ----------
@@ -588,6 +649,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['回去練手速'],
       reply: ['講那麼多，快打啦！', '你是不是怕了？'],
       friend: ['兄弟！今天一起衝', '你來了，比賽才好玩'],
+      rival: ['又是你！上次那幾張謝了', '你每次都慢一步啦'],
+      revenged: ['可惡，被你討回去！'],
     },
   },
   xiaohao: {
@@ -612,6 +675,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['下次做更大的'],
       reply: ['你那點台數不夠看', '哈，有種來拚大的'],
       friend: ['好兄弟！今天一起做大牌', '跟你打，才夠豪'],
+      rival: ['又是你，今天也要送大的嗎？', '你是我的專屬贊助商'],
+      revenged: ['嘖，這次換你爽'],
     },
   },
   xiaoyuan: {
@@ -636,6 +701,8 @@ export const CHARACTERS: Record<string, Character> = {
       matchLose: ['我會再努力'],
       reply: ['……你很吵。', '嗯。'],
       friend: ['……你來了。', '跟你打，我比較會講話'],
+      rival: ['……又是你。', '……你的牌，我都記得。'],
+      revenged: ['……扯平。'],
     },
   },
   // ---------- 全國錦標賽 第 3 站：全國錦標賽 ----------
@@ -663,6 +730,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['牌，來。'],
       reply: ['沉住氣。', '心急，是牌桌上的大忌。'],
       friend: ['又是你。坐吧。', '我等你很久了。'],
+      rival: ['又見面了。', '上次的教訓，你記住了嗎？'],
+      revenged: ['……好，你討回去了。'],
     },
   },
   duxia: {
@@ -689,6 +758,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['讓我看看你的底牌'],
       reply: ['朋友，嘴上功夫沒用', '有膽識，我欣賞'],
       friend: ['朋友！又見面了', '有你在，這桌才有意思'],
+      rival: ['朋友，又是你', '你欠我的，今天要不要還？'],
+      revenged: ['好！有骨氣，這筆算你的'],
     },
   },
   dusheng: {
@@ -715,6 +786,8 @@ export const CHARACTERS: Record<string, Character> = {
       skill: ['變！'],
       reply: ['你這樣講，我要生氣了喔！', '哼，看我的特異功能！'],
       friend: ['好兄弟！你也有特異功能嗎？', '你來了，我功力大增！'],
+      rival: ['又是你！我早就感應到你會來', '嘿嘿，特異功能對你特別靈'],
+      revenged: ['哎呀，特異功能失靈了！'],
     },
   },
 }

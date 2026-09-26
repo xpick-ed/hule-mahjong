@@ -3,6 +3,7 @@
 //            別人的手牌、牌山、亂數種子都蓋掉，想作弊也看不到。
 //   訊息格式：網頁和房間伺服器之間傳的東西。
 
+import type { Look } from './characters'
 import type { MatchState, Move, SeatPlayer } from './match'
 import type { HandState, Rules } from './table'
 import type { Tile } from './tiles'
@@ -123,6 +124,7 @@ export interface LobbyPlayer {
   host: boolean
   connected: boolean
   voice: 'f' | 'm'
+  look?: Look
 }
 
 /** 網頁 → 房間 */

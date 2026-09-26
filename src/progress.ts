@@ -2,6 +2,8 @@
 // 全部是純函式，store.ts 負責存檔和畫面。
 
 import { hashSeed, randInt } from './engine/rng'
+import type { Look } from './engine/characters'
+import { cleanLook } from './engine/looks'
 import * as M from './engine/match'
 import { STAGES } from './engine/stages'
 
@@ -53,6 +55,14 @@ export interface Progress {
   /** 全國錦標賽：已經晉級過幾站（0–3）、拿過幾次全國冠軍 */
   tourneyCleared: number
   tourneyWins: number
+  /** 宿敵：角色 id → 你放槍給他幾次還沒討回來 */
+  grudge: Record<string, number>
+  /** 報仇成功幾次 */
+  revenges: number
+  /** 你自己的造型（還沒換過就是 null：頭像用名字的第一個字） */
+  myLook: Look | null
+  /** 買過的造型東西（wardrobe.ts 的 id） */
+  wardrobe: string[]
 }
 
 /** 圖鑑裡記下來的一手牌（只存牌的種類，小小的） */
@@ -111,12 +121,17 @@ export const defaultProgress: Progress = {
   survivalBest: null,
   tourneyCleared: 0,
   tourneyWins: 0,
+  grudge: {},
+  revenges: 0,
+  myLook: null,
+  wardrobe: [],
 }
 
 /** 舊存檔少了新欄位：補上預設值 */
 export function migrate(p: Partial<Progress>): Progress {
   const q = { ...defaultProgress, ...p }
   q.stats = { ...defaultProgress.stats, ...(p.stats ?? {}) }
+  q.myLook = p.myLook ? cleanLook(p.myLook) : null
   // 已經打過的人不用再走引導局
   if (p.tutorial === undefined && (p.matches ?? 0) > 0) q.tutorial = true
   // 有星星之前就過關的：第一顆星（拿第一）補給他
@@ -167,16 +182,19 @@ export interface Rewards {
 export function matchRewards(m: M.MatchState): Rewards {
   const place = M.ranking(m).indexOf(0)
   const diff = M.DIFFICULTY[m.difficulty ?? 'normal']
-  const mult = (STAGE_MULT[m.stage] ?? 1) * diff.coins
+  // 閃電局只打 4 局：金幣、段位都減半
+  const blitz = m.blitz ? 0.5 : 1
+  const mult = (STAGE_MULT[m.stage] ?? 1) * diff.coins * blitz
   const lines = [{ label: `第 ${place + 1} 名`, coins: Math.round(PLACE_COINS[place] * mult) }]
   const tai = m.history.filter((x) => x.winner === 0).reduce((s, x) => s + x.tai, 0)
   const wins = m.history.filter((x) => x.winner === 0).length
   if (wins) lines.push({ label: `胡了 ${wins} 手，共 ${tai} 台`, coins: Math.round((wins * 20 + tai * 10) * mult) })
   if (m.difficulty && m.difficulty !== 'normal') lines.push({ label: `${diff.name}難度 金幣 ×${diff.coins}`, coins: 0 })
+  if (m.blitz) lines.push({ label: '閃電局 金幣 ×0.5', coins: 0 })
   // 段位：輕鬆難度加得少、扣得也少；高手難度加得多
   const base = PLACE_RANK[place] * (1 + m.stage * 0.25)
   const k = m.difficulty === 'easy' ? 0.5 : m.difficulty === 'hard' ? (base > 0 ? 1.4 : 1) : 1
-  const rankDelta = m.tutorial ? Math.max(0, Math.round(base)) : Math.round(base * k)
+  const rankDelta = m.tutorial ? Math.max(0, Math.round(base)) : Math.round(base * k * blitz)
   return { place, lines, coins: lines.reduce((s, x) => s + x.coins, 0), rankDelta }
 }
 
@@ -274,6 +292,8 @@ export function handMetrics(m: M.MatchState): Partial<Record<Metric, number>> {
 export function matchMetrics(m: M.MatchState): Partial<Record<Metric, number>> {
   const first = M.ranking(m)[0] === 0
   const dealtIn = m.history.some((x) => x.from === 0)
+  // 閃電局只算「拿第一」（「打完一場東風圈」「一整場沒放槍」要打完整的一場）
+  if (m.blitz) return { first: first ? 1 : 0 }
   return { match: 1, first: first ? 1 : 0, cleanMatch: dealtIn ? 0 : 1 }
 }
 
@@ -346,6 +366,7 @@ export const ACHIEVEMENTS: readonly AchDef[] = [
   { id: 'tourneyChamp', name: '全國錦標賽冠軍', desc: '打敗賭神、賭俠、賭聖，拿下全國錦標賽' },
   { id: 'survive6', name: '一輪到底', desc: '生存模式撐完六關' },
   { id: 'hardFirst', name: '高手中的高手', desc: '高手難度拿第一' },
+  { id: 'revenge', name: '有仇報仇', desc: '讓宿敵付錢給你，報仇成功' },
   { id: 'daily', name: '每日一局', desc: '打完一場每日挑戰' },
   { id: 'matches10', name: '常客', desc: '打完 10 場' },
   { id: 'matches50', name: '老手', desc: '打完 50 場' },
@@ -436,7 +457,9 @@ export function recordMatch(p: Progress, m: M.MatchState, allChars: readonly str
     const above = myPlace < order.indexOf(seat)
     // 一起打過的牌：你胡他的、他胡你的
     const touches = m.history.filter((x) => (x.winner === 0 && x.from === seat) || (x.winner === seat && x.from === 0)).length
-    const gain = 10 + (above ? 10 : 0) + Math.min(6, touches * 2)
+    const full = 10 + (above ? 10 : 0) + Math.min(6, touches * 2)
+    // 閃電局比較短，好感度加一半
+    const gain = m.blitz ? Math.round(full / 2) : full
     const before = affinityLevel(affinity[id] ?? 0).lv
     affinity[id] = (affinity[id] ?? 0) + gain
     gains[id] = gain
@@ -447,15 +470,17 @@ export function recordMatch(p: Progress, m: M.MatchState, allChars: readonly str
   }
   const q = { ...p, affinity, vs }
   const ids: string[] = []
+  // 閃電局拿第一不算過關類的成就
   const first = myPlace === 0
+  const full = first && !m.blitz
   const dealtIn = m.history.some((x) => x.from === 0)
-  if (first && !dealtIn) ids.push('clean')
-  if (first && m.stage === 0) ids.push('clear1')
+  if (full && !dealtIn) ids.push('clean')
+  if (full && m.stage === 0) ids.push('clear1')
   const sid = STAGES[m.stage]?.id
-  if (first && sid === 3) ids.push('clear4')
-  if (first && sid === 4 && !m.daily && !m.online) ids.push('storm')
-  if (first && sid === 5 && !m.daily && !m.online) ids.push('champion')
-  if (first && m.difficulty === 'hard') ids.push('hardFirst')
+  if (full && sid === 3) ids.push('clear4')
+  if (full && sid === 4 && !m.daily && !m.online) ids.push('storm')
+  if (full && sid === 5 && !m.daily && !m.online) ids.push('champion')
+  if (full && m.difficulty === 'hard') ids.push('hardFirst')
   if (m.daily) ids.push('daily')
   if (q.matches >= 10) ids.push('matches10')
   if (q.matches >= 50) ids.push('matches50')
@@ -501,7 +526,7 @@ export const starCount = (p: Progress) => Object.values(p.stars).reduce((s, x) =
 export function recordStars(p: Progress, m: M.MatchState): { p: Progress; fresh: { text: string; coins: number }[] } {
   const stage = STAGES[m.stage]
   const goals = STAR_GOALS[stage.id]
-  if (!goals || m.daily || m.online || m.tutorial) return { p, fresh: [] }
+  if (!goals || m.daily || m.online || m.tutorial || m.blitz) return { p, fresh: [] }
   const had = starsOf(p, stage.id)
   const now = goals.map((g, i) => had[i] || g.done(m))
   const fresh = goals
@@ -665,4 +690,56 @@ export function recordTourney(p: Progress, m: M.MatchState): { p: Progress; res:
   const u = unlock(q, ids)
   q = u.p
   return { p: q, res: { event, won, champion, coins }, unlocked: u.unlocked }
+}
+
+// ---------- 宿敵 ----------
+
+/** 放槍給同一個人幾次（還沒討回來）就變成宿敵 */
+export const RIVAL_AT = 2
+
+export interface RivalEvent {
+  /** new 剛變成宿敵、again 又放槍給宿敵、revenge 報仇成功 */
+  kind: 'new' | 'again' | 'revenge'
+  seat: number
+  id: string
+  /** 你放槍給他幾次（報仇的話是討回來的那幾次） */
+  n: number
+  coins: number
+}
+
+export const isRival = (p: Progress, id: string) => (p.grudge[id] ?? 0) >= RIVAL_AT
+
+/**
+ * 一局結束：你放槍給誰就記一筆。他付錢給你（放槍給你，或你自摸）就一筆勾銷；
+ * 記到兩筆以上才討回來的算報仇成功，照記了幾筆給金幣。連線、引導局不算。
+ */
+export function recordRivals(p: Progress, m: M.MatchState): { p: Progress; events: RivalEvent[]; unlocked: AchDef[] } {
+  if (!m.result || m.online || m.tutorial) return { p, events: [], unlocked: [] }
+  const grudge = { ...p.grudge }
+  const events: RivalEvent[] = []
+  let changed = false
+  for (const w of M.winsOf(m.result)) {
+    if (w.from === 0 && w.seat !== 0) {
+      const id = m.chars[w.seat]
+      const n = (grudge[id] ?? 0) + 1
+      grudge[id] = n
+      changed = true
+      if (n >= RIVAL_AT) events.push({ kind: n === RIVAL_AT ? 'new' : 'again', seat: w.seat, id, n, coins: 0 })
+    }
+    if (w.seat === 0) {
+      for (const s of w.from === null ? [1, 2, 3] : [w.from]) {
+        const id = m.chars[s]
+        const n = grudge[id] ?? 0
+        if (!n) continue
+        delete grudge[id]
+        changed = true
+        if (n >= RIVAL_AT) events.push({ kind: 'revenge', seat: s, id, n, coins: Math.min(500, 100 * n) })
+      }
+    }
+  }
+  if (!changed) return { p, events, unlocked: [] }
+  const got = events.filter((e) => e.kind === 'revenge')
+  const q = { ...p, grudge, coins: p.coins + got.reduce((a, e) => a + e.coins, 0), revenges: p.revenges + got.length }
+  const u = unlock(q, got.length ? ['revenge'] : [])
+  return { p: u.p, events, unlocked: u.unlocked }
 }

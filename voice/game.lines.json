@@ -255,6 +255,18 @@
   "who": "meiling",
   "text": "今天幫你留了最好的位子喔"
  },
+ "meiling.line.rival.0": {
+  "who": "meiling",
+  "text": "又是你喔？舅媽今天又要收你錢了～"
+ },
+ "meiling.line.rival.1": {
+  "who": "meiling",
+  "text": "你是不是專門來送舅媽紅包的？"
+ },
+ "meiling.line.revenged.0": {
+  "who": "meiling",
+  "text": "唉唷，被你討回去了啦"
+ },
  "lin.tile.m1": {
   "who": "lin",
   "text": "一萬"
@@ -483,6 +495,18 @@
   "who": "lin",
   "text": "跟你打牌，我很放心"
  },
+ "lin.line.rival.0": {
+  "who": "lin",
+  "text": "年輕人，又是你啊"
+ },
+ "lin.line.rival.1": {
+  "who": "lin",
+  "text": "上次那幾張，還記得吧？"
+ },
+ "lin.line.revenged.0": {
+  "who": "lin",
+  "text": "好，這下扯平了"
+ },
  "kai.tile.m1": {
   "who": "kai",
   "text": "一萬"
@@ -703,6 +727,18 @@
  "kai.line.friend.1": {
   "who": "kai",
   "text": "你的打法我建模了，還是看不懂"
+ },
+ "kai.line.rival.0": {
+  "who": "kai",
+  "text": "你放槍給我的機率，高得不正常"
+ },
+ "kai.line.rival.1": {
+  "who": "kai",
+  "text": "根據紀錄，你是我的提款機"
+ },
+ "kai.line.revenged.0": {
+  "who": "kai",
+  "text": "……好，這筆我重新計算"
  },
  "wang.tile.m1": {
   "who": "wang",
@@ -925,6 +961,18 @@
   "who": "wang",
   "text": "年終考績，你是 A"
  },
+ "wang.line.rival.0": {
+  "who": "wang",
+  "text": "又是你，年終靠你了"
+ },
+ "wang.line.rival.1": {
+  "who": "wang",
+  "text": "你是我今年最好的客戶"
+ },
+ "wang.line.revenged.0": {
+  "who": "wang",
+  "text": "好，這次算你贏回去"
+ },
  "xiaomei.tile.m1": {
   "who": "xiaomei",
   "text": "一萬"
@@ -1145,6 +1193,18 @@
   "who": "xiaomei",
   "text": "跟你打牌我比較不緊張耶"
  },
+ "xiaomei.line.rival.0": {
+  "who": "xiaomei",
+  "text": "又是你！謝謝你一直幫我～"
+ },
+ "xiaomei.line.rival.1": {
+  "who": "xiaomei",
+  "text": "你是不是故意讓我的？"
+ },
+ "xiaomei.line.revenged.0": {
+  "who": "xiaomei",
+  "text": "嗚嗚，被你討回去了"
+ },
  "jie.tile.m1": {
   "who": "jie",
   "text": "一萬"
@@ -1364,6 +1424,18 @@
  "jie.line.friend.1": {
   "who": "jie",
   "text": "你來我就開心，快坐快坐"
+ },
+ "jie.line.rival.0": {
+  "who": "jie",
+  "text": "老客戶又來了！"
+ },
+ "jie.line.rival.1": {
+  "who": "jie",
+  "text": "你每次都送我，太夠意思了吧"
+ },
+ "jie.line.revenged.0": {
+  "who": "jie",
+  "text": "哇，被你反殺！"
  },
  "ama.tile.m1": {
   "who": "ama",
@@ -1597,6 +1669,18 @@
   "who": "ama",
   "text": "阿嬤看一下你的牌喔～"
  },
+ "ama.line.rival.0": {
+  "who": "ama",
+  "text": "乖孫，又來送阿嬤零用錢喔？"
+ },
+ "ama.line.rival.1": {
+  "who": "ama",
+  "text": "你每次都打給阿嬤，阿嬤記得喔"
+ },
+ "ama.line.revenged.0": {
+  "who": "ama",
+  "text": "哎唷，乖孫討回去了"
+ },
  "erjiu.tile.m1": {
   "who": "erjiu",
   "text": "一萬"
@@ -1817,6 +1901,18 @@
   "who": "erjiu",
   "text": "你來了，二舅的紅包有救了"
  },
+ "erjiu.line.rival.0": {
+  "who": "erjiu",
+  "text": "哈哈，又是你！二舅的招財貓！"
+ },
+ "erjiu.line.rival.1": {
+  "who": "erjiu",
+  "text": "你是不是二舅失散多年的提款機？"
+ },
+ "erjiu.line.revenged.0": {
+  "who": "erjiu",
+  "text": "好小子，有你的！"
+ },
  "biaomei.tile.m1": {
   "who": "biaomei",
   "text": "一萬"
@@ -2036,6 +2132,18 @@
  "biaomei.line.friend.1": {
   "who": "biaomei",
   "text": "今天換我罩你"
+ },
+ "biaomei.line.rival.0": {
+  "who": "biaomei",
+  "text": "又是你喔，好喔"
+ },
+ "biaomei.line.rival.1": {
+  "who": "biaomei",
+  "text": "你是不是每次都放給我？"
+ },
+ "biaomei.line.revenged.0": {
+  "who": "biaomei",
+  "text": "蛤，被你討回去了"
  },
  "queshen.tile.m1": {
   "who": "queshen",
@@ -2261,6 +2369,18 @@
   "who": "queshen",
   "text": "……牌，過來。"
  },
+ "queshen.line.rival.0": {
+  "who": "queshen",
+  "text": "又是你。"
+ },
+ "queshen.line.rival.1": {
+  "who": "queshen",
+  "text": "你的牌，我看得很清楚。"
+ },
+ "queshen.line.revenged.0": {
+  "who": "queshen",
+  "text": "……扯平了。"
+ },
  "longge.tile.m1": {
   "who": "longge",
   "text": "一萬"
@@ -2485,6 +2605,18 @@
   "who": "longge",
   "text": "換一張，手氣就回來了"
  },
+ "longge.line.rival.0": {
+  "who": "longge",
+  "text": "你欠我的，還沒還完"
+ },
+ "longge.line.rival.1": {
+  "who": "longge",
+  "text": "又是你，在我館子裡要小心"
+ },
+ "longge.line.revenged.0": {
+  "who": "longge",
+  "text": "哼，這筆帳清了"
+ },
  "coco.tile.m1": {
   "who": "coco",
   "text": "一萬"
@@ -2708,6 +2840,18 @@
  "coco.line.skill.0": {
   "who": "coco",
   "text": "偷看一下下～聊天室不要說喔"
+ },
+ "coco.line.rival.0": {
+  "who": "coco",
+  "text": "聊天室在問，你是不是我請來的？"
+ },
+ "coco.line.rival.1": {
+  "who": "coco",
+  "text": "又是你！觀眾最愛看你送分了"
+ },
+ "coco.line.revenged.0": {
+  "who": "coco",
+  "text": "欸欸欸，這段不要播！"
  },
  "captain.tile.m1": {
   "who": "captain",
@@ -2941,6 +3085,18 @@
   "who": "captain",
   "text": "颱風天有你在就不無聊"
  },
+ "captain.line.rival.0": {
+  "who": "captain",
+  "text": "又是你這條魚！"
+ },
+ "captain.line.rival.1": {
+  "who": "captain",
+  "text": "少年仔，你每次都自己游進我的網"
+ },
+ "captain.line.revenged.0": {
+  "who": "captain",
+  "text": "哈哈，這次換我被釣了"
+ },
  "xiuqin.tile.m1": {
   "who": "xiuqin",
   "text": "一萬"
@@ -3168,6 +3324,18 @@
  "xiuqin.line.friend.1": {
   "who": "xiuqin",
   "text": "你來我就去煮麵"
+ },
+ "xiuqin.line.rival.0": {
+  "who": "xiuqin",
+  "text": "又是你呀，宵夜錢你付喔"
+ },
+ "xiuqin.line.rival.1": {
+  "who": "xiuqin",
+  "text": "你是不是很喜歡請姐姐吃宵夜？"
+ },
+ "xiuqin.line.revenged.0": {
+  "who": "xiuqin",
+  "text": "好啦好啦，宵夜姐姐請"
  },
  "leo.tile.m1": {
   "who": "leo",
@@ -3401,6 +3569,18 @@
   "who": "leo",
   "text": "我練習了很多，這次會贏你！"
  },
+ "leo.line.rival.0": {
+  "who": "leo",
+  "text": "又是你！我的好朋友！"
+ },
+ "leo.line.rival.1": {
+  "who": "leo",
+  "text": "你是我的幸運符嗎？"
+ },
+ "leo.line.revenged.0": {
+  "who": "leo",
+  "text": "喔不，你回來了！"
+ },
  "acai.tile.m1": {
   "who": "acai",
   "text": "一萬"
@@ -3628,6 +3808,18 @@
  "acai.line.friend.1": {
   "who": "acai",
   "text": "看到你就想起我年輕的時候"
+ },
+ "acai.line.rival.0": {
+  "who": "acai",
+  "text": "少年仔，又是你喔"
+ },
+ "acai.line.rival.1": {
+  "who": "acai",
+  "text": "你每次都來阿伯這裡繳學費"
+ },
+ "acai.line.revenged.0": {
+  "who": "acai",
+  "text": "呵呵，被你討回去了"
  },
  "nova.tile.m1": {
   "who": "nova",
@@ -3861,6 +4053,18 @@
   "who": "nova",
   "text": "你的打法我研究過了"
  },
+ "nova.line.rival.0": {
+  "who": "nova",
+  "text": "又是你，送頭仔"
+ },
+ "nova.line.rival.1": {
+  "who": "nova",
+  "text": "你是我的固定經驗值"
+ },
+ "nova.line.revenged.0": {
+  "who": "nova",
+  "text": "被反打了，這波我的"
+ },
  "zheng.tile.m1": {
   "who": "zheng",
   "text": "一萬"
@@ -4093,6 +4297,18 @@
   "who": "zheng",
   "text": "你今天的眼神，很有自信"
  },
+ "zheng.line.rival.0": {
+  "who": "zheng",
+  "text": "又是你，我記得你的臉"
+ },
+ "zheng.line.rival.1": {
+  "who": "zheng",
+  "text": "你有前科喔，上次放了好幾槍"
+ },
+ "zheng.line.revenged.0": {
+  "who": "zheng",
+  "text": "好，這次換我被抓"
+ },
  "shange.tile.m1": {
   "who": "shange",
   "text": "一萬"
@@ -4320,6 +4536,18 @@
  "shange.line.friend.1": {
   "who": "shange",
   "text": "跟你打牌，心情像唱山歌一樣好"
+ },
+ "shange.line.rival.0": {
+  "who": "shange",
+  "text": "又是你呀，來來來，唱一首送給你"
+ },
+ "shange.line.rival.1": {
+  "who": "shange",
+  "text": "你每次都捧我的場，真感心"
+ },
+ "shange.line.revenged.0": {
+  "who": "shange",
+  "text": "哎呀，這下換我走音了"
  },
  "daqing.tile.m1": {
   "who": "daqing",
@@ -4549,6 +4777,18 @@
   "who": "daqing",
   "text": "你來我店裡，茶隨便喝"
  },
+ "daqing.line.rival.0": {
+  "who": "daqing",
+  "text": "老主顧又來了！"
+ },
+ "daqing.line.rival.1": {
+  "who": "daqing",
+  "text": "你的帳，我這裡記了好幾筆喔"
+ },
+ "daqing.line.revenged.0": {
+  "who": "daqing",
+  "text": "好，帳清了，算你狠"
+ },
  "chenji.tile.m1": {
   "who": "chenji",
   "text": "一萬"
@@ -4776,6 +5016,18 @@
  "chenji.line.friend.1": {
   "who": "chenji",
   "text": "來，先吃塊老街的糕仔"
+ },
+ "chenji.line.rival.0": {
+  "who": "chenji",
+  "text": "又是你喔，歹勢又要收你錢"
+ },
+ "chenji.line.rival.1": {
+  "who": "chenji",
+  "text": "你是我店裡的常客了"
+ },
+ "chenji.line.revenged.0": {
+  "who": "chenji",
+  "text": "好，這下扯平了"
  },
  "xiaoliu.tile.m1": {
   "who": "xiaoliu",
@@ -5005,6 +5257,18 @@
   "who": "xiaoliu",
   "text": "你來了，比賽才好玩"
  },
+ "xiaoliu.line.rival.0": {
+  "who": "xiaoliu",
+  "text": "又是你！上次那幾張謝了"
+ },
+ "xiaoliu.line.rival.1": {
+  "who": "xiaoliu",
+  "text": "你每次都慢一步啦"
+ },
+ "xiaoliu.line.revenged.0": {
+  "who": "xiaoliu",
+  "text": "可惡，被你討回去！"
+ },
  "xiaohao.tile.m1": {
   "who": "xiaohao",
   "text": "一萬"
@@ -5233,6 +5497,18 @@
   "who": "xiaohao",
   "text": "跟你打，才夠豪"
  },
+ "xiaohao.line.rival.0": {
+  "who": "xiaohao",
+  "text": "又是你，今天也要送大的嗎？"
+ },
+ "xiaohao.line.rival.1": {
+  "who": "xiaohao",
+  "text": "你是我的專屬贊助商"
+ },
+ "xiaohao.line.revenged.0": {
+  "who": "xiaohao",
+  "text": "嘖，這次換你爽"
+ },
  "xiaoyuan.tile.m1": {
   "who": "xiaoyuan",
   "text": "一萬"
@@ -5460,6 +5736,18 @@
  "xiaoyuan.line.friend.1": {
   "who": "xiaoyuan",
   "text": "跟你打，我比較會講話"
+ },
+ "xiaoyuan.line.rival.0": {
+  "who": "xiaoyuan",
+  "text": "……又是你。"
+ },
+ "xiaoyuan.line.rival.1": {
+  "who": "xiaoyuan",
+  "text": "……你的牌，我都記得。"
+ },
+ "xiaoyuan.line.revenged.0": {
+  "who": "xiaoyuan",
+  "text": "……扯平。"
  },
  "dushen.tile.m1": {
   "who": "dushen",
@@ -5693,6 +5981,18 @@
   "who": "dushen",
   "text": "我等你很久了。"
  },
+ "dushen.line.rival.0": {
+  "who": "dushen",
+  "text": "又見面了。"
+ },
+ "dushen.line.rival.1": {
+  "who": "dushen",
+  "text": "上次的教訓，你記住了嗎？"
+ },
+ "dushen.line.revenged.0": {
+  "who": "dushen",
+  "text": "……好，你討回去了。"
+ },
  "duxia.tile.m1": {
   "who": "duxia",
   "text": "一萬"
@@ -5925,6 +6225,18 @@
   "who": "duxia",
   "text": "有你在，這桌才有意思"
  },
+ "duxia.line.rival.0": {
+  "who": "duxia",
+  "text": "朋友，又是你"
+ },
+ "duxia.line.rival.1": {
+  "who": "duxia",
+  "text": "你欠我的，今天要不要還？"
+ },
+ "duxia.line.revenged.0": {
+  "who": "duxia",
+  "text": "好！有骨氣，這筆算你的"
+ },
  "dusheng.tile.m1": {
   "who": "dusheng",
   "text": "一萬"
@@ -6156,6 +6468,18 @@
  "dusheng.line.friend.1": {
   "who": "dusheng",
   "text": "你來了，我功力大增！"
+ },
+ "dusheng.line.rival.0": {
+  "who": "dusheng",
+  "text": "又是你！我早就感應到你會來"
+ },
+ "dusheng.line.rival.1": {
+  "who": "dusheng",
+  "text": "嘿嘿，特異功能對你特別靈"
+ },
+ "dusheng.line.revenged.0": {
+  "who": "dusheng",
+  "text": "哎呀，特異功能失靈了！"
  },
  "me-f.tile.m1": {
   "who": "me-f",

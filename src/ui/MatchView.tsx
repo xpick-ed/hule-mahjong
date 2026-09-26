@@ -6,12 +6,12 @@ import { EMOTES, TAUNTS } from '../engine/characters'
 import * as M from '../engine/match'
 import { canTsumo, need, passedWin, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
-import { BACK } from '../progress'
+import { BACK, isRival } from '../progress'
 import { dangerMap, publicThreats } from '../review'
 import { sfx } from '../sfx'
 import { tableSkin, useMyName, useUI } from '../store'
 import { isFriend, SeatFace, seatName } from './seat'
-import { MeBadge } from './Avatar'
+import { MyFace } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
 import { CutIn } from './Celebrate'
 import { Guide, useGuideStep } from './Guide'
@@ -24,7 +24,8 @@ function useDriver(m: M.MatchState, paused: boolean) {
   useEffect(() => {
     if (paused || m.phase !== 'play' || M.waitingForYou(m)) return
     if (m.hand.phase === 'over') return
-    const id = window.setTimeout(step, M.aiDelay(m, Math.random()) * (fast ? 0.5 : 1))
+    // 閃電局電腦也打快一點
+    const id = window.setTimeout(step, M.aiDelay(m, Math.random()) * (fast || m.blitz ? 0.5 : 1))
     return () => window.clearTimeout(id)
   }, [m, step, fast, paused])
 }
@@ -41,7 +42,7 @@ function useKeys(m: M.MatchState) {
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
       const st = useUI.getState()
-      if (e.metaKey || e.ctrlKey || e.altKey || st.menu || st.learn || st.prematch || st.records || st.people) return
+      if (e.metaKey || e.ctrlKey || e.altKey || st.menu || st.learn || st.prematch || st.records || st.people || st.dice) return
       if ((e.target as HTMLElement)?.tagName === 'INPUT') return
       const k = e.key.toLowerCase()
       if (k === 'escape') {
@@ -97,7 +98,8 @@ export function MatchView() {
 
 function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typeof tableSkin>; back: (typeof BACK)[string] }) {
   const guide = useGuideStep(match)
-  const timer = useTurnTimer(match, !!guide)
+  const rolling = useUI((s) => !!s.dice && !match.online)
+  const timer = useTurnTimer(match, !!guide || rolling)
   const online = !!match.online
   const threats = useThreats(match)
   useKeys(match)
@@ -106,7 +108,7 @@ function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typ
       className="match"
       style={{ '--table': skin.color, '--table-rim': skin.rim, '--table-edge': skin.edge, '--back': back.bg, '--back-ring': back.ring } as CSSProperties}
     >
-      <Driver m={match} paused={!!guide || online} />
+      <Driver m={match} paused={!!guide || online || rolling} />
       <TopStrip m={match} />
       <TableCenter m={match} timer={timer} />
       <Opponent m={match} seat={2} side="top" threat={threats.includes(2)} />
@@ -114,10 +116,97 @@ function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typ
       <Opponent m={match} seat={1} side="right" threat={threats.includes(1)} />
       <MyArea m={match} threats={threats} />
       <Actions m={match} />
+      {rolling && <DiceRoll m={match} />}
       {guide && <Guide key={guide.id} step={guide} />}
       {match.phase === 'handEnd' && <CutIn key={`cut${match.handNo}`} m={match} />}
       {match.phase === 'handEnd' && <HandEnd key={`end${match.handNo}`} m={match} />}
       {match.phase === 'end' && <MatchEnd m={match} />}
+    </div>
+  )
+}
+
+/** 骰子的一面：一點、四點是紅的（跟真的骰子一樣） */
+const PIPS: Record<number, [number, number][]> = {
+  1: [[16, 16]],
+  2: [[9, 9], [23, 23]],
+  3: [[9, 9], [16, 16], [23, 23]],
+  4: [[9.5, 9.5], [22.5, 9.5], [9.5, 22.5], [22.5, 22.5]],
+  5: [[9, 9], [23, 9], [16, 16], [9, 23], [23, 23]],
+  6: [[10, 8], [22, 8], [10, 16], [22, 16], [10, 24], [22, 24]],
+}
+
+function Die({ n, size = 40 }: { n: number; size?: number }) {
+  const red = n === 1 || n === 4
+  return (
+    <svg className="die" viewBox="0 0 32 32" width={size} height={size} aria-hidden="true">
+      <rect x="1" y="1" width="30" height="30" rx="7" fill="#fffaf0" stroke="#d9cdb8" strokeWidth="1.5" />
+      {PIPS[n].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={n === 1 ? 5.2 : 2.9} fill={red ? '#ef3d5c' : '#1d2a4a'} />
+      ))}
+    </svg>
+  )
+}
+
+/** 開局擲骰子：你當莊要按一下；別人當莊自己擲。擲完說從哪一家開門，再開始打 */
+function DiceRoll({ m }: { m: M.MatchState }) {
+  const dice = useUI((s) => s.dice)
+  const quick = useUI((s) => s.settings.fast) || !!m.blitz
+  const [spin, setSpin] = useState([1, 1, 1])
+  const stage = dice?.stage
+  useEffect(() => {
+    const d = useUI.getState().dice
+    if (!d) return
+    if (d.stage === 'roll') {
+      sfx.dice()
+      const tumble = window.setInterval(() => setSpin([0, 1, 2].map(() => 1 + Math.floor(Math.random() * 6))), 70)
+      const done = window.setTimeout(() => useUI.setState({ dice: { ...d, stage: 'show' } }), quick ? 550 : 850)
+      return () => {
+        window.clearInterval(tumble)
+        window.clearTimeout(done)
+      }
+    }
+    if (d.stage === 'show') {
+      const id = window.setTimeout(() => useUI.getState().endDice(), quick ? 900 : 1500)
+      return () => window.clearTimeout(id)
+    }
+    // 等你擲：Enter 或空白鍵也可以
+    const on = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        useUI.getState().rollDice()
+      }
+    }
+    window.addEventListener('keydown', on)
+    return () => window.removeEventListener('keydown', on)
+  }, [stage, quick])
+  if (!dice || dice.hand !== m.handNo) return null
+  const sum = dice.faces.reduce((a, b) => a + b, 0)
+  const open = M.openSeat(dice.by, sum)
+  const faces = stage === 'show' ? dice.faces : stage === 'roll' ? spin : [6, 6, 6]
+  const who = dice.by === 0 ? '你' : seatName(m, dice.by)
+  return (
+    <div className="dice-layer" onClick={() => (stage === 'wait' ? useUI.getState().rollDice() : useUI.getState().endDice())}>
+      <div className={cls('dice-card', stage)} role="dialog" aria-label="擲骰子">
+        <p className="dice-who">{dice.by === 0 ? '你當莊，擲骰子決定從哪裡開門' : `${who}當莊，擲骰子`}</p>
+        <div className="dice-row">
+          {faces.map((f, i) => (
+            <span key={i} className="die-wrap" style={{ '--i': i } as CSSProperties}>
+              <Die n={f} />
+            </span>
+          ))}
+        </div>
+        {stage === 'wait' ? (
+          <button type="button" className="btn primary dice-btn" autoFocus>
+            擲骰子
+          </button>
+        ) : stage === 'show' ? (
+          <p className="dice-result">
+            <b>{sum}</b> 點，從{open === 0 ? '你' : seatName(m, open)}前面開門
+          </p>
+        ) : (
+          <p className="dice-result muted">喀啦喀啦…</p>
+        )}
+      </div>
     </div>
   )
 }
@@ -143,7 +232,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
         </svg>
       </button>
       <span className="round-info">
-        {WIND_CHAR[h.roundWind]}風圈 第 {m.handNo} 局
+        {m.blitz ? `閃電局 第 ${m.handNo}/${M.BLITZ.hands} 局` : `${WIND_CHAR[h.roundWind]}風圈 第 ${m.handNo} 局`}
         <small>
           莊 {dealerName}
           {m.streak ? `・連 ${m.streak}` : ''}
@@ -179,12 +268,13 @@ function TopStrip({ m }: { m: M.MatchState }) {
 
 function MeChip({ m }: { m: M.MatchState }) {
   const myBubble = useUI((s) => s.bubbles[0])
+  const myMood = useUI((s) => s.moods[0])
   const name = useMyName()
   const h = m.hand
   return (
     <div className={cls('me-chip', h.turn === 0 && h.phase !== 'over' && 'active')}>
       <span className="seat-wind">{WIND_CHAR[seatWind(h, 0)]}</span>
-      <MeBadge size={20} />
+      <MyFace size={20} mood={myMood} />
       {name && <span className="me-name">{name}</span>}
       <span className="pscore">{fmt(m.points[0])}</span>
       {m.dealer === 0 && <span className="dealer">莊</span>}
@@ -269,6 +359,8 @@ function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; si
   const mode = useUI((st) => st.mode)
   const peekAt = useUI((st) => st.peekAt)
   const reveal = m.peek === seat || h.phase === 'over'
+  // 宿敵：你放槍給他兩次以上還沒討回來
+  const rival = useUI((st) => !m.online && !m.tutorial && isRival(st.progress, m.chars[seat]))
   const top = side === 'top'
   const meldW = top ? 17 : 15
 
@@ -321,6 +413,11 @@ function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; si
           <span className="pname">
             {name}
             {offline && <em className="offline">斷線</em>}
+            {rival && (
+              <em className="rival-tag" title="你放槍給他好幾次了，讓他付錢給你就能報仇">
+                宿敵
+              </em>
+            )}
           </span>
           <span className="pscore">{fmt(m.points[seat])}</span>
         </div>
@@ -355,7 +452,7 @@ interface TurnTimerState {
 /** 出牌倒數：輪到你（打牌或吃碰）才開始；時間到系統幫你打。開選單或教學時暫停 */
 function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
   const online = !!m.online
-  const turnTime = useUI((s) => (online ? (s.online?.room?.settings.turnTime ?? 20) : s.settings.turnTime))
+  const turnTime = useUI((s) => (online ? (s.online?.room?.settings.turnTime ?? 20) : m.blitz ? M.BLITZ.turnTime : s.settings.turnTime))
   // 連線時照伺服器的時間倒數，不能暫停（大家在等你）
   const deadline = useUI((s) => s.online?.deadline ?? null)
   const paused = useUI((s) => s.menu || s.learn !== null || s.people !== null || s.records) || guide

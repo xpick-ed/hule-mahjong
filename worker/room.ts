@@ -5,7 +5,8 @@
 // - 輪到真人：倒數時間到，或他斷線了，就替他打（M.autoMove）；他連回來就接手
 // - 房間狀態存在 Durable Object 的儲存空間：大家都斷線、伺服器重開也能接著打；6 小時沒人就清掉
 
-import { CHARACTERS } from '../src/engine/characters'
+import { CHARACTERS, type Look } from '../src/engine/characters'
+import { cleanLook } from '../src/engine/looks'
 import * as M from '../src/engine/match'
 import { newRoomCode, ROOM_RE, viewFor, type ClientMsg, type LobbyPlayer, type RoomSettings, type ServerMsg } from '../src/engine/online'
 import { LADDER } from '../src/engine/stages'
@@ -39,6 +40,7 @@ interface Player {
   name: string
   voice: 'f' | 'm'
   host: boolean
+  look?: Look
 }
 
 interface Saved {
@@ -73,6 +75,16 @@ function uniqueName(name: string, others: { name: string }[]): string {
 }
 
 const rnd = () => crypto.getRandomValues(new Uint32Array(1))[0] / 2 ** 32
+
+/** 網址帶來的造型（JSON）：太長、看不懂就當沒有 */
+function parseLook(raw: string | null): Look | null {
+  if (!raw || raw.length > 600) return null
+  try {
+    return cleanLook(JSON.parse(raw))
+  } catch {
+    return null
+  }
+}
 const cleanName = (s: string) =>
   s
     .replace(/[\u0000-\u001f\u007f<>]/g, '')
@@ -105,6 +117,7 @@ export class Room {
     if (!/^[0-9a-f]{24}$/.test(pid)) return new Response('bad pid', { status: 400 })
     const name = cleanName(url.searchParams.get('name') ?? '')
     const voice = url.searchParams.get('voice') === 'm' ? 'm' : 'f'
+    const look = parseLook(url.searchParams.get('look'))
     // 開房的人帶 create=1；照房號加入的人，房間要已經存在
     const creating = url.searchParams.get('create') === '1'
 
@@ -128,7 +141,7 @@ export class Room {
       deadline: null,
       ready: [],
     }
-    this.join(ws, pid, name, voice)
+    this.join(ws, pid, name, voice, look)
     return new Response(null, { status: 101, webSocket: pair[0] } as ResponseInit)
   }
 
@@ -142,7 +155,7 @@ export class Room {
 
   // ---------- 進出房間 ----------
 
-  private join(ws: CFWebSocket, pid: string, name: string, voice: 'f' | 'm') {
+  private join(ws: CFWebSocket, pid: string, name: string, voice: 'f' | 'm', look: Look | null) {
     const s = this.s!
     let p = s.players.find((x) => x.pid === pid)
     if (!p) {
@@ -154,6 +167,8 @@ export class Room {
       p.name = uniqueName(name, s.players.filter((x) => x !== p))
       p.voice = voice
     }
+    if (look) p.look = look
+    else delete p.look
     // 同一個人從別的分頁連進來：舊的那條斷掉
     const old = this.sockets.get(pid)
     if (old && old !== ws) old.close(4000, '在別的地方開了這個房間')
@@ -402,13 +417,15 @@ export class Room {
 
   private broadcast() {
     const s = this.s!
-    const lobby: LobbyPlayer[] = s.players.map((p) => ({ name: p.name, host: p.host, connected: this.sockets.has(p.pid), voice: p.voice }))
+    const lobby: LobbyPlayer[] = s.players.map((p) => ({ name: p.name, host: p.host, connected: this.sockets.has(p.pid), voice: p.voice, ...(p.look ? { look: p.look } : {}) }))
     const m = s.match
     const seatPlayers: M.SeatPlayer[] | null = m
       ? [0, 1, 2, 3].map((seat) => {
           const pid = Object.keys(s.seatOf).find((k) => s.seatOf[k] === seat)
           const p = pid ? s.players.find((x) => x.pid === pid) : undefined
-          return p ? { name: p.name, human: true, voice: p.voice, connected: this.sockets.has(p.pid) } : { name: CHARACTERS[m.chars[seat]]?.name ?? '電腦', human: false }
+          return p
+            ? { name: p.name, human: true, voice: p.voice, connected: this.sockets.has(p.pid), ...(p.look ? { look: p.look } : {}) }
+            : { name: CHARACTERS[m.chars[seat]]?.name ?? '電腦', human: false }
         })
       : null
     const timeLeft = s.deadline ? Math.max(0, s.deadline - Date.now()) : null

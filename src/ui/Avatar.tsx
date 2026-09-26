@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import type { Look } from '../engine/characters'
-import { useMyName, type Mood } from '../store'
+import { useMyName, useUI, type Mood } from '../store'
 
 // 扁平插畫頭像（viewBox 64×64）。頭髮、配件用參數組合，表情跟著牌局變：普通／開心／難過。
 
@@ -150,6 +150,47 @@ function Extras({ look }: { look: Look }) {
           <rect x="44" y="31" width="6" height="10" rx="3" fill={INK} />
         </g>
       )}
+      {ex.includes('hairflower') && (
+        <g>
+          {[0, 72, 144, 216, 288].map((a) => (
+            <circle key={a} cx={44 + 3 * Math.cos((a * Math.PI) / 180)} cy={20 + 3 * Math.sin((a * Math.PI) / 180)} r="2.6" fill="#ff6f91" />
+          ))}
+          <circle cx="44" cy="20" r="1.9" fill="#ffe066" />
+        </g>
+      )}
+      {ex.includes('headband') && (
+        <g>
+          <path d="M47 23 L53 19 L52 25 Z M47 24.5 L54 27 L50.5 29.5 Z" fill="#fff" stroke="#e2e7f0" strokeWidth=".8" />
+          <path d="M17.5 27 Q32 19.5 46.5 27 L46.5 22 Q32 14.5 17.5 22 Z" fill="#fff" stroke="#e2e7f0" strokeWidth=".8" />
+          <circle cx="32" cy="20.8" r="2.6" fill="#ef3d5c" />
+        </g>
+      )}
+      {ex.includes('helmet') && (
+        // 機車半罩安全帽：帽殼、白色條紋、透明的短帽簷、下巴的帶子
+        <g>
+          <path d="M20 34 Q22 44 28 48 M44 34 Q42 44 36 48" fill="none" stroke={INK} strokeWidth="1.3" />
+          <path d="M15 35 Q13 9.5 32 9.5 Q51 9.5 49 35 L45.5 35 Q45 22 32 22 Q19 22 18.5 35 Z" fill={look.capColor ?? '#6cc3f5'} />
+          <path d="M22 14.5 Q32 10.5 42 14.5" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" opacity=".85" />
+          <path d="M18 24 Q32 18 46 24 L46 27 Q32 21.5 18 27 Z" fill="#dff3ff" opacity=".85" />
+        </g>
+      )}
+      {ex.includes('douli') && (
+        // 斗笠：竹編的尖頂寬帽
+        <g>
+          <path d="M21 30 Q22 45 29 49 M43 30 Q42 45 35 49" fill="none" stroke="#8a6a2a" strokeWidth="1.2" />
+          <path d="M3 27 L32 4.5 L61 27 Q32 33.5 3 27 Z" fill="#e2bd6b" />
+          <path d="M32 4.5 L17 29.5 M32 4.5 L32 30.5 M32 4.5 L47 29.5 M32 4.5 L8 27.8 M32 4.5 L56 27.8" stroke="#c9a352" strokeWidth=".9" />
+          <path d="M3 27 Q32 33.5 61 27" fill="none" stroke="#a7822f" strokeWidth="1.6" />
+        </g>
+      )}
+      {ex.includes('crown') && (
+        <g>
+          <path d="M20.5 21 L20.5 10.5 L26.3 15.5 L32 7.5 L37.7 15.5 L43.5 10.5 L43.5 21 Z" fill="#ffc93c" stroke="#d99a00" strokeWidth="1" strokeLinejoin="round" />
+          <circle cx="32" cy="16.5" r="1.8" fill="#ef3d5c" />
+          <circle cx="25.5" cy="18" r="1.3" fill="#3a6df0" />
+          <circle cx="38.5" cy="18" r="1.3" fill="#13a37f" />
+        </g>
+      )}
     </>
   )
 }
@@ -193,4 +234,10 @@ export function MeBadge({ size = 30 }: { size?: number }) {
       </text>
     </svg>
   )
+}
+
+/** 你自己的頭像：換過造型就是你的造型，不然是名字的第一個字 */
+export function MyFace({ size = 30, mood }: { size?: number; mood?: Mood }) {
+  const look = useUI((s) => s.progress.myLook)
+  return look ? <Avatar look={look} mood={mood} size={size} /> : <MeBadge size={size} />
 }

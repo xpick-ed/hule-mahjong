@@ -32,7 +32,9 @@ export function shareText(m: M.MatchState, name?: string): string {
       ? `胡了！生存模式第 ${m.survival.level + 1} 關・${M.stageOf(m).name}`
       : M.stageOf(m).tournament
         ? `胡了！全國錦標賽・${M.stageOf(m).name}`
-        : `胡了！${M.stageOf(m).name}`
+        : m.blitz
+          ? `胡了！閃電局・${M.stageOf(m).name}`
+          : `胡了！${M.stageOf(m).name}`
   const sign = pts > 0 ? '+' : pts < 0 ? '−' : ''
   const who = name?.trim() ? `${name.trim()} ` : ''
   return `${title}\n${who}第 ${place} 名 ${sign}${Math.abs(pts).toLocaleString('en-US')}\n${handGrid(m)}\n${location.origin}${location.pathname}`

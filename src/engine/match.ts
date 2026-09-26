@@ -3,7 +3,7 @@
 
 import { chooseClaim, chooseDiscard, chooseSelf, type AiStyle } from './ai'
 import { shanten, toCounts } from './analysis'
-import { CHARACTERS } from './characters'
+import { CHARACTERS, type Look } from './characters'
 import { hashSeed, pick, rand, randInt, shuffle, type HasRng } from './rng'
 import { dealerItems, type TaiItem } from './scoring'
 import { STAGES } from './stages'
@@ -92,7 +92,12 @@ export interface MatchState {
   players?: SeatPlayer[]
   /** 生存模式：這是第幾關（從 0 算，已經撐過幾關）、帶進來的本錢倍數 */
   survival?: Survival
+  /** 閃電局：只打 4 局、每一步 5 秒 */
+  blitz?: boolean
 }
+
+/** 閃電局：打幾局、每一步幾秒 */
+export const BLITZ = { hands: 4, turnTime: 5 } as const
 
 export interface Survival {
   level: number
@@ -108,6 +113,8 @@ export interface SeatPlayer {
   /** 真人報牌用的聲音 */
   voice?: 'f' | 'm'
   connected?: boolean
+  /** 真人換過的造型（沒換過就用名字當頭像） */
+  look?: Look
 }
 
 /** 你的一步（不含步數）：打牌、吃碰胡過、自摸、槓 */
@@ -139,6 +146,7 @@ export interface MatchOptions {
   humans?: boolean[]
   /** 生存模式：你的起始分數 = 這一關的起始分數 × ratio */
   survival?: Survival
+  blitz?: boolean
 }
 
 const SOLO = [true, false, false, false]
@@ -226,6 +234,7 @@ export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {
     ...(opt.daily ? { daily: opt.daily } : {}),
     ...(opt.tutorial ? { tutorial: true } : {}),
     ...(opt.survival ? { survival: { ...opt.survival } } : {}),
+    ...(opt.blitz ? { blitz: true } : {}),
   } as unknown as MatchState
   if (opt.survival) m.points[0] = Math.max(100, Math.round((stage.startPoints * opt.survival.ratio) / 100) * 100)
   if (stage.items) m.skills = Object.fromEntries(stage.items.map((id) => [id, 1]))
@@ -451,21 +460,34 @@ function settle(m: MatchState) {
   m.phase = 'handEnd'
 }
 
+/** 這一局打完要不要換莊（莊家沒胡、或連莊連到上限） */
+function passesDeal(m: MatchState): boolean {
+  const wins = winsOf(m.result)
+  const keep = !wins.length || wins.some((w) => w.seat === m.dealer)
+  const cap = rulesOf(m).streakCap
+  return !keep || (cap > 0 && m.streak >= cap)
+}
+
+/** 這一局結束後，整場是不是也結束了（打滿圈數、有人輸光、閃電局打滿 4 局） */
+export function matchOverAfter(m: MatchState): boolean {
+  if (!m.result) return false
+  if (m.points.some((p) => p < 0)) return true
+  if (m.blitz && m.handNo >= BLITZ.hands) return true
+  return passesDeal(m) && m.passes + 1 >= 4 * roundsOf(m)
+}
+
 export function nextHand(m: MatchState): MatchState {
   return edit(m, (r) => {
     if (r.phase !== 'handEnd' || !r.result) fail('這一局還沒結束')
-    const res = r.result!
-    const wins = winsOf(res)
-    const keep = !wins.length || wins.some((w) => w.seat === r.dealer)
+    const over = matchOverAfter(r)
     // 連莊上限：連到上限就換莊
-    const cap = rulesOf(r).streakCap
-    if (keep && !(cap > 0 && r.streak >= cap)) r.streak++
+    if (!passesDeal(r)) r.streak++
     else {
       r.dealer = (r.dealer + 1) % 4
       r.streak = 0
       r.passes++
     }
-    if (r.passes >= 4 * roundsOf(r) || r.points.some((p) => p < 0)) {
+    if (over) {
       r.phase = 'end'
       return
     }
@@ -476,6 +498,15 @@ export function nextHand(m: MatchState): MatchState {
     r.phase = 'play'
   })
 }
+
+/** 開局擲骰子（三顆）：用種子算，重新整理也一樣；只是演出，不動到牌局的亂數 */
+export function diceOf(m: MatchState): number[] {
+  const r = { rng: hashSeed(`${m.seed}:dice:${m.handNo}`) }
+  return [0, 1, 2].map(() => randInt(r, 6) + 1)
+}
+
+/** 點數從莊家開始逆時針數：1、5、9… 莊家自己，2、6、10… 下家，3、7、11… 對家，4、8、12… 上家 */
+export const openSeat = (dealer: number, sum: number) => (dealer + sum - 1) % 4
 
 /** 名次：分數高到低的座位 */
 export function ranking(m: MatchState): number[] {

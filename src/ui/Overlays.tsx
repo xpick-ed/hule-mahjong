@@ -45,14 +45,14 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   // 連線：你按過了，等其他人
   const waiting = useUI((s) => !!s.online?.ready.includes(0))
   const review = useUI((s) => s.review)
+  const rivalNotes = useUI((s) => s.rivalNotes)
   const [showReview, setShowReview] = useState(false)
   const wins = M.winsOf(r)
   // 一炮多響：你有胡就先看你的
   const w = wins.find((x) => x.seat === 0) ?? r.win
   const others = wins.filter((x) => x !== w)
-  const keep = !wins.length || wins.some((x) => x.seat === m.dealer)
   const cap = M.rulesOf(m).streakCap
-  const last = M.lastRound(m) && (!keep || (cap > 0 && m.streak >= cap))
+  const last = M.matchOverAfter(m)
   const myDiscards = m.hand.seats[0].discards.length
   useEffect(() => {
     const on = (e: KeyboardEvent) => {
@@ -141,12 +141,22 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
             </div>
           </header>
         )}
-        {r.extras?.length ? (
+        {r.extras?.length || rivalNotes.length ? (
           <div className="extras">
-            {r.extras.map((x, i) => (
+            {(r.extras ?? []).map((x, i) => (
               <span key={i} className="extra">
                 {x.label}
                 {x.coins ? <b>+{x.coins} 金幣</b> : null}
+              </span>
+            ))}
+            {rivalNotes.map((ev) => (
+              <span key={`${ev.kind}${ev.seat}`} className={cls('extra', 'rival-note', ev.kind)}>
+                {ev.kind === 'revenge'
+                  ? `報仇成功！${nameOf(m, ev.seat)}付錢給你了`
+                  : ev.kind === 'new'
+                    ? `${nameOf(m, ev.seat)}成了你的宿敵（放槍給他 ${ev.n} 次）。讓他付錢給你就能報仇`
+                    : `又放槍給宿敵${nameOf(m, ev.seat)}（第 ${ev.n} 次）`}
+                {ev.coins ? <b>+{ev.coins} 金幣</b> : null}
               </span>
             ))}
           </div>
@@ -179,7 +189,7 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
             </button>
           ) : (
             <button type="button" className="btn primary" onClick={next}>
-              {last || m.points.some((p) => p < 0) ? '看最後結果' : '下一局'}
+              {last ? '看最後結果' : '下一局'}
             </button>
           )}
         </div>
@@ -277,6 +287,10 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
       : `第 ${place} 名`
     : m.daily
     ? `每日挑戰 ${m.daily.slice(5).replace('-', '/')}：第 ${place} 名`
+    : m.blitz
+    ? first
+      ? '閃電局拿第一！'
+      : `閃電局第 ${place} 名`
     : m.tutorial
       ? `引導局完成！第 ${place} 名`
       : first
@@ -302,6 +316,8 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     ? `跟朋友連線・${stage.name}・${m.handNo} 局`
     : m.daily
     ? `${stage.name}・今天大家的牌都一樣`
+    : m.blitz
+    ? `${stage.name}・${m.handNo} 局打完。閃電局不算過關，要過關請打完整的一場`
     : m.tutorial
       ? `你已經會打了！之後每一步會計時、對手也不再放水${first && hasNext ? `。下一關：${STAGES[m.stage + 1].name}` : ''}`
       : first
@@ -393,7 +409,11 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
               <button type="button" className="btn" onClick={doShare}>
                 分享
               </button>
-              {m.daily ? null : first && hasNext ? (
+              {m.daily ? null : m.blitz ? (
+                <button type="button" className="btn primary" onClick={() => start(m.stage, { difficulty: m.difficulty, blitz: true })}>
+                  再來一場閃電局
+                </button>
+              ) : first && hasNext ? (
                 <button type="button" className="btn primary" onClick={() => start(m.stage + 1)}>
                   下一關
                 </button>
@@ -642,6 +662,12 @@ export function Menu() {
             </button>
           </label>
           <label className="row">
+            <span>開局擲骰子</span>
+            <button type="button" className="toggle" aria-pressed={settings.dice} onClick={() => setSettings({ dice: !settings.dice })}>
+              {settings.dice ? '開' : '關'}
+            </button>
+          </label>
+          <label className="row">
             <span>提示（打哪張會聽）</span>
             <button type="button" className="toggle" aria-pressed={settings.hints} onClick={() => setSettings({ hints: !settings.hints })}>
               {settings.hints ? '開' : '關'}
@@ -730,6 +756,16 @@ export function Menu() {
         </button>
         <button type="button" className="btn" onClick={() => setLearn('tips')}>
           胡牌技巧
+        </button>
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setMenu(false)
+            useUI.getState().setCalc(true)
+          }}
+        >
+          算台幫手
         </button>
         {screen === 'match' && !inRoom && (
           <button type="button" className="btn" onClick={toHome}>

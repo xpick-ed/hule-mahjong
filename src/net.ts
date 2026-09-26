@@ -1,6 +1,7 @@
 // 連線對打：跟房間伺服器的 WebSocket。斷線會自己重連（同一個玩家 id，伺服器會讓你接回原本的位子）。
 // 你在哪個房間記在 localStorage：重新整理頁面也會自動連回去。
 
+import type { Look } from './engine/characters'
 import { ROOM_CHARS, ROOM_RE, type ClientMsg, type ServerMsg } from './engine/online'
 
 const PID_KEY = 'hule.pid'
@@ -61,6 +62,8 @@ export interface ConnOptions {
   code: string
   name: string
   voice: 'f' | 'm'
+  /** 你的造型（朋友看得到） */
+  look?: Look | null
   create: boolean
   onMessage: (m: ServerMsg) => void
   /** 連線狀態：connecting 連線中／open 連上了／retry 斷了在重連／closed 不會再連 */
@@ -81,9 +84,10 @@ export class RoomConn {
   }
 
   private url() {
-    const { code, name, voice, create } = this.opt
+    const { code, name, voice, create, look } = this.opt
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
     const q = new URLSearchParams({ pid: playerId(), name, voice })
+    if (look) q.set('look', JSON.stringify(look))
     // 只有第一次（開房）帶 create；重連的時候房間已經在了
     if (create && !this.opened) q.set('create', '1')
     const path = location.pathname.replace(/[^/]*$/, '')
