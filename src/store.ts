@@ -7,6 +7,7 @@ import { chooseDiscard } from './engine/ai'
 import { canTsumo, type ClaimDecision, type HandEvent } from './engine/table'
 import { tileName, type Kind } from './engine/tiles'
 import { buzz, setSoundEnabled, sfx } from './sfx'
+import { goLandscape } from './screen'
 import { preloadVoices, setVoiceEnabled, speak } from './voice'
 import * as P from './progress'
 import type { Progress } from './progress'
@@ -220,6 +221,7 @@ export const useUI = create<UI>((set, get) => {
     seenEvent: 0,
 
     startStage(stage) {
+      void goLandscape()
       const match = M.newMatch(newSeed(), stage)
       // 商店買的絕招補給這一場用
       const { bonus } = get().progress
@@ -241,6 +243,7 @@ export const useUI = create<UI>((set, get) => {
     resume() {
       const match = savedMatch()
       if (!match) return
+      void goLandscape()
       set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN })
       preloadFor(match, get().settings.myVoice)
     },
