@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import { STAGES } from '../engine/stages'
 import { dailyInfo } from '../daily'
-import { claimable, rankOf } from '../progress'
+import { claimable, rankOf, starsOf } from '../progress'
 import { lookFor, savedMatch, useUI } from '../store'
 import { Avatar } from './Avatar'
 import { cls, fmt, Tile } from './bits'
@@ -93,7 +93,16 @@ export function Home() {
           const fresh = i === 0 && !progress.tutorial
           return (
             <button key={st.id} type="button" className={cls('stage-card', locked && 'locked', done && 'done')} disabled={locked} onClick={() => openStage({ stage: i })}>
-              <span className="stage-no">第 {i + 1} 關</span>
+              <span className="stage-no">
+                第 {i + 1} 關
+                {!locked && (
+                  <span className="stage-stars" aria-label={`${starsOf(progress, st.id).filter(Boolean).length} 顆星`}>
+                    {starsOf(progress, st.id).map((on, k) => (
+                      <i key={k} className={cls(on && 'on')}>★</i>
+                    ))}
+                  </span>
+                )}
+              </span>
               <span className="stage-name">{st.name}</span>
               <span className="stage-place">{st.place}</span>
               <span className="stage-faces">

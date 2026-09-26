@@ -103,6 +103,8 @@ export interface MatchRewards {
   unlocked: P.AchDef[]
   levelUps: { id: string; lv: number }[]
   gains: Record<string, number>
+  /** 這一場新拿到的關卡星星 */
+  stars: { text: string; coins: number }[]
   /** 每日挑戰：這一場算不算成績（一天只算第一場） */
   dailyCounted?: boolean
 }
@@ -137,6 +139,8 @@ interface UI {
   people: string | null
   /** 問名字的畫面 */
   nameSheet: boolean
+  /** 炫耀卡：要做成圖的那一手 */
+  bragSnap: P.HandSnap | null
   prematch: Prematch
   /** 上一場的獎勵（結束畫面用） */
   rewards: MatchRewards | null
@@ -185,6 +189,8 @@ interface UI {
   setShop(on: boolean): void
   setRecords(on: boolean): void
   setNameSheet(on: boolean): void
+  /** 打開炫耀卡（null 關掉） */
+  brag(snap: P.HandSnap | null): void
   setPeople(id: string | null): void
   setOutfit(id: string, on: boolean): void
   claimMission(id: string): void
@@ -335,7 +341,16 @@ export const useUI = create<UI>((set, get) => {
     const rec = P.recordHand(get().progress, m)
     setProgress(rec.p)
     announce(rec.unlocked, 2400)
+    collect(m)
     set({ review: pickNotes(get().notes, m) })
+  }
+
+  /** 你胡了：收進牌型圖鑑，第一次收集到的跳提示 */
+  const collect = (m: M.MatchState) => {
+    const al = P.recordAlbum(get().progress, m)
+    if (al.p === get().progress) return
+    setProgress(al.p)
+    al.fresh.forEach((name, i) => window.setTimeout(() => get().showToast(`圖鑑新收集：${name}`), 3200 + i * 1800))
   }
 
   const finishMatch = (m: M.MatchState) => {
@@ -359,6 +374,8 @@ export const useUI = create<UI>((set, get) => {
     p = bumped.p
     const rec = P.recordMatch(p, m, Object.keys(CHARACTERS))
     p = rec.p
+    const st = P.recordStars(p, m)
+    p = st.p
     // 每日挑戰：一天只算第一場
     let dailyCounted: boolean | undefined
     if (m.daily) {
@@ -367,7 +384,7 @@ export const useUI = create<UI>((set, get) => {
     }
     setProgress(p)
     save(MATCH_KEY, null)
-    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked: rec.unlocked, levelUps: rec.levelUps, gains: rec.gains, dailyCounted } })
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked: rec.unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, dailyCounted } })
     announce(rec.unlocked, 1800)
     if (first) sfx.win()
     else sfx.lose()
@@ -457,7 +474,10 @@ export const useUI = create<UI>((set, get) => {
     } else if (m.handNo !== prev.handNo) Object.assign(extra, { bubbles: {}, moods: {}, callout: null, ...newHandState })
     set({ match: m, screen: 'match', online: { ...o, deadline, ready: msg.ready }, ...extra })
     get().processEvents()
-    if (prev?.phase === 'play' && m.phase === 'handEnd' && prev.handNo === m.handNo) set({ review: pickNotes(get().notes, m) })
+    if (prev?.phase === 'play' && m.phase === 'handEnd' && prev.handNo === m.handNo) {
+      set({ review: pickNotes(get().notes, m) })
+      collect(m)
+    }
   }
 
   return {
@@ -482,6 +502,7 @@ export const useUI = create<UI>((set, get) => {
     people: null,
     // 第一次打開（還沒問過名字、也沒有打過）先問名字
     nameSheet: !settings0.nameAsked && !settings0.name,
+    bragSnap: null,
     prematch: null,
     rewards: null,
     toast: null,
@@ -738,6 +759,9 @@ export const useUI = create<UI>((set, get) => {
     },
     setNameSheet(on) {
       set({ nameSheet: on })
+    },
+    brag(snap) {
+      set({ bragSnap: snap })
     },
     setRecords(on) {
       set({ records: on })

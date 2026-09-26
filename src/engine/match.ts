@@ -61,7 +61,7 @@ export interface MatchState {
   hand: T.HandState
   phase: 'play' | 'handEnd' | 'end'
   result: HandResult | null
-  history: { winner: number | null; from: number | null; tai: number; hand?: number }[]
+  history: { winner: number | null; from: number | null; tai: number; hand?: number; items?: string[] }[]
   skills: Record<SkillId, number>
   /** 偷看中的座位 */
   peek: number | null
@@ -389,7 +389,7 @@ function settle(m: MatchState) {
       payments.push({ seat: p, amount, tai, ...(wins.length > 1 ? { to: w } : {}) })
     }
     if (w === m.dealer || payers.includes(m.dealer)) dItems = di
-    m.history.push({ winner: w, from: win.from, tai: win.score.total, hand: m.handNo })
+    m.history.push({ winner: w, from: win.from, tai: win.score.total, hand: m.handNo, items: win.score.items.map((x) => x.name) })
   }
   if (!wins.length) m.history.push({ winner: null, from: null, tai: 0, hand: m.handNo })
   m.points = m.points.map((p, i) => p + deltas[i])

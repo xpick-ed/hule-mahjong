@@ -528,18 +528,7 @@ button.mt {
   font-size: 12px;
 }
 
-.stage-card.done::after {
-  content: '已過關';
-  position: absolute;
-  top: 12px;
-  right: 10px;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--ink);
-  color: var(--bg);
-  font-size: 11px;
-  font-weight: 900;
-}
+/* 過關用星星表示（第一顆星就是拿第一） */
 
 /* 窄螢幕（16:9 的手機、平板）：首頁收緊一點，四張關卡卡片才放得下 */
 @container (max-width: 800px) {
@@ -582,12 +571,7 @@ button.mt {
   .stage-rule {
     font-size: 10px;
   }
-  .stage-card.done::after {
-    top: 10px;
-    right: 6px;
-    padding: 2px 6px;
-    font-size: 10px;
-  }
+
   .home-top .rank-bar {
     width: 44px;
   }
@@ -4039,6 +4023,247 @@ kbd {
   color: var(--muted);
   font-style: normal;
   font-size: 10px;
+}
+
+
+/* ---------- 關卡星星 ---------- */
+
+.stage-stars {
+  display: inline-flex;
+  gap: 1px;
+  margin-left: 6px;
+  vertical-align: 1px;
+}
+
+.stage-stars i {
+  font-style: normal;
+  font-size: 12px;
+  color: rgba(29, 42, 74, 0.2);
+}
+
+.stage-stars i.on {
+  color: var(--orange);
+  text-shadow: 0 1px 0 var(--orange-edge);
+}
+
+.pm-goals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pm-goals li {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #f4f6fa;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.pm-goals li i {
+  font-style: normal;
+  color: rgba(29, 42, 74, 0.25);
+}
+
+.pm-goals li.on {
+  background: #fff3c4;
+}
+
+.pm-goals li.on i {
+  color: var(--orange);
+}
+
+.pm-goals small {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.rewards li.star-done {
+  color: var(--orange-edge);
+}
+
+/* ---------- 牌型圖鑑 ---------- */
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.album-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px 8px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: #f4f6fa;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 4px 0 0 var(--rc, #c9d2e3);
+}
+
+.album-card.common {
+  --rc: #9aa4b8;
+}
+
+.album-card.rare {
+  --rc: var(--blue);
+}
+
+.album-card.epic {
+  --rc: var(--purple);
+}
+
+.album-card.legend {
+  --rc: var(--orange);
+  background: #fff8e0;
+}
+
+.album-card b {
+  font-size: 14px;
+}
+
+.album-card .album-tai {
+  font-family: var(--num);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--rc);
+}
+
+.album-card small {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.3;
+}
+
+.album-card.locked {
+  cursor: default;
+  background: #f4f6fa;
+  opacity: 0.55;
+  box-shadow: inset 4px 0 0 #d6dbe6;
+}
+
+.album-card.locked b {
+  color: var(--muted);
+}
+
+.album-detail header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.album-detail h4 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.album-detail .album-tai {
+  font-family: var(--num);
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--red);
+}
+
+.rarity {
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.rarity.common {
+  background: #9aa4b8;
+}
+
+.rarity.rare {
+  background: var(--blue);
+}
+
+.rarity.epic {
+  background: var(--purple);
+}
+
+.rarity.legend {
+  background: var(--orange);
+}
+
+.snap-hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--table, #33c2a0);
+}
+
+.snap-group {
+  display: flex;
+  gap: 1px;
+}
+
+.album-items {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* ---------- 炫耀卡 ---------- */
+
+.brag {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.brag-preview {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1080 / 1350;
+  max-width: 100%;
+  border-radius: 14px;
+  background: #f4f6fa;
+  overflow: hidden;
+}
+
+.brag-preview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.brag-side h3 {
+  margin: 0 0 6px;
+}
+
+.brag-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brag-btn.big {
+  background: var(--orange);
+  color: #fff;
+  box-shadow: 0 4px 0 var(--orange-edge);
 }
 
 /* ---------- 動畫 ---------- */

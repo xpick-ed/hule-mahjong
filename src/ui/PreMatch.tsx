@@ -5,6 +5,7 @@ import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { STAGES } from '../engine/stages'
 import { dailyInfo } from '../daily'
+import { STAR_GOALS, starsOf } from '../progress'
 import { lookFor, savedMatch, useUI } from '../store'
 import { Avatar } from './Avatar'
 import { cls, fmt } from './bits'
@@ -56,6 +57,20 @@ function PreMatchBody({ stage: stageIdx, daily }: { stage: number; daily?: strin
         {stage.ruleText ? `・${stage.ruleText}` : ''}
       </p>
 
+      {!d && STAR_GOALS[stage.id] && (
+        <ul className="pm-goals" aria-label="這一關的三顆星">
+          {STAR_GOALS[stage.id].map((g, i) => {
+            const on = starsOf(progress, stage.id)[i]
+            return (
+              <li key={i} className={cls(on && 'on')}>
+                <i aria-hidden="true">★</i>
+                {g.text}
+                {on && <small>已拿到</small>}
+              </li>
+            )
+          })}
+        </ul>
+      )}
       {d ? (
         <div className="pm-daily">
           <p>今天大家拿到的牌都一模一樣。一天只算第一場的成績，打完可以分享、上排行榜。</p>

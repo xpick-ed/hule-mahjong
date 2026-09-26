@@ -135,3 +135,49 @@ describe('每日挑戰', () => {
     expect([...handGrid(m)].length).toBe(new Set(m.history.map((x) => x.hand)).size)
   })
 })
+
+describe('關卡星星、牌型圖鑑', () => {
+  const ended = (stage: number, history: M.MatchState['history'], points: number[]) => {
+    const m = M.newMatch('stars', stage)
+    m.phase = 'end'
+    m.history = history
+    m.points = points
+    return m
+  }
+  it('第一關：拿第一、胡一手 3 台、沒放槍，一次拿三顆，各給金幣', () => {
+    const m = ended(0, [{ winner: 0, from: 1, tai: 3, hand: 1, items: ['門清', '平胡'] }, { winner: 2, from: 3, tai: 1, hand: 2 }], [30000, 15000, 20000, 15000])
+    const { p, fresh } = P.recordStars(P.defaultProgress, m)
+    expect(fresh.map((x) => x.text)).toEqual(['拿第一', '胡一手 3 台以上', '一整場沒放槍'])
+    expect(P.starsOf(p, 0)).toEqual([true, true, true])
+    expect(p.coins).toBe(300)
+    // 已經拿過的不會再給
+    expect(P.recordStars(p, m).fresh).toHaveLength(0)
+  })
+  it('放槍就拿不到「沒放槍」；星星可以分好幾場拿', () => {
+    const m = ended(0, [{ winner: 1, from: 0, tai: 2, hand: 1 }], [10000, 30000, 20000, 20000])
+    const { p, fresh } = P.recordStars(P.defaultProgress, m)
+    expect(fresh).toHaveLength(0)
+    const m2 = ended(0, [{ winner: 0, from: null, tai: 1, hand: 1, items: ['自摸'] }], [30000, 15000, 20000, 15000])
+    expect(P.starsOf(P.recordStars(p, m2).p, 0)).toEqual([true, false, true])
+  })
+  it('舊存檔：已過關的關卡補第一顆星', () => {
+    const q = P.migrate({ cleared: 2, matches: 5 } as Partial<P.Progress>)
+    expect(P.starsOf(q, 0)[0]).toBe(true)
+    expect(P.starsOf(q, 1)[0]).toBe(true)
+    expect(P.starsOf(q, 2)[0]).toBe(false)
+  })
+  it('圖鑑：第一次胡到的牌型收進來，留台數最高的那一手', () => {
+    const m = M.newMatch('album', 0)
+    const win = (total: number, items: string[]) => ({ seat: 0, from: null, tile: { id: 1, kind: 'p9' }, hand: [], score: { total, items: items.map((name) => ({ name, tai: 1 })) } })
+    m.result = { win: win(3, ['門清自摸', '正花 ×2']), dealerItems: null, payments: [], deltas: [0, 0, 0, 0], dealer: 1, streak: 0 }
+    const a = P.recordAlbum(P.defaultProgress, m)
+    expect(a.fresh.sort()).toEqual(['正花', '門清自摸'])
+    m.result = { ...m.result, win: win(5, ['門清自摸', '四暗刻']) }
+    const b = P.recordAlbum(a.p, m)
+    expect(b.fresh).toEqual(['四暗刻'])
+    expect(b.p.album['門清自摸']).toMatchObject({ count: 2, best: { tai: 5 } })
+    // 別人胡的不算
+    m.result = { ...m.result, win: { ...win(8, ['清一色']), seat: 2 } }
+    expect(P.recordAlbum(b.p, m).fresh).toHaveLength(0)
+  })
+})

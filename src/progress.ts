@@ -39,6 +39,30 @@ export interface Progress {
   tutorial: boolean
   /** 每日挑戰：今天最好的成績 */
   dailyBest: { date: string; place: number; points: number; share: string } | null
+  /** 關卡星星：關卡 id → 三個目標有沒有達成過 */
+  stars: Record<number, boolean[]>
+  /** 牌型圖鑑：牌型名稱 → 胡過幾次、台數最高的那一手 */
+  album: Record<string, AlbumEntry>
+}
+
+/** 圖鑑裡記下來的一手牌（只存牌的種類，小小的） */
+export interface HandSnap {
+  date: string
+  stage: number
+  /** 這一手總共幾台（不含莊家台） */
+  tai: number
+  items: string[]
+  hand: string[]
+  melds: string[][]
+  flowers: string[]
+  win: string
+  /** 自摸還是胡別人的 */
+  tsumo: boolean
+}
+
+export interface AlbumEntry {
+  count: number
+  best: HandSnap
 }
 
 export interface Stats {
@@ -71,6 +95,8 @@ export const defaultProgress: Progress = {
   outfit: {},
   tutorial: false,
   dailyBest: null,
+  stars: {},
+  album: {},
 }
 
 /** 舊存檔少了新欄位：補上預設值 */
@@ -79,6 +105,12 @@ export function migrate(p: Partial<Progress>): Progress {
   q.stats = { ...defaultProgress.stats, ...(p.stats ?? {}) }
   // 已經打過的人不用再走引導局
   if (p.tutorial === undefined && (p.matches ?? 0) > 0) q.tutorial = true
+  // 有星星之前就過關的：第一顆星（拿第一）補給他
+  q.stars = { ...(p.stars ?? {}) }
+  STAGES.slice(0, q.cleared).forEach((st) => {
+    const had = q.stars[st.id] ?? [false, false, false]
+    if (!had[0]) q.stars[st.id] = [true, had[1], had[2]]
+  })
   return q
 }
 
@@ -406,4 +438,131 @@ export function recordMatch(p: Progress, m: M.MatchState, allChars: readonly str
   if (Object.values(affinity).some((x) => affinityLevel(x).lv >= AFFINITY_LEVELS.length - 1)) ids.push('bestFriend')
   const u = unlock(q, ids)
   return { p: u.p, unlocked: u.unlocked, levelUps, gains }
+}
+
+// ---------- 關卡星星 ----------
+
+export interface StarGoal {
+  text: string
+  /** 這一場（你打完的那一場）有沒有達成 */
+  done: (m: M.MatchState) => boolean
+}
+
+const myWins = (m: M.MatchState) => m.history.filter((x) => x.winner === 0)
+const first: StarGoal = { text: '拿第一', done: (m) => M.ranking(m)[0] === 0 }
+const bigHand = (n: number): StarGoal => ({ text: `胡一手 ${n} 台以上`, done: (m) => myWins(m).some((x) => x.tai >= n) })
+const clean: StarGoal = { text: '一整場沒放槍', done: (m) => !m.history.some((x) => x.from === 0) }
+const tsumoN = (n: number): StarGoal => ({ text: n > 1 ? `自摸 ${n} 次` : '自摸一次', done: (m) => myWins(m).filter((x) => x.from === null).length >= n })
+const withItem = (text: string, names: string[]): StarGoal => ({ text, done: (m) => myWins(m).some((x) => x.items?.some((i) => names.includes(i))) })
+
+/** 每一關三顆星（照關卡 id）：第一顆都是拿第一，另外兩顆看關卡的特色 */
+export const STAR_GOALS: Record<number, StarGoal[]> = {
+  0: [first, bigHand(3), clean],
+  1: [first, tsumoN(2), bigHand(4)],
+  2: [first, tsumoN(1), withItem('胡一手混一色或清一色', ['混一色', '清一色'])],
+  3: [first, bigHand(5), clean],
+}
+
+export const starsOf = (p: Progress, stageId: number) => p.stars[stageId] ?? [false, false, false]
+export const starCount = (p: Progress) => Object.values(p.stars).reduce((s, x) => s + x.filter(Boolean).length, 0)
+
+/** 打完一場：這一關新拿到的星星（一顆第一次拿到給金幣） */
+export function recordStars(p: Progress, m: M.MatchState): { p: Progress; fresh: { text: string; coins: number }[] } {
+  const stage = STAGES[m.stage]
+  const goals = STAR_GOALS[stage.id]
+  if (!goals || m.daily || m.online || m.tutorial) return { p, fresh: [] }
+  const had = starsOf(p, stage.id)
+  const now = goals.map((g, i) => had[i] || g.done(m))
+  const fresh = goals
+    .map((g, i) => ({ g, i }))
+    .filter(({ i }) => !had[i] && now[i])
+    .map(({ g }) => ({ text: g.text, coins: Math.round(100 * (STAGE_MULT[m.stage] ?? 1)) }))
+  if (!fresh.length) return { p, fresh }
+  return { p: { ...p, stars: { ...p.stars, [stage.id]: now }, coins: p.coins + fresh.reduce((s, x) => s + x.coins, 0) }, fresh }
+}
+
+// ---------- 牌型圖鑑 ----------
+
+export type Rarity = 'common' | 'rare' | 'epic' | 'legend'
+
+export interface AlbumDef {
+  name: string
+  tai: number
+  hint: string
+}
+
+/** 圖鑑：可以收集的牌型（名字跟算台的一樣；莊家、連莊不算） */
+export const ALBUM: readonly AlbumDef[] = [
+  { name: '門清', tai: 1, hint: '沒吃沒碰，胡別人打的牌' },
+  { name: '自摸', tai: 1, hint: '自己摸到胡的牌' },
+  { name: '門清自摸', tai: 3, hint: '沒吃沒碰又自摸' },
+  { name: '正花', tai: 1, hint: '花牌對上你的位置' },
+  { name: '春夏秋冬', tai: 2, hint: '四季花湊齊' },
+  { name: '梅蘭竹菊', tai: 2, hint: '四君子湊齊' },
+  { name: '紅中', tai: 1, hint: '紅中的刻子' },
+  { name: '青發', tai: 1, hint: '發財的刻子' },
+  { name: '白板', tai: 1, hint: '白板的刻子' },
+  { name: '圈風', tai: 1, hint: '這一圈的風牌刻子' },
+  { name: '門風', tai: 1, hint: '自己位置的風牌刻子' },
+  { name: '獨聽', tai: 1, hint: '只聽一種牌' },
+  { name: '平胡', tai: 2, hint: '全順子、沒字沒花、聽兩面' },
+  { name: '全求人', tai: 2, hint: '五組都吃碰，單吊胡' },
+  { name: '三暗刻', tai: 2, hint: '手上藏三組刻子' },
+  { name: '槓上開花', tai: 1, hint: '開槓補的那張自摸' },
+  { name: '海底撈月', tai: 1, hint: '最後一張牌自摸' },
+  { name: '河底撈魚', tai: 1, hint: '胡最後一張打出來的牌' },
+  { name: '搶槓', tai: 1, hint: '胡別人加槓的那張' },
+  { name: '碰碰胡', tai: 4, hint: '五組都是刻子' },
+  { name: '混一色', tai: 4, hint: '一種花色加字牌' },
+  { name: '小三元', tai: 4, hint: '中發白兩組刻子，一對當眼' },
+  { name: '四暗刻', tai: 5, hint: '手上藏四組刻子' },
+  { name: '清一色', tai: 8, hint: '整手只有一種花色' },
+  { name: '大三元', tai: 8, hint: '中發白三組刻子' },
+  { name: '小四喜', tai: 8, hint: '三組風牌刻子，第四種當眼' },
+  { name: '五暗刻', tai: 8, hint: '手上藏五組刻子' },
+  { name: '嚦咕嚦咕', tai: 8, hint: '七對加一組刻子' },
+  { name: '八仙過海', tai: 8, hint: '八張花全部到手' },
+  { name: '七搶一', tai: 8, hint: '搶別人的第八張花' },
+  { name: '字一色', tai: 16, hint: '整手都是字牌' },
+  { name: '大四喜', tai: 16, hint: '四種風牌刻子' },
+  { name: '天胡', tai: 16, hint: '莊家開局就胡' },
+  { name: '地胡', tai: 16, hint: '閒家第一次摸牌就自摸' },
+]
+
+export const rarityOf = (tai: number): Rarity => (tai >= 16 ? 'legend' : tai >= 5 ? 'epic' : tai >= 3 ? 'rare' : 'common')
+export const RARITY_NAME: Record<Rarity, string> = { common: '普通', rare: '稀有', epic: '超稀有', legend: '傳說' }
+
+/** 「正花 ×2」→「正花」 */
+export const albumName = (item: string) => item.replace(/ ×\d+$/, '')
+
+/** 你胡的這一手存成一張小卡 */
+export function snapOf(m: M.MatchState, w: { seat: number; from: number | null; tile: { kind: string }; hand: { kind: string }[]; score: { total: number; items: { name: string }[] } }): HandSnap {
+  const s = m.hand.seats[w.seat]
+  return {
+    date: today(),
+    stage: m.stage,
+    tai: w.score.total,
+    items: w.score.items.map((x) => x.name),
+    hand: w.hand.map((t) => t.kind),
+    melds: s.melds.map((x) => x.tiles.map((t) => t.kind)),
+    flowers: s.flowers.map((t) => t.kind),
+    win: w.tile.kind,
+    tsumo: w.from === null,
+  }
+}
+
+/** 你胡了：更新圖鑑；回傳第一次收集到的牌型 */
+export function recordAlbum(p: Progress, m: M.MatchState): { p: Progress; fresh: string[] } {
+  const w = M.winsOf(m.result).find((x) => x.seat === 0)
+  if (!w) return { p, fresh: [] }
+  const snap = snapOf(m, w)
+  const album = { ...p.album }
+  const fresh: string[] = []
+  for (const name of new Set(w.score.items.map((x) => albumName(x.name)))) {
+    if (!ALBUM.some((a) => a.name === name)) continue
+    const old = album[name]
+    if (!old) fresh.push(name)
+    album[name] = { count: (old?.count ?? 0) + 1, best: !old || snap.tai > old.best.tai ? snap : old.best }
+  }
+  return { p: { ...p, album }, fresh }
 }

@@ -161,6 +161,11 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
           ))}
         </div>
         <div className="result-actions">
+          {w && w.seat === 0 && (
+            <button type="button" className={cls('btn', 'brag-btn', w.score.total >= 4 && 'big')} onClick={() => useUI.getState().brag(P.snapOf(m, w))}>
+              炫耀卡
+            </button>
+          )}
           {review.length > 0 ? (
             <button type="button" className="btn review-btn" onClick={() => setShowReview(true)}>
               教練覆盤<b>{review.length}</b>
@@ -362,6 +367,12 @@ function Rewards() {
           <li key={f.id} className="mission-done">
             任務完成：{f.text}
             <small>回首頁領 +{f.reward}</small>
+          </li>
+        ))}
+        {(rw.stars ?? []).map((s) => (
+          <li key={s.text} className="star-done">
+            ★ {s.text}
+            <b>+{s.coins}</b>
           </li>
         ))}
         {rw.unlocked.map((a) => (
