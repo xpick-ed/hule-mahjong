@@ -36,6 +36,11 @@ export function MatchView() {
   if (!match) return null
   const skin = tableSkin(skinId)
   const back = BACK[backId] ?? BACK.pink
+  return <Table m={match} skin={skin} back={back} />
+}
+
+function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typeof tableSkin>; back: (typeof BACK)[string] }) {
+  const timer = useTurnTimer(match)
   return (
     <div
       className="match"
@@ -43,13 +48,12 @@ export function MatchView() {
     >
       <Driver m={match} />
       <TopStrip m={match} />
-      <TableCenter m={match} />
+      <TableCenter m={match} timer={timer} />
       <Opponent m={match} seat={2} side="top" />
       <Opponent m={match} seat={3} side="left" />
       <Opponent m={match} seat={1} side="right" />
       <MyArea m={match} />
       <Actions m={match} />
-      <TurnTimer m={match} />
       {match.phase === 'handEnd' && <CutIn key={`cut${match.handNo}`} m={match} />}
       {match.phase === 'handEnd' && <HandEnd key={`end${match.handNo}`} m={match} />}
       {match.phase === 'end' && <MatchEnd m={match} />}
@@ -83,6 +87,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
           {m.streak ? `・連 ${m.streak}` : ''}
         </small>
       </span>
+      <MeChip m={m} />
       <div className="skills" role="group" aria-label="絕招">
         {(Object.keys(M.SKILLS) as M.SkillId[]).map((id) => (
           <button
@@ -105,21 +110,50 @@ function TopStrip({ m }: { m: M.MatchState }) {
   )
 }
 
-function TableCenter({ m }: { m: M.MatchState }) {
+function MeChip({ m }: { m: M.MatchState }) {
+  const myBubble = useUI((s) => s.bubbles[0])
+  const h = m.hand
+  return (
+    <div className={cls('me-chip', h.turn === 0 && h.phase !== 'over' && 'active')}>
+      <span className="seat-wind">{WIND_CHAR[seatWind(h, 0)]}</span>
+      <MeBadge size={20} />
+      <span className="pscore">{fmt(m.points[0])}</span>
+      {m.dealer === 0 && <span className="dealer">莊</span>}
+      <TauntButton />
+      {myBubble && (
+        <div key={myBubble.key} className="bubble from-me" role="status">
+          {myBubble.text}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
   const h = m.hand
   const callout = useUI((s) => s.callout)
   const turnSide = ['bottom', 'right', 'top', 'left'][h.turn]
   const last = h.lastDiscard
   return (
     <div className="table">
-      <div className={cls('compass', `turn-${turnSide}`)} aria-label={`輪到${h.turn === 0 ? '你' : CHARACTERS[m.chars[h.turn]].name}`}>
+      <div
+        className={cls('compass', `turn-${turnSide}`, timer.active && 'ticking', timer.active && timer.secs <= 5 && 'urgent')}
+        style={{ '--p': timer.frac } as CSSProperties}
+        aria-label={`輪到${h.turn === 0 ? '你' : CHARACTERS[m.chars[h.turn]].name}`}
+      >
         <span className="c-bottom">{WIND_CHAR[seatWind(h, 0)]}</span>
         <span className="c-right">{WIND_CHAR[seatWind(h, 1)]}</span>
         <span className="c-top">{WIND_CHAR[seatWind(h, 2)]}</span>
         <span className="c-left">{WIND_CHAR[seatWind(h, 3)]}</span>
-        <span className="c-center">
-          東<small>{m.handNo}</small>
-        </span>
+        {timer.active ? (
+          <span className="c-center c-timer" role="timer" aria-label={`剩 ${timer.secs} 秒`}>
+            {timer.secs}
+          </span>
+        ) : (
+          <span className="c-center">
+            東<small>{m.handNo}</small>
+          </span>
+        )}
       </div>
       {([
         [2, 'p-top'],
@@ -131,7 +165,7 @@ function TableCenter({ m }: { m: M.MatchState }) {
           {h.seats[seat].discards
             .filter((d) => !d.claimed)
             .map((d) => (
-              <Tile key={d.tile.id} kind={d.tile.kind} w={20} hot={!!last && last.tile.id === d.tile.id && h.phase === 'claim'} fresh />
+              <Tile key={d.tile.id} kind={d.tile.kind} w={19} hot={!!last && last.tile.id === d.tile.id && h.phase === 'claim'} fresh />
             ))}
         </div>
       ))}
@@ -164,8 +198,33 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
   const mode = useUI((st) => st.mode)
   const peekAt = useUI((st) => st.peekAt)
   const reveal = m.peek === seat || h.phase === 'over'
-  const vertical = side !== 'top'
-  const small = 17
+  const top = side === 'top'
+  const meldW = top ? 17 : 15
+
+  const concealed = (
+    <div className={cls('concealed', reveal && 'revealed')}>
+      {reveal
+        ? s.hand.map((t) => <Tile key={t.id} kind={t.kind} w={top ? 16 : 13} />)
+        : s.hand.map((t) => (top ? <Back key={t.id} w={13} h={18} /> : <Back key={t.id} w={9} h={13} />))}
+    </div>
+  )
+  const melds =
+    s.melds.length > 0 || s.flowers.length > 0 ? (
+      <div className="opp-melds">
+        {s.melds.map((mm, i) => (
+          <span key={i} className="meld">
+            {mm.tiles.map((t, j) => (mm.concealed && (j === 0 || j === 3) ? <Back key={t.id} w={meldW} h={meldW * 1.36} /> : <Tile key={t.id} kind={t.kind} w={meldW} />))}
+          </span>
+        ))}
+        {s.flowers.length > 0 && (
+          <span className="opp-flowers">
+            {s.flowers.map((f) => (
+              <Tile key={f.id} kind={f.kind} w={top ? 17 : 12} />
+            ))}
+          </span>
+        )}
+      </div>
+    ) : null
 
   return (
     <>
@@ -186,37 +245,36 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
           <span className="pname">{ch.name}</span>
           <span className="pscore">{fmt(m.points[seat])}</span>
         </div>
+        {!top && (
+          <div className="side-tiles">
+            {concealed}
+            {melds}
+          </div>
+        )}
         {bubble && (
           <div key={bubble.key} className={cls('bubble', `from-${side}`)} role="status">
             {bubble.text}
           </div>
         )}
       </div>
-      <div className={cls('opp-tiles', side)}>
-        <div className={cls('concealed', reveal && 'revealed')}>
-          {reveal
-            ? s.hand.map((t) => <Tile key={t.id} kind={t.kind} w={vertical ? 15 : 16} />)
-            : s.hand.map((t) => <Back key={t.id} w={vertical ? 18 : 13} h={vertical ? 10 : 18} />)}
+      {top && (
+        <div className="opp-tiles top">
+          {concealed}
+          {melds}
         </div>
-        {(s.melds.length > 0 || s.flowers.length > 0) && (
-          <div className="opp-melds">
-            {s.melds.map((mm, i) => (
-              <span key={i} className="meld">
-                {mm.tiles.map((t, j) => (mm.concealed && (j === 0 || j === 3) ? <Back key={t.id} w={small} h={small * 1.36} /> : <Tile key={t.id} kind={t.kind} w={small} />))}
-              </span>
-            ))}
-            {s.flowers.map((f) => (
-              <Tile key={f.id} kind={f.kind} w={small} />
-            ))}
-          </div>
-        )}
-      </div>
+      )}
     </>
   )
 }
 
-/** 出牌倒數：輪到你（打牌或吃碰）才出現；時間到系統幫你打。開選單或教學時暫停 */
-function TurnTimer({ m }: { m: M.MatchState }) {
+interface TurnTimerState {
+  active: boolean
+  secs: number
+  frac: number
+}
+
+/** 出牌倒數：輪到你（打牌或吃碰）才開始；時間到系統幫你打。開選單或教學時暫停 */
+function useTurnTimer(m: M.MatchState): TurnTimerState {
   const turnTime = useUI((s) => s.settings.turnTime)
   const paused = useUI((s) => s.menu || s.learn !== null)
   const autoPlay = useUI((s) => s.autoPlay)
@@ -247,12 +305,7 @@ function TurnTimer({ m }: { m: M.MatchState }) {
     // 歸零的那一下觸發一次
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [out])
-  if (!key) return null
-  return (
-    <span className={cls('timer', secs <= 5 && 'urgent')} style={{ '--p': Math.max(0, left / total) } as CSSProperties} role="timer" aria-label={`剩 ${secs} 秒`}>
-      <b>{secs}</b>
-    </span>
-  )
+  return { active: !!key, secs, frac: Math.max(0, Math.min(1, left / total)) }
 }
 
 /** 嗆聲：點一下跳出四句話，選一句講，對手會回嘴 */
@@ -299,7 +352,6 @@ function MyArea({ m }: { m: M.MatchState }) {
   const tap = useUI((s) => s.tapTile)
   const mode = useUI((s) => s.mode)
   const hints = useUI((s) => s.settings.hints)
-  const myBubble = useUI((s) => s.bubbles[0])
   const { W } = useStageSize()
   const myTurn = M.waitingForYou(m) && h.phase === 'discard'
   const n = need(h, 0)
@@ -364,19 +416,6 @@ function MyArea({ m }: { m: M.MatchState }) {
           {main.map(tileEl)}
           {drawn && <span className="drawn-gap">{tileEl(drawn)}</span>}
         </div>
-      </div>
-
-      <div className={cls('my-tag', h.turn === 0 && h.phase !== 'over' && 'active')}>
-        <span className="seat-wind">{WIND_CHAR[seatWind(h, 0)]}</span>
-        <MeBadge size={22} />
-        <span className="pscore">{fmt(m.points[0])}</span>
-        {m.dealer === 0 && <span className="dealer static">莊</span>}
-        <TauntButton />
-        {myBubble && (
-          <div key={myBubble.key} className="bubble from-me" role="status">
-            {myBubble.text}
-          </div>
-        )}
       </div>
 
       {selInfo && (

@@ -79,6 +79,8 @@ button {
   top: 50%;
   transform-origin: 50% 50%;
   overflow: hidden;
+  /* 讓裡面可以依「邏輯寬度」調整排版（窄的手機 W 只有 720） */
+  container-type: inline-size;
 }
 
 .rotate {
@@ -533,6 +535,58 @@ button.mt {
   font-weight: 900;
 }
 
+/* 窄螢幕（16:9 的手機、平板）：首頁收緊一點，四張關卡卡片才放得下 */
+@container (max-width: 800px) {
+  .home {
+    grid-template-columns: 206px 1fr;
+    gap: 12px;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+  .brand h1 {
+    font-size: 50px;
+  }
+  .fan .mt {
+    --w: 30px !important;
+  }
+  .tagline {
+    font-size: 13px;
+  }
+  .ladder {
+    gap: 8px;
+  }
+  .stage-card {
+    padding: 12px 8px 10px;
+  }
+  .stage-name {
+    font-size: 16px;
+  }
+  .stage-place {
+    font-size: 11px;
+    min-height: 0;
+  }
+  .stage-faces .avatar-svg {
+    width: 27px;
+    height: 27px;
+  }
+  .stage-names,
+  .stage-stake {
+    font-size: 11px;
+  }
+  .stage-rule {
+    font-size: 10px;
+  }
+  .stage-card.done::after {
+    top: 10px;
+    right: 6px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+  .home-top .rank-bar {
+    width: 44px;
+  }
+}
+
 /* ---------- 牌桌 ---------- */
 
 .match {
@@ -574,6 +628,39 @@ button.mt {
   font-size: 11px;
   margin-left: 8px;
   color: var(--muted);
+}
+
+.me-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 3px 0 3px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(29, 42, 74, 0.15);
+}
+
+.me-chip.active {
+  box-shadow:
+    0 0 0 2px var(--red),
+    0 2px 0 rgba(29, 42, 74, 0.15);
+}
+
+.me-chip .pscore {
+  color: var(--ink);
+  font-size: 13px;
+}
+
+.me-chip .taunt-btn {
+  width: 22px;
+  height: 22px;
+}
+
+.strip .taunt-menu {
+  top: calc(100% + 8px);
+  bottom: auto;
 }
 
 .skills {
@@ -654,6 +741,7 @@ button.mt {
 
 .compass {
   position: absolute;
+  z-index: 1;
   left: calc(50% - 32px);
   top: calc(50% - 32px);
   width: 64px;
@@ -733,6 +821,36 @@ button.mt {
   color: var(--red);
 }
 
+.compass.ticking {
+  /* 外框就是倒數圈：剩下的時間是深色那一段 */
+  border: 5px solid transparent;
+  background:
+    linear-gradient(#fffaf0, #fffaf0) padding-box,
+    conic-gradient(var(--ink) calc(var(--p) * 360deg), #d9cfb8 0) border-box;
+}
+
+.compass.urgent {
+  background:
+    linear-gradient(#fff0f3, #fff0f3) padding-box,
+    conic-gradient(var(--red) calc(var(--p) * 360deg), #ffc2cd 0) border-box;
+  animation: urgent 0.5s ease-in-out infinite alternate;
+}
+
+.compass.ticking > span:not(.c-timer) {
+  display: none;
+}
+
+.compass .c-timer {
+  font-family: var(--num);
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.compass.urgent .c-timer {
+  color: var(--red);
+}
+
 .c-center small {
   font-family: var(--num);
   font-size: 12px;
@@ -747,20 +865,22 @@ button.mt {
   align-content: flex-start;
 }
 
+/* 河：對家、你在中間上下兩排（每排 11 張）；上家、下家貼著桌邊（每排 6 張）。
+   四區彼此不重疊，每家打到 20 張以上也放得下 */
 .p-top,
 .p-me {
   left: 50%;
   translate: -50% 0;
-  width: calc(11 * 22px);
+  width: calc(11 * 21px);
   justify-content: flex-start;
 }
 
 .p-top {
-  top: 10px;
+  top: 9px;
 }
 
 .p-me {
-  bottom: 12px;
+  bottom: 9px;
   align-content: flex-end;
   flex-wrap: wrap-reverse;
 }
@@ -769,17 +889,16 @@ button.mt {
 .p-right {
   top: 50%;
   translate: 0 -50%;
-  width: calc(4 * 22px);
-  max-height: 150px;
+  width: calc(6 * 21px);
 }
 
 .p-left {
-  right: calc(50% + 42px);
-  justify-content: flex-end;
+  left: 12px;
 }
 
 .p-right {
-  left: calc(50% + 42px);
+  right: 12px;
+  flex-direction: row-reverse;
 }
 
 .callout {
@@ -875,8 +994,8 @@ button.mt {
 .opp.right {
   flex-direction: column;
   gap: 3px;
-  top: 88px;
-  width: 64px;
+  top: 78px;
+  width: 92px;
 }
 
 .opp.left {
@@ -885,6 +1004,39 @@ button.mt {
 
 .opp.right {
   right: 4px;
+}
+
+.side-tiles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.side-tiles .concealed {
+  display: grid;
+  grid-template-columns: repeat(8, 9px);
+  gap: 1px;
+}
+
+.side-tiles .concealed.revealed {
+  grid-template-columns: repeat(6, 13px);
+  padding: 3px;
+}
+
+.side-tiles .opp-melds {
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.opp-flowers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1px;
+  max-width: 92px;
 }
 
 .avatar {
@@ -1003,18 +1155,18 @@ button.mt {
 }
 
 .bubble.from-top {
-  right: calc(100% + 10px);
-  top: 4px;
+  left: 30px;
+  top: calc(100% + 4px);
 }
 
 .bubble.from-left {
-  left: calc(100% + 38px);
-  top: 4px;
+  left: calc(100% + 10px);
+  top: 56px;
 }
 
 .bubble.from-right {
-  right: calc(100% + 38px);
-  top: 4px;
+  right: calc(100% + 10px);
+  top: 56px;
 }
 
 .opp-tiles {
@@ -1030,30 +1182,9 @@ button.mt {
   align-items: flex-end;
 }
 
-.opp-tiles.left,
-.opp-tiles.right {
-  top: 86px;
-  flex-direction: column;
-  align-items: center;
-  width: 20px;
-}
-
-.opp-tiles.left {
-  left: 72px;
-}
-
-.opp-tiles.right {
-  right: 72px;
-}
-
 .concealed {
   display: flex;
   gap: 1px;
-}
-
-.opp-tiles.left .concealed,
-.opp-tiles.right .concealed {
-  flex-direction: column;
 }
 
 .concealed.revealed {
@@ -1063,35 +1194,10 @@ button.mt {
   outline: 2px dashed var(--purple);
 }
 
-.opp-tiles.left .concealed.revealed,
-.opp-tiles.right .concealed.revealed {
-  display: grid;
-  grid-template-columns: repeat(2, 15px);
-  gap: 1px;
-  width: auto;
-  padding: 3px;
-}
-
 .opp-melds {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
-}
-
-.opp-tiles.left .opp-melds,
-.opp-tiles.right .opp-melds {
-  position: absolute;
-  top: 140px;
-  width: 64px;
-  justify-content: center;
-}
-
-.opp-tiles.left .opp-melds {
-  left: -64px;
-}
-
-.opp-tiles.right .opp-melds {
-  right: -64px;
 }
 
 .meld {
@@ -1137,37 +1243,14 @@ button.mt {
     0 calc(var(--w) * 0.1) 0 var(--tile-edge);
 }
 
-.my-tag {
-  position: absolute;
-  left: 10px;
-  bottom: 76px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 10px 3px 4px;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
-  z-index: 3;
-}
 
-.my-tag.active {
-  box-shadow:
-    0 0 0 3px var(--red),
-    0 3px 0 rgba(29, 42, 74, 0.15);
-}
-
-.my-tag .pscore {
-  color: var(--ink);
-  font-size: 13px;
-}
 
 .ting,
 .sel-hint {
   position: absolute;
   bottom: 84px;
-  left: 50%;
-  translate: -50% 0;
+  /* 靠左放，避開右邊的吃碰胡按鈕 */
+  left: 108px;
   z-index: 4;
   display: flex;
   align-items: center;
@@ -1873,7 +1956,8 @@ button.mt {
 .learn-content {
   min-width: 0;
   overflow-y: auto;
-  padding-right: 4px;
+  /* 按鈕底下有 4–5px 的立體邊，捲動區要留空間，不然會被切掉 */
+  padding: 2px 8px 10px 2px;
 }
 
 .learn-content h3 {
@@ -2151,41 +2235,6 @@ button.mt {
 }
 
 /* 出牌倒數 */
-.timer {
-  --p: 1;
-  position: absolute;
-  right: 18px;
-  bottom: 88px;
-  z-index: 4;
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: conic-gradient(var(--ink) calc(var(--p) * 360deg), #e2e7f0 0);
-  box-shadow: 0 3px 0 rgba(29, 42, 74, 0.15);
-}
-
-.timer::before {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.timer b {
-  position: relative;
-  font-family: var(--num);
-  font-size: 18px;
-  font-weight: 800;
-}
-
-.timer.urgent {
-  background: conic-gradient(var(--red) calc(var(--p) * 360deg), #ffd6de 0);
-  color: var(--red);
-  animation: urgent 0.5s ease-in-out infinite alternate;
-}
 
 .seg {
   display: flex;
@@ -2266,8 +2315,7 @@ button.mt {
 
 .bubble.from-me {
   left: 0;
-  bottom: calc(100% + 8px);
-  top: auto;
+  top: calc(100% + 8px);
 }
 
 /* 關卡規則帶來的東西 */
