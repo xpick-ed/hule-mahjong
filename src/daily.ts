@@ -49,7 +49,7 @@ export async function share(text: string): Promise<'shared' | 'copied' | 'failed
   }
 }
 
-// ---------- 排行榜（Cloudflare Pages Functions ＋ D1） ----------
+// ---------- 排行榜（Cloudflare Worker ＋ D1，worker/daily.ts） ----------
 
 export interface BoardRow {
   name: string

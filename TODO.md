@@ -11,19 +11,18 @@
 - 開打前確認：有沒打完的一場會提醒（不用 confirm()）
 - 成就 28 個＋戰績頁；角色好感度 5 級（24 段故事、24 句專屬台詞已配音、12 套新衣服）
 - 背景音樂（WebAudio 合成，五種氣氛）＋音效／配音／音樂三個音量
-- 每日挑戰：同一副牌、分享戰績（🟩🟨🟥⬜）、排行榜 API（Pages Functions ＋ D1，本機實測過；可選重播驗證）
+- 每日挑戰：同一副牌、分享戰績（🟩🟨🟥⬜）、排行榜 API（Worker ＋ D1，本機實測過；可選重播驗證）
 - 鍵盤快捷鍵；離線：Service Worker（實測斷網能開頁、開打、播配音）、字型自己帶（裁成 1161 字、約 600 KB，scripts/fonts.py）
 - 60 個測試全過；瀏覽器實測引導局、覆盤、危險牌、一炮多響結算、角色、戰績、設定、每日挑戰、排行榜送出（本機 D1，重播驗證擋得住作弊）
 - 試玩版更新到第 8 版：https://claude.ai/artifact/1Pas8Y1RnFHrN93PdTfEoL（排行榜在試玩版不能用，要正式上線）
 
 **Next:**
-1. Cloudflare Pages 接 GitHub（repo：github.com/xpick-ed/hule-mahjong，已推上去）：
-   後台 Workers & Pages → Create → Pages → Connect to Git → 選 hule-mahjong；
-   專案名 hule、分支 main、Build command `npm run build`、Output `dist` → 之後每次 push 自動上線
+1. Cloudflare：後台建出來的是 Worker（不是 Pages），已改成 Worker 的設定（wrangler.toml：[assets] ＋ worker/index.ts）。
+   push 後會自動重跑部署；Worker 名字要跟 wrangler.toml 的 name（hule）一樣
 2. 排行榜：後台建 D1（名字 hule）→ Console 貼 schema.sql 執行 → 把 database_id 貼進 wrangler.toml（拿掉註解）→ push
 3. 真人試玩：難度、引導局節奏、危險牌標太多會不會吵、音樂好不好聽
 
-**Blockers:** Cloudflare 後台的設定要使用者自己點（wrangler 沒登入）
+**Blockers:** 等 Cloudflare 自動部署的結果；D1 要使用者在後台建
 
 ## Backlog
 

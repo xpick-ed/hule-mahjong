@@ -1,8 +1,17 @@
-# Cloudflare Pages 設定（接 GitHub 自動部署、npx wrangler 都會讀這個檔）
-# Pages 專案名稱要叫 hule（網址 hule.pages.dev）
+# Cloudflare Workers 設定（接 GitHub 的 Workers Builds 會跑 npx wrangler deploy，讀這個檔）
+# name 要跟 Cloudflare 後台那個 Worker 的名字一樣
 name = "hule"
-pages_build_output_dir = "dist"
+main = "worker/index.ts"
 compatibility_date = "2026-09-01"
+
+# deploy 之前先 build 網站（後台沒設 build command 也沒關係）
+[build]
+command = "npm run build"
+
+# 網站：dist/ 的靜態檔，_headers 裡的快取設定也會用上
+[assets]
+directory = "./dist"
+binding = "ASSETS"
 
 # 每日挑戰排行榜的資料庫。建好 D1 之後把下面四行的 # 拿掉、貼上 database_id：
 #   建立：Cloudflare 後台 Storage & Databases → D1 → Create，名字 hule

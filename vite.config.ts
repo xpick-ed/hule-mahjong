@@ -5,6 +5,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   base: './',
-  // 開發時 /api 轉給 wrangler pages dev（排行榜）：npx wrangler pages dev dist --port 8788
+  // 開發時 /api 轉給本機的 Worker（排行榜）：npm run api（npx wrangler dev --port 8788）
   server: { host: true, proxy: { '/api': 'http://localhost:8788' } },
 })

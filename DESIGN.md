@@ -133,12 +133,12 @@ sim（300 場）：中等電腦在第一關拿第一的比例：輕鬆 36%、普
 - 解鎖：Lv2 故事〈一〉、Lv3 專屬台詞（開場打招呼，12 人 × 2 句已配音）、Lv4 故事〈二〉、Lv5 新衣服（可以換上）
 - 沒遇過的角色在角色頁是剪影，寫在哪一關遇到
 
-## 每日挑戰（`src/daily.ts`、`functions/api/daily.ts`）
+## 每日挑戰（`src/daily.ts`、`worker/daily.ts`）
 
 - 同一天大家同一個種子、同一關（日期雜湊選關）、預設規則、普通難度、不能用商店補給
 - 一天只算第一場；打完可以分享（🟩 你胡、🟨 自摸、🟥 放槍、⬜ 其他，一局一格）和上排行榜（暱稱 12 字內）
 - 你的每個動作記成 `[電腦走到第幾步, 動作]`（`MatchState.log`），`M.replay` 可以完整重播出一模一樣的結果
-- 排行榜：Cloudflare Pages Functions ＋ D1（`schema.sql`）。一個裝置（uid）一天一筆
+- 排行榜：Cloudflare Worker ＋ D1（`schema.sql`）。一個裝置（uid）一天一筆；還沒接 D1 時 API 回 503，畫面顯示「還沒開」
   - 重播一場約 0.5 秒 CPU，免費方案（每次 10ms）跑不動，所以預設只做基本檢查並存下紀錄；
     付費方案設環境變數 `VERIFY_REPLAY=1` 就會每筆重播驗證（作弊送高分會被擋）
 
@@ -228,8 +228,10 @@ sim（300 場）：中等電腦在第一關拿第一的比例：輕鬆 36%、普
 - 規則引擎純 TypeScript、可決定性（種子）、Vitest 測試；`npm run sim` 讓四個電腦互打，檢查不會卡住、台數分布合理
 - 向聽數（差幾張聽牌）用「每種花色分開算＋記憶化」，電腦每次打牌算幾百次也很快
 - 存檔 localStorage（進行中的一場、闖關進度、設定）
-- 部署 Cloudflare Pages（`wrangler.toml`、`npm run deploy`）；排行榜用 Pages Functions ＋ D1
-- 開發時 `/api` 轉給 `npx wrangler pages dev dist --port 8788`（本機 D1，不用登入）
+- 部署：Cloudflare Workers ＋ 靜態資源（`wrangler.toml`：`[assets]` 是 dist/，`worker/index.ts` 只處理 `/api/daily`）
+  - GitHub（xpick-ed/hule-mahjong）接 Workers Builds：push 到 main 就跑 `npx wrangler deploy`，它會先跑 `npm run build`
+  - 2026-09-26 原本寫成 Pages Functions，但後台「Create」建出來的是 Worker，所以改成 Worker 的寫法
+- 開發時 `/api` 轉給 `npm run api`（`npx wrangler dev --port 8788`，本機 D1，不用登入）
 
 ## 里程碑
 

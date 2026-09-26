@@ -1,13 +1,13 @@
-// 每日挑戰排行榜 API（Cloudflare Pages Functions ＋ D1）。
+// 每日挑戰排行榜 API（Cloudflare Workers ＋ D1），worker/index.ts 把 /api/daily 轉到這裡。
 //   GET  /api/daily?date=2026-09-26&uid=…   前 20 名、總人數、你的名次
 //   POST /api/daily  { date, uid, name, points, place, grid, log }
 // 一個 uid 一天只收第一筆。log 是你的動作紀錄，同一個種子可以完整重播驗證分數；
 // 重播一場大約要 0.5 秒 CPU，免費方案（每次 10ms）跑不動，所以預設只做基本檢查、
 // 把紀錄存起來；付費方案可以設環境變數 VERIFY_REPLAY=1 讓每一筆都重播驗證。
 
-import { dailyInfo, dailyOptions } from '../../src/daily-core'
-import * as M from '../../src/engine/match'
-import { STAGES } from '../../src/engine/stages'
+import { dailyInfo, dailyOptions } from '../src/daily-core'
+import * as M from '../src/engine/match'
+import { STAGES } from '../src/engine/stages'
 
 interface D1Result<T> {
   results: T[]
@@ -18,9 +18,11 @@ interface D1Stmt {
   all<T>(): Promise<D1Result<T>>
   run(): Promise<unknown>
 }
-interface Env {
-  DB: { prepare(sql: string): D1Stmt }
+export interface Env {
+  /** 還沒建 D1 的時候沒有這個 */
+  DB?: { prepare(sql: string): D1Stmt }
   VERIFY_REPLAY?: string
+  ASSETS: { fetch(req: Request): Promise<Response> }
 }
 interface Ctx {
   request: Request
@@ -41,15 +43,17 @@ function dateOk(date: string): boolean {
   return Number.isFinite(t) && Math.abs(Date.now() - t) < 2.5 * 86400_000
 }
 
-async function board(env: Env, date: string, uid: string) {
-  const top = await env.DB.prepare('SELECT uid, name, points, place, grid FROM daily WHERE date = ? ORDER BY points DESC, at ASC LIMIT 20')
+type DB = NonNullable<Env['DB']>
+
+async function board(db: DB, date: string, uid: string) {
+  const top = await db.prepare('SELECT uid, name, points, place, grid FROM daily WHERE date = ? ORDER BY points DESC, at ASC LIMIT 20')
     .bind(date)
     .all<{ uid: string; name: string; points: number; place: number; grid: string }>()
-  const total = (await env.DB.prepare('SELECT COUNT(*) AS n FROM daily WHERE date = ?').bind(date).first<{ n: number }>())?.n ?? 0
-  const mine = await env.DB.prepare('SELECT points, at FROM daily WHERE date = ? AND uid = ?').bind(date, uid).first<{ points: number; at: number }>()
+  const total = (await db.prepare('SELECT COUNT(*) AS n FROM daily WHERE date = ?').bind(date).first<{ n: number }>())?.n ?? 0
+  const mine = await db.prepare('SELECT points, at FROM daily WHERE date = ? AND uid = ?').bind(date, uid).first<{ points: number; at: number }>()
   let myRank: number | null = null
   if (mine) {
-    const above = await env.DB.prepare('SELECT COUNT(*) AS n FROM daily WHERE date = ? AND (points > ? OR (points = ? AND at < ?))')
+    const above = await db.prepare('SELECT COUNT(*) AS n FROM daily WHERE date = ? AND (points > ? OR (points = ? AND at < ?))')
       .bind(date, mine.points, mine.points, mine.at)
       .first<{ n: number }>()
     myRank = (above?.n ?? 0) + 1
@@ -62,14 +66,16 @@ async function board(env: Env, date: string, uid: string) {
 }
 
 export async function onRequestGet({ request, env }: Ctx) {
+  if (!env.DB) return json({ error: 'no-db' }, 503)
   const u = new URL(request.url)
   const date = u.searchParams.get('date') ?? ''
   const uid = u.searchParams.get('uid') ?? ''
   if (!DATE.test(date)) return json({ error: 'date' }, 400)
-  return json(await board(env, date, uid))
+  return json(await board(env.DB, date, uid))
 }
 
 export async function onRequestPost({ request, env }: Ctx) {
+  if (!env.DB) return json({ error: 'no-db' }, 503)
   let b: { date?: unknown; uid?: unknown; name?: unknown; points?: unknown; place?: unknown; grid?: unknown; log?: unknown }
   try {
     b = await request.json()
@@ -107,5 +113,5 @@ export async function onRequestPost({ request, env }: Ctx) {
   await env.DB.prepare('INSERT OR IGNORE INTO daily (date, uid, name, points, place, grid, log, verified, at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)')
     .bind(date, uid, name, points, place, grid, logText, verified, Date.now())
     .run()
-  return json(await board(env, date, uid))
+  return json(await board(env.DB, date, uid))
 }
