@@ -65,7 +65,7 @@ export function DailyBoard({ m, date: d0 }: { m?: MatchState; date?: string }) {
       </h4>
       {m && !counted && best && <p className="board-note">今天已經算過第一場了（第 {best.place} 名），這場不計分。</p>}
       {board === 'loading' && <p className="board-note">載入中…</p>}
-      {board === null && <p className="board-note">排行榜要等網站正式上線後才會開。{best ? `你今天第 ${best.place} 名、${fmt(best.points)} 分。` : ''}</p>}
+      {board === null && <p className="board-note">排行榜現在連不上（試玩版或沒有網路時看不到）。{best ? `你今天第 ${best.place} 名、${fmt(best.points)} 分。` : ''}</p>}
       {board && board !== 'loading' && (
         <>
           {canSubmit && (

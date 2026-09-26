@@ -23,10 +23,8 @@
   push 之後沒有 build。已重新接上 GitHub App；斷線期間用 `npx wrangler deploy` 手動部署過 633e208
 
 **Next:**
-1. 確認重新接上之後 push 會自動部署（這一筆就是測試）
-2. 排行榜：`npx wrangler d1 create hule` → database_id 貼進 wrangler.toml（拿掉註解）→
-   `npx wrangler d1 execute hule --remote --file=schema.sql` → 部署
-3. 真人試玩：難度、引導局節奏、音樂好不好聽
+1. 排行榜已接上 D1（資料庫 hule，亞太區），網站上可以上榜
+2. 真人試玩：難度、引導局節奏、音樂好不好聽
 
 **Blockers:** 無
 
