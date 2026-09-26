@@ -255,7 +255,15 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     if (r === 'copied') showToast('戰績複製好了，貼給朋友吧')
     else if (r === 'failed') showToast('這個瀏覽器不能分享')
   }
-  const title = m.online
+  const sv = useUI((s) => s.rewards?.survival)
+  const svBest = useUI((s) => s.progress.survivalBest)
+  const svRun = useUI((s) => s.progress.survivalRun)
+  const svNext = svRun ? M.survivalStage(svRun.level, STAGES.length) : null
+  const title = m.survival && sv
+    ? sv.out
+      ? `生存模式結束：撐過 ${sv.stages} 關`
+      : `撐過第 ${sv.stages} 關！`
+    : m.online
     ? first
       ? '你是這一桌的贏家！'
       : `第 ${place} 名`
@@ -270,7 +278,13 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
             ? '你就是新的雀神！'
             : `過關！${stage.name}拿第一`
         : `第 ${place} 名`
-  const sub = m.online
+  const sub = m.survival && sv
+    ? sv.out
+      ? sv.best
+        ? '新紀錄！'
+        : `最佳紀錄：撐過 ${svBest?.stages ?? 0} 關`
+      : `本錢 ×${sv.ratio.toFixed(2)} 帶到下一關：${svNext ? STAGES[svNext.stage].name : ''}${svNext && svNext.loop > 1 ? '（高手難度）' : ''}`
+    : m.online
     ? `跟朋友連線・${stage.name}・${m.handNo} 局`
     : m.daily
     ? `${stage.name}・今天大家的牌都一樣`
@@ -306,7 +320,27 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
           <div className="final-side">
             {m.daily && <DailyBoard m={m} />}
             <Rewards />
-            {m.online ? (
+            {m.survival ? (
+              <div className="final-actions">
+                <button type="button" className="btn" onClick={toHome}>
+                  {sv?.out ? '回首頁' : '回首頁（保留進度）'}
+                </button>
+                <button type="button" className="btn" onClick={doShare}>
+                  分享
+                </button>
+                {sv?.out ? (
+                  <button type="button" className="btn primary" onClick={() => start(0, { survival: { level: 0, ratio: 1 } })}>
+                    再挑戰一次
+                  </button>
+                ) : (
+                  svRun && (
+                    <button type="button" className="btn primary" onClick={() => start(0, { survival: svRun })}>
+                      下一關
+                    </button>
+                  )
+                )}
+              </div>
+            ) : m.online ? (
               <div className="final-actions">
                 <button type="button" className="btn" onClick={leaveRoom}>
                   離開房間
@@ -371,6 +405,12 @@ function Rewards() {
             <small>回首頁領 +{f.reward}</small>
           </li>
         ))}
+        {rw.survival && rw.survival.coins > 0 && (
+          <li className="star-done">
+            {rw.survival.out ? `生存模式撐過 ${rw.survival.stages} 關` : '生存模式晉級'}
+            <b>+{rw.survival.coins}</b>
+          </li>
+        )}
         {(rw.stars ?? []).map((s) => (
           <li key={s.text} className="star-done">
             ★ {s.text}

@@ -4299,6 +4299,57 @@ kbd {
   line-height: 1;
 }
 
+
+/* ---------- 生存模式 ---------- */
+
+.stage-card.survival-card {
+  background: var(--ink);
+  color: #fff;
+}
+
+.survival-card .stage-no,
+.survival-card .stage-place {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.survival-card .stage-name {
+  color: var(--bg);
+}
+
+.survival-best {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-top: auto;
+  font-size: 13px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.survival-best b {
+  font-family: var(--num);
+  font-size: 30px;
+  color: var(--bg);
+}
+
+.survival-card .stage-cta {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.survival-card.locked .stage-cta {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.survival-rules {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.7;
+}
+
 /* ---------- 動畫 ---------- */
 
 @keyframes fromMe {

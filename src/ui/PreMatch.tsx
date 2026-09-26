@@ -20,7 +20,7 @@ export function PreMatch() {
   if (!pm) return null
   return (
     <Sheet open onClose={() => open(null)} label="開打">
-      <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />
+      {pm.survival ? <SurvivalBody /> : <PreMatchBody key={`${pm.stage}-${pm.daily ?? ''}`} stage={pm.stage} daily={pm.daily} />}
     </Sheet>
   )
 }
@@ -130,6 +130,59 @@ function PreMatchBody({ stage: stageIdx, daily }: { stage: number; daily?: strin
         <button type="button" className="btn primary" onClick={go}>
           {saved ? '放棄那場，開新的' : '開打'}
         </button>
+      </div>
+    </div>
+  )
+}
+
+/** 生存模式：規則、紀錄、繼續上次的或重新開始 */
+function SurvivalBody() {
+  const progress = useUI((s) => s.progress)
+  const { startStage, openStage, resume } = useUI.getState()
+  const saved = useMemo(() => savedMatch(), [])
+  const run = progress.survivalRun
+  const best = progress.survivalBest
+  const next = run ? M.survivalStage(run.level, STAGES.length) : null
+  return (
+    <div className="prematch">
+      <header className="pm-head">
+        <span className="pm-no">挑戰模式</span>
+        <h3>生存模式</h3>
+      </header>
+      <ul className="survival-rules">
+        <li>從第一關開始，一關打一場。</li>
+        <li>打完的本錢照倍數帶到下一關：第一關打到 1.5 倍，下一關就從 1.5 倍開始。</li>
+        <li>拿最後一名（或輸光）就結束。六關打完，下一輪變高手難度。</li>
+      </ul>
+      <p className="pm-meta">{best ? `最佳紀錄：撐過 ${best.stages} 關（${best.date}）` : '還沒有紀錄'}</p>
+      {run && next && (
+        <p className="pm-played">
+          上次打到第 {run.level + 1} 關：{STAGES[next.stage].name}
+          {next.loop > 1 ? `（第 ${next.loop} 輪，高手難度）` : ''}，本錢 ×{run.ratio.toFixed(2)}
+        </p>
+      )}
+      {saved && (
+        <p className="pm-warn" role="alert">
+          你還有一場「{STAGES[saved.stage].name}」打到第 {saved.handNo} 局。開始生存模式，那一場就沒了。
+        </p>
+      )}
+      <div className="sheet-actions">
+        <button type="button" className="btn" onClick={() => openStage(null)}>
+          取消
+        </button>
+        {saved?.survival && (
+          <button type="button" className="btn" onClick={resume}>
+            繼續那一場
+          </button>
+        )}
+        <button type="button" className={run ? 'btn' : 'btn primary'} onClick={() => startStage(0, { survival: { level: 0, ratio: 1 } })}>
+          {run ? '重新開始' : '開始挑戰'}
+        </button>
+        {run && (
+          <button type="button" className="btn primary" onClick={() => startStage(0, { survival: run })}>
+            繼續第 {run.level + 1} 關
+          </button>
+        )}
       </div>
     </div>
   )

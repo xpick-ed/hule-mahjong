@@ -7,6 +7,7 @@ import * as M from './engine/match'
 import type { Tile } from './engine/tiles'
 import { dailyInfo, dailyOptions, handGrid } from './daily'
 import * as P from './progress'
+import { STAGES } from './engine/stages'
 import { dangerMap, judgeDiscard, publicThreats } from './review'
 
 let id = 9000
@@ -179,5 +180,36 @@ describe('關卡星星、牌型圖鑑', () => {
     // 別人胡的不算
     m.result = { ...m.result, win: { ...win(8, ['清一色']), seat: 2 } }
     expect(P.recordAlbum(b.p, m).fresh).toHaveLength(0)
+  })
+})
+
+describe('生存模式', () => {
+  it('起始分數照帶進來的本錢倍數；第七關回到第一關、高手難度', () => {
+    const m = M.newMatch('sv', 1, { survival: { level: 1, ratio: 1.5 } })
+    expect(m.points[0]).toBe(STAGES[1].startPoints * 1.5)
+    expect(m.points[1]).toBe(STAGES[1].startPoints)
+    expect(M.survivalStage(6, STAGES.length)).toEqual({ stage: 0, loop: 2 })
+  })
+  const end = (level: number, points: number[]) => {
+    const m = M.newMatch('sv-end', level % STAGES.length, { survival: { level, ratio: 1 } })
+    m.phase = 'end'
+    m.points = points
+    return m
+  }
+  it('沒拿最後一名：晉級，本錢倍數帶到下一關，記錄最佳', () => {
+    const s = STAGES[0].startPoints
+    const { p, res } = P.recordSurvival(P.defaultProgress, end(0, [s * 1.5, s * 0.5, s * 1.2, s * 0.8]))
+    expect(res).toMatchObject({ out: false, stages: 1, ratio: 1.5, best: true })
+    expect(p.survivalRun).toEqual({ level: 1, ratio: 1.5 })
+    expect(p.survivalBest?.stages).toBe(1)
+  })
+  it('拿最後一名：淘汰，進度清掉，紀錄是撐過的關數', () => {
+    const s = STAGES[2].startPoints
+    const start = { ...P.defaultProgress, survivalRun: { level: 2, ratio: 1.1 }, survivalBest: { stages: 1, ratio: 1, date: 'x' } }
+    const { p, res, unlocked } = P.recordSurvival(start, end(2, [s * 0.4, s * 1.2, s * 1.1, s * 1.3]))
+    expect(res).toMatchObject({ out: true, stages: 2, best: true })
+    expect(p.survivalRun).toBeNull()
+    expect(p.coins).toBe(200)
+    expect(unlocked).toHaveLength(0)
   })
 })

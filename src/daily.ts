@@ -26,7 +26,11 @@ export function handGrid(m: M.MatchState): string {
 export function shareText(m: M.MatchState, name?: string): string {
   const place = M.ranking(m).indexOf(0) + 1
   const pts = m.points[0] - M.stageOf(m).startPoints
-  const title = m.daily ? `胡了！每日挑戰 ${m.daily.slice(5).replace('-', '/')}` : `胡了！${M.stageOf(m).name}`
+  const title = m.daily
+    ? `胡了！每日挑戰 ${m.daily.slice(5).replace('-', '/')}`
+    : m.survival
+      ? `胡了！生存模式第 ${m.survival.level + 1} 關・${M.stageOf(m).name}`
+      : `胡了！${M.stageOf(m).name}`
   const sign = pts > 0 ? '+' : pts < 0 ? '−' : ''
   const who = name?.trim() ? `${name.trim()} ` : ''
   return `${title}\n${who}第 ${place} 名 ${sign}${Math.abs(pts).toLocaleString('en-US')}\n${handGrid(m)}\n${location.origin}${location.pathname}`

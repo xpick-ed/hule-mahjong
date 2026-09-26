@@ -126,6 +126,29 @@ export function Home() {
             </button>
           )
         })}
+        <button
+          type="button"
+          className={cls('stage-card', 'survival-card', progress.cleared < 1 && 'locked')}
+          disabled={progress.cleared < 1}
+          onClick={() => openStage({ stage: 0, survival: true })}
+        >
+          <span className="stage-no">挑戰模式</span>
+          <span className="stage-name">生存模式</span>
+          <span className="stage-place">本錢帶到下一關，拿最後一名就結束。能撐幾關？</span>
+          <span className="survival-best">
+            {progress.survivalBest ? (
+              <>
+                最佳紀錄
+                <b>{progress.survivalBest.stages}</b>關
+              </>
+            ) : (
+              '還沒有紀錄'
+            )}
+          </span>
+          <span className="stage-cta">
+            {progress.cleared < 1 ? '過第一關解鎖' : progress.survivalRun ? `繼續：第 ${progress.survivalRun.level + 1} 關` : '開始挑戰'}
+          </span>
+        </button>
       </section>
     </div>
   )

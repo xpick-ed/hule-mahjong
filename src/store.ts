@@ -93,7 +93,7 @@ export interface OnlineInfo {
 }
 
 /** 開打前的確認畫面：選難度、提醒會蓋掉沒打完的那場 */
-export type Prematch = { stage: number; daily?: string } | null
+export type Prematch = { stage: number; daily?: string; survival?: boolean } | null
 
 export interface MatchRewards {
   r: P.Rewards
@@ -105,6 +105,8 @@ export interface MatchRewards {
   gains: Record<string, number>
   /** 這一場新拿到的關卡星星 */
   stars: { text: string; coins: number }[]
+  /** 生存模式：這一關的結果 */
+  survival?: P.SurvivalResult
   /** 每日挑戰：這一場算不算成績（一天只算第一場） */
   dailyCounted?: boolean
 }
@@ -167,7 +169,7 @@ interface UI {
   /** 打開網頁時：從邀請連結、或上次沒離開的房間連回去 */
   bootOnline(): void
   openStage(p: Prematch): void
-  startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean }): void
+  startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean; survival?: M.Survival }): void
   resume(): void
   toHome(): void
   tapTile(id: number): void
@@ -359,7 +361,7 @@ export const useUI = create<UI>((set, get) => {
     let p = { ...get().progress }
     p.matches++
     const first = M.ranking(m)[0] === 0
-    if (first && !m.daily) {
+    if (first && !m.daily && !m.survival) {
       p.wins++
       if (m.stage >= p.cleared) {
         p.cleared = m.stage + 1
@@ -379,6 +381,13 @@ export const useUI = create<UI>((set, get) => {
     const st = P.recordStars(p, m)
     p = st.p
     let unlocked = rec.unlocked
+    let survival: P.SurvivalResult | undefined
+    if (m.survival) {
+      const sv = P.recordSurvival(p, m)
+      p = sv.p
+      survival = sv.res
+      unlocked = [...unlocked, ...sv.unlocked]
+    }
     if (P.starCount(p) >= STAGES.length * 3) {
       const u = P.unlock(p, ['allStars'])
       p = u.p
@@ -392,7 +401,7 @@ export const useUI = create<UI>((set, get) => {
     }
     setProgress(p)
     save(MATCH_KEY, null)
-    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, dailyCounted } })
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked, levelUps: rec.levelUps, gains: rec.gains, stars: st.fresh, survival, dailyCounted } })
     announce(unlocked, 1800)
     if (first) sfx.win()
     else sfx.lose()
@@ -558,6 +567,10 @@ export const useUI = create<UI>((set, get) => {
         const d = dailyInfo(opt.daily)
         match = M.newMatch(d.seed, d.stage, dailyOptions(d.date))
         match.log = []
+      } else if (opt.survival) {
+        // 生存模式：照撐過幾關決定打哪一關；第二輪起高手難度
+        const { stage: st, loop } = M.survivalStage(opt.survival.level, STAGES.length)
+        match = M.newMatch(newSeed(), st, { rules: settings.rules, difficulty: loop > 1 ? 'hard' : 'normal', survival: opt.survival })
       } else {
         const tutorial = !!opt.tutorial
         const difficulty = tutorial ? 'easy' : (opt.difficulty ?? settings.difficulty)

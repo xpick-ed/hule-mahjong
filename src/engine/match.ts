@@ -84,7 +84,17 @@ export interface MatchState {
   online?: boolean
   /** 連線對打時每個座位是誰（只有給畫面看的那份有） */
   players?: SeatPlayer[]
+  /** 生存模式：這是第幾關（從 0 算，已經撐過幾關）、帶進來的本錢倍數 */
+  survival?: Survival
 }
+
+export interface Survival {
+  level: number
+  ratio: number
+}
+
+/** 生存模式第 level 關打哪一關、第幾輪（一輪六關，第二輪起高手難度） */
+export const survivalStage = (level: number, stageCount: number) => ({ stage: level % stageCount, loop: Math.floor(level / stageCount) + 1 })
 
 export interface SeatPlayer {
   name: string
@@ -121,6 +131,8 @@ export interface MatchOptions {
   tutorial?: boolean
   /** 連線對打：哪些座位是真人 */
   humans?: boolean[]
+  /** 生存模式：你的起始分數 = 這一關的起始分數 × ratio */
+  survival?: Survival
 }
 
 const SOLO = [true, false, false, false]
@@ -207,7 +219,9 @@ export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {
     difficulty: opt.difficulty ?? 'normal',
     ...(opt.daily ? { daily: opt.daily } : {}),
     ...(opt.tutorial ? { tutorial: true } : {}),
+    ...(opt.survival ? { survival: { ...opt.survival } } : {}),
   } as unknown as MatchState
+  if (opt.survival) m.points[0] = Math.max(100, Math.round((stage.startPoints * opt.survival.ratio) / 100) * 100)
   const opponents = shuffle(m, [...stage.opponents])
   m.chars = ['me', ...opponents]
   if (opt.humans) {

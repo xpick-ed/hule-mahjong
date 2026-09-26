@@ -43,6 +43,10 @@ export interface Progress {
   stars: Record<number, boolean[]>
   /** 牌型圖鑑：牌型名稱 → 胡過幾次、台數最高的那一手 */
   album: Record<string, AlbumEntry>
+  /** 生存模式：打到一半（撐過幾關、帶到下一關的本錢倍數） */
+  survivalRun: M.Survival | null
+  /** 生存模式最好的紀錄 */
+  survivalBest: { stages: number; ratio: number; date: string } | null
 }
 
 /** 圖鑑裡記下來的一手牌（只存牌的種類，小小的） */
@@ -97,6 +101,8 @@ export const defaultProgress: Progress = {
   dailyBest: null,
   stars: {},
   album: {},
+  survivalRun: null,
+  survivalBest: null,
 }
 
 /** 舊存檔少了新欄位：補上預設值 */
@@ -326,6 +332,8 @@ export const ACHIEVEMENTS: readonly AchDef[] = [
   { id: 'storm', name: '颱風夜不睡', desc: '颱風夜民宿打完兩圈拿第一' },
   { id: 'champion', name: '全國冠軍', desc: '全國麻將大賽拿第一' },
   { id: 'allStars', name: '滿天星', desc: '每一關都拿到三顆星' },
+  { id: 'survive3', name: '撐住', desc: '生存模式撐過 3 關' },
+  { id: 'survive6', name: '一輪到底', desc: '生存模式撐完六關' },
   { id: 'hardFirst', name: '高手中的高手', desc: '高手難度拿第一' },
   { id: 'daily', name: '每日一局', desc: '打完一場每日挑戰' },
   { id: 'matches10', name: '常客', desc: '打完 10 場' },
@@ -573,4 +581,41 @@ export function recordAlbum(p: Progress, m: M.MatchState): { p: Progress; fresh:
     album[name] = { count: (old?.count ?? 0) + 1, best: !old || snap.tai > old.best.tai ? snap : old.best }
   }
   return { p: { ...p, album }, fresh }
+}
+
+// ---------- 生存模式 ----------
+
+export interface SurvivalResult {
+  /** 被淘汰了（拿最後一名、或輸光） */
+  out: boolean
+  /** 這一趟總共撐過幾關 */
+  stages: number
+  /** 帶到下一關的本錢倍數 */
+  ratio: number
+  /** 破了自己的紀錄 */
+  best: boolean
+  coins: number
+}
+
+/** 生存模式打完一關：淘汰還是晉級、帶多少本錢、紀錄、成就 */
+export function recordSurvival(p: Progress, m: M.MatchState): { p: Progress; res: SurvivalResult; unlocked: AchDef[] } {
+  const sv = m.survival!
+  const place = M.ranking(m).indexOf(0)
+  const out = place === 3 || m.points[0] <= 0
+  const stages = out ? sv.level : sv.level + 1
+  const ratio = Math.max(0, m.points[0] / M.stageOf(m).startPoints)
+  const prev = p.survivalBest
+  const best = stages > 0 && (!prev || stages > prev.stages || (stages === prev.stages && ratio > prev.ratio))
+  // 晉級一關給一點金幣；被淘汰時照撐過的關數再給一筆
+  const coins = out ? stages * 100 : 50 * (sv.level + 1)
+  let q: Progress = {
+    ...p,
+    coins: p.coins + coins,
+    survivalRun: out ? null : { level: stages, ratio },
+    survivalBest: best ? { stages, ratio, date: today() } : prev,
+  }
+  const ids = [stages >= 3 ? 'survive3' : '', stages >= 6 ? 'survive6' : ''].filter(Boolean)
+  const u = unlock(q, ids)
+  q = u.p
+  return { p: q, res: { out, stages, ratio, best, coins }, unlocked: u.unlocked }
 }
