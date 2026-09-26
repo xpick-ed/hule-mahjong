@@ -4,13 +4,14 @@ import * as M from '../engine/match'
 import { LADDER, SKINS, STAGES, TOURNEY } from '../engine/stages'
 import { share, shareText } from '../daily'
 import * as P from '../progress'
-import { TURN_TIMES, useUI } from '../store'
+import { canReplay, TURN_TIMES, useUI } from '../store'
 import { LEVEL_UNLOCKS } from '../stories'
 import { speak } from '../voice'
 import { sfx } from '../sfx'
 import { cls, CountUp, fmt, Tile } from './bits'
 import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
 import { DailyBoard } from './DailyBoard'
+import { ReplayPanel } from './Replay'
 import { isFriend, SeatFace, seatName } from './seat'
 
 const nameOf = seatName
@@ -47,6 +48,8 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   const review = useUI((s) => s.review)
   const rivalNotes = useUI((s) => s.rivalNotes)
   const [showReview, setShowReview] = useState(false)
+  const [showReplay, setShowReplay] = useState(false)
+  const replayable = canReplay(m)
   const wins = M.winsOf(r)
   // 一炮多響：你有胡就先看你的
   const w = wins.find((x) => x.seat === 0) ?? r.win
@@ -55,12 +58,14 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   const last = M.matchOverAfter(m)
   const myDiscards = m.hand.seats[0].discards.length
   useEffect(() => {
+    // 看覆盤、回放的時候 Enter 不要跳下一局
+    if (showReview || showReplay) return
     const on = (e: KeyboardEvent) => {
       if (e.key === 'Enter' && !e.repeat) next()
     }
     window.addEventListener('keydown', on)
     return () => window.removeEventListener('keydown', on)
-  }, [next])
+  }, [next, showReview, showReplay])
   const seats = [0, 1, 2, 3]
   // 莊家台只算在跟莊家有關的那筆（莊家胡、莊家放槍、或自摸時莊家也要付）
   const dealerIn = !!w && !!r.dealerItems && (w.seat === r.dealer || w.from === null || w.from === r.dealer)
@@ -74,6 +79,7 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   }, [done, r.deltas])
 
   if (showReview) return <ReviewPanel onBack={() => setShowReview(false)} />
+  if (showReplay) return <ReplayPanel m={m} onBack={() => setShowReplay(false)} />
 
   return (
     <div className="overlay" onClick={all}>
@@ -174,6 +180,11 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
           {w && w.seat === 0 && (
             <button type="button" className={cls('btn', 'brag-btn', w.score.total >= 4 && 'big')} onClick={() => useUI.getState().brag(P.snapOf(m, w))}>
               炫耀卡
+            </button>
+          )}
+          {replayable && (
+            <button type="button" className="btn replay-btn" onClick={() => setShowReplay(true)}>
+              回放
             </button>
           )}
           {review.length > 0 ? (
@@ -765,7 +776,7 @@ export function Menu() {
             useUI.getState().setCalc(true)
           }}
         >
-          算台幫手
+          算台記帳
         </button>
         {screen === 'match' && !inRoom && (
           <button type="button" className="btn" onClick={toHome}>

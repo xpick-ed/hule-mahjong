@@ -14,7 +14,7 @@ export const CARD_H = 1350
 
 const RARITY_COLOR = { common: '#8a94a8', rare: '#3a6df0', epic: '#8b5cf6', legend: '#f0a000' } as const
 
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
+export const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!)
 
 // ---------- 牌面 SVG ----------
 
@@ -49,7 +49,7 @@ function tileSvg(kind: string, x: number, y: number, w: number, hot: boolean): s
 let fontData: Promise<string | null> | null = null
 
 /** 遊戲的字型轉成 data URI 嵌進 SVG（圖片裡不能用網頁載入的字型）；拿不到就用系統字型 */
-function font(): Promise<string | null> {
+export function font(): Promise<string | null> {
   fontData ??= fetch(chironUrl)
     .then((r) => (r.ok ? r.arrayBuffer() : null))
     .then((buf) => {
@@ -104,11 +104,7 @@ function cardSvg(snap: HandSnap, name: string, fontUri: string | null): string {
   }
   const chips = snap.items.map((s) => `${s} ${tai(s)}`).join('・')
   const rarity = rarityOf(Math.max(...snap.items.map(tai), 1))
-  const style = `
-    ${fontUri ? `@font-face { font-family: 'HL'; src: url(${fontUri}) format('woff2'); font-weight: 900; }` : ''}
-    svg { --t-red: #ef3d5c; --t-green: #0f9e7a; --t-blue: #3565e8; --t-ink: #1d2a4a; --t-face: #fffaf0; --t-gold: #ffb020; }
-    text, .tf { font-family: 'HL', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; font-weight: 900; }
-  `
+  const style = cardStyle(fontUri)
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <style>${style}</style>
   <rect width="${W}" height="${H}" fill="#ffe066"/>
@@ -135,9 +131,23 @@ function cardSvg(snap: HandSnap, name: string, fontUri: string | null): string {
 </svg>`
 }
 
+/** 卡片 SVG 的字型設定（嵌進去的遊戲字型＋牌面用的顏色） */
+export function cardStyle(fontUri: string | null): string {
+  return `
+    ${fontUri ? `@font-face { font-family: 'HL'; src: url(${fontUri}) format('woff2'); font-weight: 900; }` : ''}
+    svg { --t-red: #ef3d5c; --t-green: #0f9e7a; --t-blue: #3565e8; --t-ink: #1d2a4a; --t-face: #fffaf0; --t-gold: #ffb020; }
+    text, .tf { font-family: 'HL', 'PingFang TC', 'Noto Sans TC', 'Microsoft JhengHei', sans-serif; font-weight: 900; }
+  `
+}
+
+
 /** 做一張炫耀卡，回傳 PNG */
 export async function makeBragCard(snap: HandSnap, name: string): Promise<Blob> {
-  const svg = cardSvg(snap, name, await font())
+  return svgToPng(cardSvg(snap, name, await font()))
+}
+
+/** SVG 畫到 canvas 轉成 PNG（1080×1350） */
+export async function svgToPng(svg: string): Promise<Blob> {
   const img = new Image()
   img.decoding = 'async'
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }))

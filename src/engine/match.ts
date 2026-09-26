@@ -529,17 +529,47 @@ function advance(m: MatchState, until = Infinity): MatchState {
   return m
 }
 
+/** 照紀錄做你的一個動作 */
+function applyAct(m: MatchState, a: Act): MatchState {
+  if (a[1] === 'd') return discard(m, a[2])
+  if (a[1] === 'c') return claim(m, a[2])
+  if (a[1] === 't') return tsumo(m)
+  if (a[1] === 'k') return kong(m, a[2])
+  if (a[1] === 's') return useSkill(m, a[2], a[3])
+  return nextHand(m)
+}
+
 /** 照動作紀錄重播一整場（每日挑戰的成績可以驗證） */
 export function replay(seed: string, stage: number, opt: MatchOptions, log: readonly Act[]): MatchState {
   let m = newMatch(seed, stage, opt)
-  for (const a of log) {
-    m = advance(m, a[0])
-    if (a[1] === 'd') m = discard(m, a[2])
-    else if (a[1] === 'c') m = claim(m, a[2])
-    else if (a[1] === 't') m = tsumo(m)
-    else if (a[1] === 'k') m = kong(m, a[2])
-    else if (a[1] === 's') m = useSkill(m, a[2], a[3])
-    else m = nextHand(m)
-  }
+  for (const a of log) m = applyAct(advance(m, a[0]), a)
   return advance(m)
+}
+
+/**
+ * 回放一局：從這一局開始時的樣子，照你的動作紀錄重新打一遍，每一步都留下來（上帝視角回放用）。
+ * 電腦的決定只看牌局和種子，所以會跟當時一模一樣。紀錄對不上（丟錯）就停在那裡。
+ */
+export function replayHand(start: MatchState, log: readonly Act[]): { frames: MatchState[]; ok: boolean } {
+  const frames = [start]
+  let m = start
+  const run = (until = Infinity) => {
+    for (let g = 0; g < 5000 && m.phase === 'play' && (m.ticks ?? 0) < until; g++) {
+      const n = step(m)
+      if (n === m) break
+      frames.push((m = n))
+    }
+  }
+  try {
+    for (const a of log) {
+      if (a[1] === 'n') break
+      run(a[0])
+      if (m.phase !== 'play') break
+      frames.push((m = applyAct(m, a)))
+    }
+    run()
+  } catch {
+    return { frames, ok: false }
+  }
+  return { frames, ok: m.phase !== 'play' }
 }

@@ -21,6 +21,7 @@ import { costOf } from './wardrobe'
 import { preloadVoices, setVoiceVolume, speak } from './voice'
 
 const MATCH_KEY = 'hule.match.v2'
+const REC_KEY = 'hule.handrec.v1'
 const PROGRESS_KEY = 'hule.progress.v2'
 const SETTINGS_KEY = 'hule.settings.v2'
 
@@ -96,6 +97,16 @@ export interface OnlineInfo {
   ready: number[]
 }
 
+/** 要分享的圖卡（家庭牌局戰報）：畫圖的函式、檔名、分享文字 */
+export interface ShareCard {
+  title: string
+  lead: string
+  make: () => Promise<Blob>
+  filename: string
+  text: string
+  alt: string
+}
+
 /** 開局擲骰子：wait 等你（你當莊）、roll 骰子在滾、show 看點數 */
 export interface DiceState {
   hand: number
@@ -162,6 +173,8 @@ interface UI {
   calc: boolean
   /** 炫耀卡：要做成圖的那一手 */
   bragSnap: P.HandSnap | null
+  /** 其他要分享的圖卡 */
+  shareCard: ShareCard | null
   prematch: Prematch
   /** 上一場的獎勵（結束畫面用） */
   rewards: MatchRewards | null
@@ -321,6 +334,45 @@ function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string
 
 let conn: RoomConn | null = null
 
+/** 這一局的回放紀錄：開局時的牌局＋你的每個動作（上帝視角回放用；重新整理也留著） */
+interface HandRec {
+  seed: string
+  handNo: number
+  start: M.MatchState
+  log: M.Act[]
+}
+let handRec: HandRec | null = null
+
+/** 新的一局開始：記下開局的樣子（連線對打沒有：別人的牌看不到） */
+function recStart(m: M.MatchState | null) {
+  if (!m || m.online || m.phase !== 'play') handRec = null
+  else {
+    const start = structuredClone(m)
+    delete start.log
+    handRec = { seed: m.seed, handNo: m.handNo, start, log: [] }
+  }
+  save(REC_KEY, handRec)
+}
+
+/** 重新整理後接著打：紀錄是這一局的才用 */
+function recResume(m: M.MatchState) {
+  const r = load<HandRec>(REC_KEY)
+  handRec = r && r.seed === m.seed && r.handNo === m.handNo ? r : null
+}
+
+/** 上帝視角回放：把這一局重打一遍，每一步都留下來。沒有紀錄、或重打的結果跟實際對不上就回傳 null */
+export function handReplay(m: M.MatchState): M.MatchState[] | null {
+  const r = handRec
+  if (!r || m.online || r.seed !== m.seed || r.handNo !== m.handNo) return null
+  const { frames, ok } = M.replayHand(r.start, r.log)
+  const last = frames[frames.length - 1]
+  if (!ok || last.result?.deltas.join() !== m.result?.deltas.join()) return null
+  return frames
+}
+
+/** 這一局能不能回放 */
+export const canReplay = (m: M.MatchState) => !m.online && !!handRec && handRec.seed === m.seed && handRec.handNo === m.handNo
+
 function preloadFor(m: M.MatchState, my: Settings['myVoice']) {
   preloadVoices([0, 1, 2, 3].map((s) => voiceOf(m, s, my)))
 }
@@ -335,6 +387,11 @@ export const useUI = create<UI>((set, get) => {
     try {
       const next = fn(match)
       if (act && next.daily) next.log = [...(match.log ?? []), [match.ticks ?? 0, ...act] as M.Act]
+      // 回放紀錄：這一局你做的每個動作
+      if (act && act[0] !== 'n' && handRec && handRec.seed === match.seed && handRec.handNo === match.handNo) {
+        handRec.log.push([match.ticks ?? 0, ...act] as M.Act)
+        save(REC_KEY, handRec)
+      }
       set({ match: next, sel: null, ...extra })
       save(MATCH_KEY, next)
       get().processEvents()
@@ -594,6 +651,7 @@ export const useUI = create<UI>((set, get) => {
     lookSheet: false,
     calc: false,
     bragSnap: null,
+    shareCard: null,
     prematch: null,
     rewards: null,
     toast: null,
@@ -660,6 +718,7 @@ export const useUI = create<UI>((set, get) => {
         }
       }
       save(MATCH_KEY, match)
+      recStart(match)
       set({
         match,
         screen: 'match',
@@ -700,6 +759,7 @@ export const useUI = create<UI>((set, get) => {
     resume() {
       const match = savedMatch()
       if (!match) return
+      recResume(match)
       void goLandscape()
       set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, seenHand: match.handNo, prematch: null, dice: null, ...newHandState })
       preloadFor(match, get().settings.myVoice)
@@ -813,7 +873,10 @@ export const useUI = create<UI>((set, get) => {
       }
       const next = apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null, ...newHandState }, ['n'])
       sfx.shuffle()
-      if (next) set({ dice: diceFor(next) })
+      if (next) {
+        recStart(next)
+        set({ dice: diceFor(next) })
+      }
     },
     rollDice() {
       const d = get().dice

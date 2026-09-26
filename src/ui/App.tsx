@@ -5,7 +5,7 @@ import { Home } from './Home'
 import { MatchView } from './MatchView'
 import { Learn } from './Learn'
 import { Menu, Missions, NameSheet, Shop, Toast } from './Overlays'
-import { BragSheet } from './Brag'
+import { BragSheet, ShareCardSheet } from './Brag'
 import { OnlineSheet, RoomView } from './Online'
 import { People } from './People'
 import { PreMatch } from './PreMatch'
@@ -32,6 +32,7 @@ export function App() {
       <NameSheet />
       <OnlineSheet />
       <BragSheet />
+      <ShareCardSheet />
       <Toast />
     </Stage>
   )

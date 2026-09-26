@@ -1,8 +1,9 @@
-// 第二輪趣味功能：閃電局、擲骰子、宿敵、我的造型、算台幫手。
+// 趣味功能：閃電局、擲骰子、宿敵、我的造型、算台幫手、上帝視角回放、家庭牌局記帳。
 
 import { describe, expect, it } from 'vitest'
 import { calculate, canAddMeld, canAddTile, type CalcInput } from './calc'
 import { cleanLook, DEFAULT_LOOK } from './engine/looks'
+import { addHand, ledgerText, newLedger, settleUp, titles, totals, undoHand } from './ledger'
 import * as M from './engine/match'
 import * as P from './progress'
 import { costOf, tryOn, WARDROBE_ITEM } from './wardrobe'
@@ -200,5 +201,86 @@ describe('算台幫手', () => {
   it('牌數夠了但不是胡的牌型', () => {
     const r = calculate({ ...base, hand: [...H.slice(0, 15), 'p1', 's9'] })
     expect(r.t).toBe('notWin')
+  })
+})
+
+describe('上帝視角回放', () => {
+  it('從開局的樣子照你的動作重打，結果跟實際一模一樣（用了換牌也一樣）', () => {
+    for (const seed of ['rp-1', 'rp-2', 'rp-3']) {
+      let m = M.newMatch(seed, 2)
+      const start = structuredClone(m)
+      const log: M.Act[] = []
+      let swapped = false
+      for (let g = 0; g < 3000 && m.phase === 'play'; g++) {
+        if (M.waitingForYou(m)) {
+          if (!swapped && m.hand.phase === 'discard') {
+            swapped = true
+            const id = m.hand.seats[0].hand[0].id
+            log.push([m.ticks ?? 0, 's', 'swap', id])
+            m = M.useSkill(m, 'swap', id)
+            continue
+          }
+          const mv = M.autoMove(m, 0, { rng: 7 })!
+          log.push([m.ticks ?? 0, ...mv] as M.Act)
+          m = M.act(m, 0, mv)
+        } else m = M.step(m)
+      }
+      expect(m.phase).toBe('handEnd')
+      const { frames, ok } = M.replayHand(start, log)
+      expect(ok).toBe(true)
+      expect(frames.length).toBeGreaterThan(10)
+      expect(frames[frames.length - 1].result!.deltas).toEqual(m.result!.deltas)
+      expect(frames[frames.length - 1].hand.seats.map((s) => s.discards.length)).toEqual(m.hand.seats.map((s) => s.discards.length))
+    }
+  })
+  it('紀錄對不上（動作做不了）：停下來，回報不完整', () => {
+    const start = M.newMatch('rp-bad', 0)
+    const { ok } = M.replayHand(start, [[0, 'd', -123]])
+    expect(ok).toBe(false)
+  })
+})
+
+describe('家庭牌局記帳', () => {
+  const L0 = newLedger(['小明', '舅媽', '姨丈', '阿嬤'], 100, 20, 0, '2026-09-26')
+  it('莊家自摸：三家都付莊家台；莊家胡就連莊', () => {
+    const l = addHand(L0, { winner: 0, from: null, tai: 3 })
+    expect(l.hands[0].deltas).toEqual([540, -180, -180, -180])
+    expect([l.dealer, l.streak]).toEqual([0, 1])
+  })
+  it('閒家胡閒家：沒有莊家台，換下一家當莊；流局連莊', () => {
+    let l = addHand(L0, { winner: 1, from: 3, tai: 5 })
+    expect(l.hands[0].deltas).toEqual([0, 200, 0, -200])
+    expect([l.dealer, l.streak]).toEqual([1, 0])
+    l = addHand(l, { winner: null, from: null, tai: 0 })
+    expect([l.dealer, l.streak]).toEqual([1, 1])
+    // 放槍給連 1 的莊家：莊家 1 台＋連 1 拉 1
+    l = addHand(l, { winner: 1, from: 2, tai: 2 })
+    expect(l.hands[2].deltas).toEqual([0, 100 + (2 + 3) * 20, -(100 + (2 + 3) * 20), 0])
+    expect(totals(l).reduce((a, b) => a + b, 0)).toBe(0)
+  })
+  it('刪掉上一手：莊家也回到之前', () => {
+    const l = addHand(addHand(L0, { winner: 2, from: 0, tai: 1 }), { winner: 3, from: null, tai: 2 })
+    const u = undoHand(l)
+    expect(u.hands).toHaveLength(1)
+    expect([u.dealer, u.streak]).toEqual([1, 0])
+  })
+  it('結帳：輸的付給贏的，金額對得起來、筆數最少', () => {
+    const t = [400, 20, -180, -240]
+    const tr = settleUp(t)
+    expect(tr.length).toBeLessThanOrEqual(3)
+    const net = [0, 0, 0, 0]
+    for (const x of tr) {
+      net[x.from] -= x.amount
+      net[x.to] += x.amount
+    }
+    expect(net).toEqual(t)
+  })
+  it('稱號：自摸王、放槍王、最大一手', () => {
+    let l = addHand(L0, { winner: 0, from: null, tai: 3 })
+    l = addHand(l, { winner: 2, from: 1, tai: 8 })
+    l = addHand(l, { winner: 3, from: 1, tai: 1 })
+    const ts = titles(l).map((x) => `${x.title}:${l.names[x.who]}`)
+    expect(ts).toEqual(['自摸王:小明', '放槍王:舅媽', '最大一手:姨丈'])
+    expect(ledgerText(l, 'https://x')).toContain('結帳')
   })
 })

@@ -151,3 +151,19 @@ export function Stage({ children }: { children: ReactNode }) {
     </>
   )
 }
+
+/** 一列選項：左邊標題、右邊一排按鈕（算台幫手、記帳用） */
+export function Seg({ label, value, options, onChange }: { label: string; value: number; options: string[]; onChange: (v: number) => void }) {
+  return (
+    <div className="calc-opt">
+      <span>{label}</span>
+      <div className="seg" role="group" aria-label={label}>
+        {options.map((o, i) => (
+          <button key={i} type="button" aria-pressed={value === i} onClick={() => onChange(i)}>
+            {o}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}

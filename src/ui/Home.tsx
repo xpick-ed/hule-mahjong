@@ -92,7 +92,7 @@ export function Home() {
               教學
             </button>
             <button type="button" className="btn small calc-btn" onClick={() => useUI.getState().setCalc(true)}>
-              算台
+              算台記帳
             </button>
             <button type="button" className="btn small" onClick={() => setMenu(true)}>
               設定
