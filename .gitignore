@@ -13,3 +13,6 @@ voice-audition
 dist-voices
 voice-build
 .wrangler
+
+# 編輯器產生的索引檔
+tags
