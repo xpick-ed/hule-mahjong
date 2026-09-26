@@ -22,12 +22,8 @@ function useDriver(m: M.MatchState, paused: boolean) {
   const fast = useUI((s) => s.settings.fast)
   useEffect(() => {
     if (paused || m.phase !== 'play' || M.waitingForYou(m)) return
-    const h = m.hand
-    let delay = 0
-    if (h.phase === 'claim') delay = 420
-    else if (h.phase === 'discard') delay = h.drawn ? 700 : 820
-    if (!delay) return
-    const id = window.setTimeout(step, delay * (fast ? 0.45 : 1))
+    if (m.hand.phase === 'over') return
+    const id = window.setTimeout(step, M.aiDelay(m, Math.random()) * (fast ? 0.5 : 1))
     return () => window.clearTimeout(id)
   }, [m, step, fast, paused])
 }

@@ -44,6 +44,8 @@ export interface Character {
   lines: Partial<Record<LineKey, string[]>>
   /** 對手也會用的絕招（每場次數） */
   skill?: { id: 'swap' | 'peek' | 'lucky'; uses: number }
+  /** 出牌節奏：1 是一般，大於 1 想比較久 */
+  tempo?: number
 }
 
 const SKIN = '#f6c9a8'
@@ -52,6 +54,7 @@ const SKIN2 = '#e8b48f'
 export const CHARACTERS: Record<string, Character> = {
   meiling: {
     id: 'meiling',
+    tempo: 0.9,
     name: '大舅媽',
     bio: '巷口美髮院老闆娘。八卦第一名，能碰就碰。',
     look: { skin: SKIN, hair: 'perm', hairColor: '#3b2a3f', shirt: '#ff6f91', bg: '#ffe3ea', extras: ['earrings'] },
@@ -75,6 +78,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   lin: {
     id: 'lin',
+    tempo: 1.25,
     name: '鄒家雀神',
     bio: '鄒家公認的麻將高手，退休公務員。打牌跟做人一樣穩，很少放槍。',
     look: { skin: SKIN, hair: 'short', hairColor: '#9aa0a6', shirt: '#f0c64a', bg: '#e4f6ef', extras: ['cap', 'mustache'], capColor: '#13a37f' },
@@ -98,6 +102,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   kai: {
     id: 'kai',
+    tempo: 1.1,
     name: '小姨丈',
     bio: '工程師。說自己用機率打牌，其實超好勝。',
     look: { skin: SKIN, hair: 'short', hairColor: '#1d2a4a', shirt: '#3a6df0', bg: '#e6edff', extras: ['glasses'] },
@@ -120,6 +125,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   wang: {
     id: 'wang',
+    tempo: 1.1,
     name: '王經理',
     bio: '部門主管。只做大牌，放槍也要有面子。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#2b2b2b', shirt: '#2f4b7c', bg: '#e8ecf5', extras: ['tie', 'glasses'] },
@@ -142,6 +148,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   xiaomei: {
     id: 'xiaomei',
+    tempo: 1.3,
     name: '小美',
     bio: '新進會計。第一次打尾牙麻將，新手運超強。',
     look: { skin: SKIN, hair: 'bob', hairColor: '#7a4a2a', shirt: '#ffb3c7', bg: '#fff0f4', extras: ['bow'] },
@@ -164,6 +171,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   jie: {
     id: 'jie',
+    tempo: 0.75,
     name: '阿傑',
     bio: '業務一哥。節奏超快，能吃就吃。',
     look: { skin: SKIN2, hair: 'spiky', hairColor: '#3a2618', shirt: '#ff8a3d', bg: '#fff1e3' },
@@ -186,6 +194,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   ama: {
     id: 'ama',
+    tempo: 1.35,
     name: '阿嬤',
     bio: '打了五十年麻將。防守滴水不漏。',
     look: { skin: SKIN, hair: 'bun', hairColor: '#c9ccd1', shirt: '#8b5cf6', bg: '#f1ebff', extras: ['glasses', 'earrings'] },
@@ -211,6 +220,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   erjiu: {
     id: 'erjiu',
+    tempo: 0.85,
     name: '二舅',
     bio: '家族嘴砲王。喝了兩杯之後更衝。',
     look: { skin: '#f0a987', hair: 'bald', hairColor: '#3a2618', shirt: '#ffb020', bg: '#fff5d6', extras: ['beard'] },
@@ -233,6 +243,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   biaomei: {
     id: 'biaomei',
+    tempo: 1.2,
     name: '表妹',
     bio: '大學生。一邊滑手機一邊打，偶爾很準。',
     look: { skin: SKIN, hair: 'long', hairColor: '#2a1c14', shirt: '#33c2a0', bg: '#e0f7f1', extras: ['headphones'] },
@@ -255,6 +266,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   queshen: {
     id: 'queshen',
+    tempo: 1.15,
     name: '雀神',
     bio: '傳說中的雀神。話很少，幾乎不放槍。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#e8e8e8', shirt: '#1d2a4a', bg: '#dfe4ee', extras: ['sunglasses'] },
@@ -279,6 +291,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   longge: {
     id: 'longge',
+    tempo: 1.0,
     name: '龍哥',
     bio: '老牌麻將館老闆。什麼大風大浪都見過。',
     look: { skin: SKIN2, hair: 'slick', hairColor: '#1a1a1a', shirt: '#b3261e', bg: '#ffe4e0', extras: ['mustache'] },
@@ -303,6 +316,7 @@ export const CHARACTERS: Record<string, Character> = {
   },
   coco: {
     id: 'coco',
+    tempo: 0.9,
     name: 'Coco',
     bio: '麻將直播主。很會演，也真的很會打。',
     look: { skin: SKIN, hair: 'ponytail', hairColor: '#ff6f91', shirt: '#1d2a4a', bg: '#ffe6f0', extras: ['earrings', 'headphones'] },

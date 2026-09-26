@@ -122,8 +122,9 @@ interface UI {
   /** 上一場的獎勵（結束畫面用） */
   rewards: MatchRewards | null
   toast: { msg: string; key: number } | null
-  /** 已經處理過的牌局事件編號（台詞、音效） */
+  /** 已經處理過的牌局事件編號（台詞、音效）；每一局重新從 1 開始，所以也記是第幾局 */
   seenEvent: number
+  seenHand: number
   /** 這一局教練記下來的打牌（還沒挑過） */
   notes: ReviewNote[]
   /** 這一局結束時挑出來的覆盤 */
@@ -366,6 +367,7 @@ export const useUI = create<UI>((set, get) => {
     rewards: null,
     toast: null,
     seenEvent: 0,
+    seenHand: 0,
     ...newHandState,
     guideSeen: [],
 
@@ -403,6 +405,7 @@ export const useUI = create<UI>((set, get) => {
         moods: {},
         callout: null,
         seenEvent: 0,
+        seenHand: match.handNo,
         menu: false,
         rewards: null,
         prematch: null,
@@ -425,7 +428,7 @@ export const useUI = create<UI>((set, get) => {
       const match = savedMatch()
       if (!match) return
       void goLandscape()
-      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, prematch: null, ...newHandState })
+      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, seenHand: match.handNo, prematch: null, ...newHandState })
       preloadFor(match, get().settings.myVoice)
       playMusic(moodFor(match.stage))
     },
@@ -661,7 +664,9 @@ export const useUI = create<UI>((set, get) => {
     processEvents() {
       const m = get().match
       if (!m) return
-      const evs = m.hand.events.filter((x) => x.n > get().seenEvent)
+      const seen = get().seenHand === m.handNo ? get().seenEvent : 0
+      const evs = m.hand.events.filter((x) => x.n > seen)
+      if (get().seenHand !== m.handNo) set({ seenHand: m.handNo, seenEvent: 0 })
       if (!evs.length) return
       set({ seenEvent: evs[evs.length - 1].n })
       for (const { e } of evs) react(e, m)

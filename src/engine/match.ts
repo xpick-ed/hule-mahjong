@@ -124,6 +124,18 @@ export function styleOf(m: MatchState, seat: number): AiStyle {
 
 export const rulesOf = (m: MatchState): T.Rules => m.rules ?? T.DEFAULT_RULES
 
+/**
+ * 電腦下一步前要等多久（毫秒，一般速度）。r 是 0–1 的亂數：每次想的時間不一樣。
+ * 摸牌後打牌約 1.3 秒、吃碰後打牌約 1.1 秒、有人打牌後看誰要吃碰約 0.65 秒，再乘上角色的節奏
+ */
+export function aiDelay(m: MatchState, r: number): number {
+  const h = m.hand
+  const jitter = 0.75 + r * 0.6
+  if (h.phase === 'claim') return Math.round(650 * jitter)
+  const tempo = CHARACTERS[m.chars[h.turn]]?.tempo ?? 1
+  return Math.round((h.drawn ? 1300 : 1100) * tempo * jitter)
+}
+
 /** 這一局所有胡的人（一炮多響時不只一個） */
 export function winsOf(r: { win: T.WinInfo | null; also?: T.WinInfo[] } | null | undefined): T.WinInfo[] {
   return r?.win ? [r.win, ...(r.also ?? [])] : []
