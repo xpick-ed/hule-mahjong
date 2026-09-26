@@ -235,6 +235,7 @@ sim（300 場）：中等電腦在第一關拿第一的比例：輕鬆 36%、普
 - 規則引擎純 TypeScript、可決定性（種子）、Vitest 測試；`npm run sim` 讓四個電腦互打，檢查不會卡住、台數分布合理
 - 向聽數（差幾張聽牌）用「每種花色分開算＋記憶化」，電腦每次打牌算幾百次也很快
 - 存檔 localStorage（進行中的一場、闖關進度、設定）
+- 網站：https://hule.leh-x.workers.dev
 - 部署：Cloudflare Workers ＋ 靜態資源（`wrangler.toml`：`[assets]` 是 dist/，`worker/index.ts` 只處理 `/api/daily`）
   - GitHub（xpick-ed/hule-mahjong）接 Workers Builds：push 到 main 就跑 `npx wrangler deploy`，它會先跑 `npm run build`
   - 2026-09-26 原本寫成 Pages Functions，但後台「Create」建出來的是 Worker，所以改成 Worker 的寫法
