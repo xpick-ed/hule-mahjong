@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import { STAGES } from '../engine/stages'
+import { dailyInfo } from '../daily'
 import { claimable, rankOf } from '../progress'
-import { savedMatch, useUI } from '../store'
+import { lookFor, savedMatch, useUI } from '../store'
 import { Avatar } from './Avatar'
 import { cls, fmt, Tile } from './bits'
 
@@ -10,15 +11,16 @@ const FAN = ['m1', 'p5', 's1', 'z5', 'z1', 's9', 'm9']
 
 export function Home() {
   const progress = useUI((s) => s.progress)
-  const start = useUI((s) => s.startStage)
+  const openStage = useUI((s) => s.openStage)
   const resume = useUI((s) => s.resume)
-  const setMenu = useUI((s) => s.setMenu)
-  const setLearn = useUI((s) => s.setLearn)
-  const setMissions = useUI((s) => s.setMissions)
-  const setShop = useUI((s) => s.setShop)
-  const saved = useMemo(() => savedMatch(), [])
+  const { setMenu, setLearn, setMissions, setShop, setRecords, setPeople } = useUI.getState()
+  // 開打前的確認畫面關掉時會重新算（可能剛放棄了那一場）
+  const prematch = useUI((s) => s.prematch)
+  const saved = useMemo(() => savedMatch(), [prematch])
   const rank = rankOf(progress.rankPts)
   const todo = claimable(progress)
+  const daily = dailyInfo()
+  const doneToday = progress.dailyBest?.date === daily.date ? progress.dailyBest : null
 
   return (
     <div className="home">
@@ -34,12 +36,19 @@ export function Home() {
           <span className="coin-dot" aria-hidden="true" />
           {fmt(progress.coins)}
         </span>
+        <span className="top-spacer" />
         <button type="button" className="top-btn" onClick={() => setMissions(true)}>
-          今日任務
+          任務
           {todo > 0 && <span className="dot-count">{todo}</span>}
         </button>
         <button type="button" className="top-btn" onClick={() => setShop(true)}>
           商店
+        </button>
+        <button type="button" className="top-btn" onClick={() => setPeople('list')}>
+          角色
+        </button>
+        <button type="button" className="top-btn" onClick={() => setRecords(true)}>
+          戰績
         </button>
       </div>
       <section className="brand">
@@ -58,6 +67,10 @@ export function Home() {
               繼續打：{STAGES[saved.stage].name}
             </button>
           )}
+          <button type="button" className={cls('btn daily-btn', !saved && 'primary')} onClick={() => openStage({ stage: daily.stage, daily: daily.date })}>
+            每日挑戰
+            <small>{doneToday ? `今天第 ${doneToday.place} 名` : STAGES[daily.stage].name}</small>
+          </button>
           <button type="button" className="btn" onClick={() => setLearn('tips')}>
             教學
           </button>
@@ -74,14 +87,15 @@ export function Home() {
         {STAGES.map((st, i) => {
           const locked = i > progress.cleared
           const done = i < progress.cleared
+          const fresh = i === 0 && !progress.tutorial
           return (
-            <button key={st.id} type="button" className={cls('stage-card', locked && 'locked', done && 'done')} disabled={locked} onClick={() => start(i)}>
+            <button key={st.id} type="button" className={cls('stage-card', locked && 'locked', done && 'done')} disabled={locked} onClick={() => openStage({ stage: i })}>
               <span className="stage-no">第 {i + 1} 關</span>
               <span className="stage-name">{st.name}</span>
               <span className="stage-place">{st.place}</span>
               <span className="stage-faces">
                 {st.opponents.map((id) => (
-                  <Avatar key={id} look={CHARACTERS[id].look} size={34} />
+                  <Avatar key={id} look={lookFor(progress, id)} size={34} />
                 ))}
               </span>
               <span className="stage-names">{st.opponents.map((id) => CHARACTERS[id].name).join('、')}</span>
@@ -89,7 +103,7 @@ export function Home() {
                 底 {fmt(st.base)}・每台 {fmt(st.perTai)}
               </span>
               {st.ruleText && <span className="stage-rule">{st.ruleText.split('：')[0]}</span>}
-              <span className="stage-cta">{locked ? '上一關拿第一解鎖' : done ? '再打一次' : '開打'}</span>
+              <span className="stage-cta">{locked ? '上一關拿第一解鎖' : fresh ? '從這裡開始' : done ? '再打一次' : '開打'}</span>
             </button>
           )
         })}

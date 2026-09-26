@@ -247,6 +247,14 @@
   "who": "meiling",
   "text": "好啦好啦，姐姐讓你"
  },
+ "meiling.line.friend.0": {
+  "who": "meiling",
+  "text": "欸你又來了！姐姐最喜歡跟你打"
+ },
+ "meiling.line.friend.1": {
+  "who": "meiling",
+  "text": "今天幫你留了最好的位子喔"
+ },
  "lin.tile.m1": {
   "who": "lin",
   "text": "一萬"
@@ -467,6 +475,14 @@
   "who": "lin",
   "text": "呵呵，好好好"
  },
+ "lin.line.friend.0": {
+  "who": "lin",
+  "text": "你來啦，茶剛泡好"
+ },
+ "lin.line.friend.1": {
+  "who": "lin",
+  "text": "跟你打牌，伯伯很放心"
+ },
  "kai.tile.m1": {
   "who": "kai",
   "text": "一萬"
@@ -679,6 +695,14 @@
  "kai.line.reply.1": {
   "who": "kai",
   "text": "我記下來了"
+ },
+ "kai.line.friend.0": {
+  "who": "kai",
+  "text": "根據紀錄，跟你打我最開心"
+ },
+ "kai.line.friend.1": {
+  "who": "kai",
+  "text": "你的打法我建模了，還是看不懂"
  },
  "wang.tile.m1": {
   "who": "wang",
@@ -893,6 +917,14 @@
   "who": "wang",
   "text": "這個態度我喜歡"
  },
+ "wang.line.friend.0": {
+  "who": "wang",
+  "text": "你來了，今天我請客"
+ },
+ "wang.line.friend.1": {
+  "who": "wang",
+  "text": "年終考績，你是 A"
+ },
  "xiaomei.tile.m1": {
   "who": "xiaomei",
   "text": "一萬"
@@ -1105,6 +1137,14 @@
   "who": "xiaomei",
   "text": "好啦，我快一點"
  },
+ "xiaomei.line.friend.0": {
+  "who": "xiaomei",
+  "text": "你又來了～今天也請多指教！"
+ },
+ "xiaomei.line.friend.1": {
+  "who": "xiaomei",
+  "text": "跟你打牌我比較不緊張耶"
+ },
  "jie.tile.m1": {
   "who": "jie",
   "text": "一萬"
@@ -1316,6 +1356,14 @@
  "jie.line.reply.1": {
   "who": "jie",
   "text": "來啊，誰怕誰"
+ },
+ "jie.line.friend.0": {
+  "who": "jie",
+  "text": "兄弟！打完一起去續攤"
+ },
+ "jie.line.friend.1": {
+  "who": "jie",
+  "text": "你來我就開心，快坐快坐"
  },
  "ama.tile.m1": {
   "who": "ama",
@@ -1537,6 +1585,14 @@
   "who": "ama",
   "text": "哎唷，嘴巴這麼甜"
  },
+ "ama.line.friend.0": {
+  "who": "ama",
+  "text": "乖孫來了！阿嬤煮了湯圓"
+ },
+ "ama.line.friend.1": {
+  "who": "ama",
+  "text": "跟阿嬤打，輸了也有紅包拿"
+ },
  "ama.line.skill.0": {
   "who": "ama",
   "text": "阿嬤看一下你的牌喔～"
@@ -1753,6 +1809,14 @@
   "who": "erjiu",
   "text": "哈哈，有種！"
  },
+ "erjiu.line.friend.0": {
+  "who": "erjiu",
+  "text": "來來來，二舅今天跟你同一國！"
+ },
+ "erjiu.line.friend.1": {
+  "who": "erjiu",
+  "text": "你來了，二舅的紅包有救了"
+ },
  "biaomei.tile.m1": {
   "who": "biaomei",
   "text": "一萬"
@@ -1965,6 +2029,14 @@
   "who": "biaomei",
   "text": "你好吵喔"
  },
+ "biaomei.line.friend.0": {
+  "who": "biaomei",
+  "text": "欸你來了，我剛好不想寫報告"
+ },
+ "biaomei.line.friend.1": {
+  "who": "biaomei",
+  "text": "今天換我罩你"
+ },
  "queshen.tile.m1": {
   "who": "queshen",
   "text": "一萬"
@@ -2176,6 +2248,14 @@
  "queshen.line.reply.1": {
   "who": "queshen",
   "text": "話多的人，牌會亂。"
+ },
+ "queshen.line.friend.0": {
+  "who": "queshen",
+  "text": "……你來了。"
+ },
+ "queshen.line.friend.1": {
+  "who": "queshen",
+  "text": "……坐。今天，好好打。"
  },
  "queshen.line.skill.0": {
   "who": "queshen",
@@ -2393,6 +2473,14 @@
   "who": "longge",
   "text": "哼，嘴上功夫"
  },
+ "longge.line.friend.0": {
+  "who": "longge",
+  "text": "你來了，老位子幫你留著"
+ },
+ "longge.line.friend.1": {
+  "who": "longge",
+  "text": "在我的館子，你是自己人"
+ },
  "longge.line.skill.0": {
   "who": "longge",
   "text": "換一張，手氣就回來了"
@@ -2608,6 +2696,14 @@
  "coco.line.reply.1": {
   "who": "coco",
   "text": "欸，這段我要剪起來"
+ },
+ "coco.line.friend.0": {
+  "who": "coco",
+  "text": "聊天室！我的好朋友來了～"
+ },
+ "coco.line.friend.1": {
+  "who": "coco",
+  "text": "今天跟你一起開台好不好"
  },
  "coco.line.skill.0": {
   "who": "coco",

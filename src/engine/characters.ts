@@ -32,6 +32,8 @@ export type LineKey =
   | 'skill'
   /** 你嗆他時回嘴 */
   | 'reply'
+  /** 好感度 Lv3 以上的開場招呼 */
+  | 'friend'
 
 export interface Character {
   id: string
@@ -68,6 +70,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['今天手氣真的不錯耶～'],
       matchLose: ['下次再找你們報仇！'],
       reply: ['欸～你很囂張喔', '好啦好啦，姐姐讓你'],
+      friend: ['欸你又來了！姐姐最喜歡跟你打', '今天幫你留了最好的位子喔'],
     },
   },
   lin: {
@@ -90,6 +93,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['薑還是老的辣'],
       matchLose: ['後生可畏喔'],
       reply: ['年輕人，沉住氣', '呵呵，好好好'],
+      friend: ['你來啦，茶剛泡好', '跟你打牌，伯伯很放心'],
     },
   },
   kai: {
@@ -111,6 +115,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['數據不會說謊'],
       matchLose: ['回去調一下參數'],
       reply: ['嘴砲不影響機率', '我記下來了'],
+      friend: ['根據紀錄，跟你打我最開心', '你的打法我建模了，還是看不懂'],
     },
   },
   wang: {
@@ -132,6 +137,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['領導就是要以身作則'],
       matchLose: ['今天先讓你們贏'],
       reply: ['年輕人很有衝勁嘛', '這個態度我喜歡'],
+      friend: ['你來了，今天我請客', '年終考績，你是 A'],
     },
   },
   xiaomei: {
@@ -153,6 +159,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['謝謝大家讓我～'],
       matchLose: ['下次我會更努力的！'],
       reply: ['嗚嗚，不要兇我啦', '好啦，我快一點'],
+      friend: ['你又來了～今天也請多指教！', '跟你打牌我比較不緊張耶'],
     },
   },
   jie: {
@@ -174,6 +181,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['今晚續攤我請！'],
       matchLose: ['輸了？不可能！再一場！'],
       reply: ['你才慢咧！', '來啊，誰怕誰'],
+      friend: ['兄弟！打完一起去續攤', '你來我就開心，快坐快坐'],
     },
   },
   ama: {
@@ -197,6 +205,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['紅包阿嬤先收著～'],
       matchLose: ['乖孫長大了喔'],
       reply: ['乖孫，對阿嬤講話要客氣', '哎唷，嘴巴這麼甜'],
+      friend: ['乖孫來了！阿嬤煮了湯圓', '跟阿嬤打，輸了也有紅包拿'],
       skill: ['阿嬤看一下你的牌喔～'],
     },
   },
@@ -219,6 +228,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['今年發財啦！'],
       matchLose: ['明年……明年一定'],
       reply: ['小朋友，二舅教你做人', '哈哈，有種！'],
+      friend: ['來來來，二舅今天跟你同一國！', '你來了，二舅的紅包有救了'],
     },
   },
   biaomei: {
@@ -240,6 +250,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['這要打卡'],
       matchLose: ['我本來就只是湊人數的'],
       reply: ['喔，好喔', '你好吵喔'],
+      friend: ['欸你來了，我剛好不想寫報告', '今天換我罩你'],
     },
   },
   queshen: {
@@ -262,6 +273,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['還差得遠。'],
       matchLose: ['……你，就是下一個雀神。'],
       reply: ['……哼。', '話多的人，牌會亂。'],
+      friend: ['……你來了。', '……坐。今天，好好打。'],
       skill: ['……牌，過來。'],
     },
   },
@@ -285,6 +297,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['常來坐'],
       matchLose: ['江山代有人才出'],
       reply: ['在我的館子，說話小心點', '哼，嘴上功夫'],
+      friend: ['你來了，老位子幫你留著', '在我的館子，你是自己人'],
       skill: ['換一張，手氣就回來了'],
     },
   },
@@ -308,6 +321,7 @@ export const CHARACTERS: Record<string, Character> = {
       matchWin: ['記得訂閱開小鈴鐺～'],
       matchLose: ['今天的精華就是你了'],
       reply: ['聊天室說你好好笑', '欸，這段我要剪起來'],
+      friend: ['聊天室！我的好朋友來了～', '今天跟你一起開台好不好'],
       skill: ['偷看一下下～聊天室不要說喔'],
     },
   },

@@ -1,7 +1,7 @@
 // 一場（東風圈）的流程：換莊、連莊、算錢、絕招、推動電腦出牌。
 // 每個動作拿舊的 MatchState、回傳新的一份；不合法丟 RuleError。
 
-import { chooseClaim, chooseDiscard, chooseSelf } from './ai'
+import { chooseClaim, chooseDiscard, chooseSelf, type AiStyle } from './ai'
 import { shanten, toCounts } from './analysis'
 import { CHARACTERS } from './characters'
 import { hashSeed, pick, rand, randInt, shuffle } from './rng'
@@ -24,12 +24,16 @@ export interface Payment {
   seat: number
   amount: number
   tai: number
+  /** 一炮多響時：付給誰 */
+  to?: number
 }
 
 export interface HandResult {
   /** 關卡特別規則帶來的額外東西：過年紅包、尾牙摸彩 */
   extras?: { label: string; coins?: number }[]
   win: T.WinInfo | null
+  /** 一炮多響：其他也胡的人 */
+  also?: T.WinInfo[]
   /** 莊家有關時才有（莊家胡、或莊家付錢） */
   dealerItems: TaiItem[] | null
   payments: Payment[]
@@ -57,12 +61,47 @@ export interface MatchState {
   hand: T.HandState
   phase: 'play' | 'handEnd' | 'end'
   result: HandResult | null
-  history: { winner: number | null; from: number | null; tai: number }[]
+  history: { winner: number | null; from: number | null; tai: number; hand?: number }[]
   skills: Record<SkillId, number>
   /** 偷看中的座位 */
   peek: number | null
   /** 對手絕招剩幾次（座位 → 次數） */
   aiSkills?: Record<number, number>
+  /** 牌桌規則（開打時決定，這一場都不變） */
+  rules?: T.Rules
+  difficulty?: Difficulty
+  /** 每日挑戰：日期（同一天大家的牌都一樣） */
+  daily?: string
+  /** 引導局：第一次玩 */
+  tutorial?: boolean
+  /** 電腦走了幾步（重播用：你的每個動作記在第幾步之後） */
+  ticks?: number
+  /** 每日挑戰：你的動作紀錄，同一個種子可以完整重播 */
+  log?: Act[]
+}
+
+/** 你的一個動作：[電腦走到第幾步, 種類, 參數] */
+export type Act =
+  | [number, 'd', number]
+  | [number, 'c', T.ClaimDecision]
+  | [number, 't']
+  | [number, 'k', Kind]
+  | [number, 's', SkillId, number?]
+  | [number, 'n']
+
+export type Difficulty = 'easy' | 'normal' | 'hard'
+
+export const DIFFICULTY: Record<Difficulty, { name: string; desc: string; coins: number }> = {
+  easy: { name: '輕鬆', desc: '對手常打錯、不太防守、不用絕招', coins: 0.6 },
+  normal: { name: '普通', desc: '照角色個性打', coins: 1 },
+  hard: { name: '高手', desc: '對手很少失誤、防守更緊、絕招更常用', coins: 1.5 },
+}
+
+export interface MatchOptions {
+  rules?: T.Rules
+  difficulty?: Difficulty
+  daily?: string
+  tutorial?: boolean
 }
 
 const fail = (msg: string): never => {
@@ -76,8 +115,18 @@ function edit(m: MatchState, fn: (r: MatchState) => void): MatchState {
   return r
 }
 
-export function styleOf(m: MatchState, seat: number) {
-  return CHARACTERS[m.chars[seat]].style
+export function styleOf(m: MatchState, seat: number): AiStyle {
+  const st = CHARACTERS[m.chars[seat]].style
+  if (m.difficulty === 'easy') return { speed: st.speed, defense: st.defense * 0.35, greed: st.greed * 0.6, mistakes: Math.min(1, st.mistakes + 0.6) }
+  if (m.difficulty === 'hard') return { ...st, defense: Math.min(1, st.defense + 0.25), mistakes: st.mistakes * 0.25 }
+  return st
+}
+
+export const rulesOf = (m: MatchState): T.Rules => m.rules ?? T.DEFAULT_RULES
+
+/** 這一局所有胡的人（一炮多響時不只一個） */
+export function winsOf(r: { win: T.WinInfo | null; also?: T.WinInfo[] } | null | undefined): T.WinInfo[] {
+  return r?.win ? [r.win, ...(r.also ?? [])] : []
 }
 
 /** 剛有人打牌：電腦馬上決定要不要吃碰胡（你的決定等畫面） */
@@ -90,7 +139,7 @@ function autoDecide(m: MatchState) {
   }
 }
 
-export function newMatch(seed: string, stageIndex: number): MatchState {
+export function newMatch(seed: string, stageIndex: number, opt: MatchOptions = {}): MatchState {
   const stage = STAGES[stageIndex]
   const m = {
     version: 2,
@@ -110,10 +159,24 @@ export function newMatch(seed: string, stageIndex: number): MatchState {
     history: [],
     skills: { swap: SKILLS.swap.uses, peek: SKILLS.peek.uses, lucky: SKILLS.lucky.uses },
     peek: null,
+    rules: opt.rules ?? T.DEFAULT_RULES,
+    difficulty: opt.difficulty ?? 'normal',
+    ...(opt.daily ? { daily: opt.daily } : {}),
+    ...(opt.tutorial ? { tutorial: true } : {}),
   } as unknown as MatchState
   m.chars = ['me', ...shuffle(m, [...stage.opponents])]
   m.dealer = randInt(m, 4)
-  m.hand = T.newHand(m, m.dealer, 0)
+  m.hand = T.newHand(m, m.dealer, 0, rulesOf(m))
+  // 引導局：發一手好上手的牌（差兩步就聽牌，一般起手大多差四步）
+  if (opt.tutorial) {
+    const sh = (h: T.HandState) => (h.phase === 'over' ? 99 : shanten(toCounts(h.seats[0].hand), 5))
+    let best = m.hand
+    for (let k = 0; k < 150 && sh(best) > 2; k++) {
+      const h = T.newHand(m, m.dealer, 0, rulesOf(m))
+      if (sh(h) < sh(best)) best = h
+    }
+    m.hand = best
+  }
   if (m.hand.phase === 'over') settle(m)
   return m
 }
@@ -133,7 +196,11 @@ export function tsumo(m: MatchState): MatchState {
 }
 
 export function kong(m: MatchState, kind: Kind): MatchState {
-  return edit(m, (r) => T.selfKong(r.hand, 0, kind))
+  return edit(m, (r) => {
+    T.selfKong(r.hand, 0, kind)
+    // 加槓可能被搶槓：電腦馬上決定要不要胡
+    autoDecide(r)
+  })
 }
 
 export function claim(m: MatchState, d: T.ClaimDecision): MatchState {
@@ -178,18 +245,22 @@ export function step(m: MatchState): MatchState {
   const h = m.hand
   if (h.phase === 'claim') {
     return edit(m, (r) => {
+      r.ticks = (r.ticks ?? 0) + 1
       autoDecide(r)
       T.resolveClaims(r.hand)
     })
   }
   if (h.phase === 'discard' && h.turn !== 0) {
     return edit(m, (r) => {
+      r.ticks = (r.ticks ?? 0) + 1
       const seat = r.hand.turn
       aiSkill(r, seat)
       const act = chooseSelf(r.hand, seat, styleOf(r, seat), r)
       if (act.type === 'tsumo') T.tsumo(r.hand, seat)
-      else if (act.type === 'kong') T.selfKong(r.hand, seat, act.kind)
-      else {
+      else if (act.type === 'kong') {
+        T.selfKong(r.hand, seat, act.kind)
+        autoDecide(r)
+      } else {
         T.discardTile(r.hand, seat, act.tileId)
         autoDecide(r)
       }
@@ -201,10 +272,10 @@ export function step(m: MatchState): MatchState {
 /** 會用絕招的對手，在合適的時機用一下（每場有次數） */
 function aiSkill(m: MatchState, seat: number) {
   const sk = CHARACTERS[m.chars[seat]].skill
-  if (!sk) return
+  if (!sk || m.difficulty === 'easy' || m.tutorial) return
   m.aiSkills ??= {}
   const left = m.aiSkills[seat] ?? sk.uses
-  if (left <= 0 || rand(m) > 0.35) return
+  if (left <= 0 || rand(m) > (m.difficulty === 'hard' ? 0.5 : 0.35)) return
   const h = m.hand
   const live = h.wall.length - T.RESERVE
   const sh = shanten(toCounts(h.seats[seat].hand), T.need(h, seat))
@@ -233,33 +304,43 @@ function settle(m: MatchState) {
   const payments: Payment[] = []
   const extras: NonNullable<HandResult['extras']> = []
   let dItems: TaiItem[] | null = null
-  if (h.win) {
-    const w = h.win.seat
-    const payers = h.win.from === null ? [0, 1, 2, 3].filter((s) => s !== w) : [h.win.from]
-    const di = dealerItems(m.streak)
-    const dt = di.reduce((s, x) => s + x.tai, 0)
-    const rule = STAGES[m.stage].rule
+  const wins = winsOf(h)
+  if (wins.length > 1) extras.push({ label: `一炮多響：${wins.length} 家一起胡` })
+  const di = dealerItems(m.streak)
+  const dt = di.reduce((s, x) => s + x.tai, 0)
+  const rule = STAGES[m.stage].rule
+  for (const win of wins) {
+    const w = win.seat
+    const payers = win.from === null ? [0, 1, 2, 3].filter((s) => s !== w) : [win.from]
     // 過年紅包：自摸三家都付兩倍
-    const mult = rule === 'newyear' && h.win.from === null ? 2 : 1
+    const mult = rule === 'newyear' && win.from === null ? 2 : 1
     if (mult > 1) extras.push({ label: '過年紅包：自摸三家付兩倍' })
     // 尾牙摸彩：你胡的牌裡有紅中就抽獎
-    const withRed = [...h.win.hand, ...h.seats[w].melds.flatMap((x) => x.tiles)].some((t) => t.kind === 'z5')
+    const withRed = [...win.hand, ...h.seats[w].melds.flatMap((x) => x.tiles)].some((t) => t.kind === 'z5')
     if (rule === 'raffle' && w === 0 && withRed) extras.push({ label: '尾牙摸彩', coins: pick(m, [100, 150, 200, 300, 500]) })
     for (const p of payers) {
       const involved = w === m.dealer || p === m.dealer
-      const tai = h.win.score.total + (involved ? dt : 0)
+      const tai = win.score.total + (involved ? dt : 0)
       const amount = (m.base + tai * m.perTai) * mult
       deltas[p] -= amount
       deltas[w] += amount
-      payments.push({ seat: p, amount, tai })
+      payments.push({ seat: p, amount, tai, ...(wins.length > 1 ? { to: w } : {}) })
     }
     if (w === m.dealer || payers.includes(m.dealer)) dItems = di
-    m.history.push({ winner: w, from: h.win.from, tai: h.win.score.total })
-  } else {
-    m.history.push({ winner: null, from: null, tai: 0 })
+    m.history.push({ winner: w, from: win.from, tai: win.score.total, hand: m.handNo })
   }
+  if (!wins.length) m.history.push({ winner: null, from: null, tai: 0, hand: m.handNo })
   m.points = m.points.map((p, i) => p + deltas[i])
-  m.result = { win: h.win, dealerItems: dItems, payments, deltas, dealer: m.dealer, streak: m.streak, ...(extras.length ? { extras } : {}) }
+  m.result = {
+    win: h.win,
+    ...(h.also?.length ? { also: h.also } : {}),
+    dealerItems: dItems,
+    payments,
+    deltas,
+    dealer: m.dealer,
+    streak: m.streak,
+    ...(extras.length ? { extras } : {}),
+  }
   m.phase = 'handEnd'
 }
 
@@ -267,7 +348,11 @@ export function nextHand(m: MatchState): MatchState {
   return edit(m, (r) => {
     if (r.phase !== 'handEnd' || !r.result) fail('這一局還沒結束')
     const res = r.result!
-    if (!res.win || res.win.seat === r.dealer) r.streak++
+    const wins = winsOf(res)
+    const keep = !wins.length || wins.some((w) => w.seat === r.dealer)
+    // 連莊上限：連到上限就換莊
+    const cap = rulesOf(r).streakCap
+    if (keep && !(cap > 0 && r.streak >= cap)) r.streak++
     else {
       r.dealer = (r.dealer + 1) % 4
       r.streak = 0
@@ -280,7 +365,7 @@ export function nextHand(m: MatchState): MatchState {
     r.handNo++
     r.result = null
     r.peek = null
-    r.hand = T.newHand(r, r.dealer, 0)
+    r.hand = T.newHand(r, r.dealer, 0, rulesOf(r))
     r.phase = 'play'
   })
 }
@@ -292,4 +377,31 @@ export function ranking(m: MatchState): number[] {
 
 export function stageOf(m: MatchState) {
   return STAGES[m.stage]
+}
+
+// ---------- 重播 ----------
+
+/** 電腦一直走，直到輪到你、或走到指定的步數 */
+function advance(m: MatchState, until = Infinity): MatchState {
+  for (let g = 0; g < 20000 && m.phase === 'play' && (m.ticks ?? 0) < until; g++) {
+    const n = step(m)
+    if (n === m) break
+    m = n
+  }
+  return m
+}
+
+/** 照動作紀錄重播一整場（每日挑戰的成績可以驗證） */
+export function replay(seed: string, stage: number, opt: MatchOptions, log: readonly Act[]): MatchState {
+  let m = newMatch(seed, stage, opt)
+  for (const a of log) {
+    m = advance(m, a[0])
+    if (a[1] === 'd') m = discard(m, a[2])
+    else if (a[1] === 'c') m = claim(m, a[2])
+    else if (a[1] === 't') m = tsumo(m)
+    else if (a[1] === 'k') m = kong(m, a[2])
+    else if (a[1] === 's') m = useSkill(m, a[2], a[3])
+    else m = nextHand(m)
+  }
+  return advance(m)
 }

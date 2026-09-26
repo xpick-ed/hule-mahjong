@@ -1,24 +1,27 @@
 import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { visible } from '../engine/ai'
 import { discardShanten, kindOf, shanten, toCounts, waits } from '../engine/analysis'
+import { evaluate } from '../engine/coach'
 import { CHARACTERS, TAUNTS } from '../engine/characters'
 import * as M from '../engine/match'
-import { canTsumo, need, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
+import { canTsumo, need, passedWin, RESERVE, seatWind, selfKongs, type HandState } from '../engine/table'
 import { idx, WIND_CHAR, type Kind } from '../engine/tiles'
 import { BACK } from '../progress'
+import { dangerMap, publicThreats } from '../review'
 import { sfx } from '../sfx'
-import { tableSkin, useUI } from '../store'
+import { lookFor, tableSkin, useUI } from '../store'
 import { Avatar, MeBadge } from './Avatar'
 import { Back, cls, fmt, Tile, useStageSize } from './bits'
 import { CutIn } from './Celebrate'
+import { Guide, useGuideStep } from './Guide'
 import { HandEnd, MatchEnd } from './Overlays'
 
-/** 電腦的節奏：不是在等你的時候，隔一下就讓電腦動一步 */
-function useDriver(m: M.MatchState) {
+/** 電腦的節奏：不是在等你的時候，隔一下就讓電腦動一步（引導說明出現時先停） */
+function useDriver(m: M.MatchState, paused: boolean) {
   const step = useUI((s) => s.step)
   const fast = useUI((s) => s.settings.fast)
   useEffect(() => {
-    if (m.phase !== 'play' || M.waitingForYou(m)) return
+    if (paused || m.phase !== 'play' || M.waitingForYou(m)) return
     const h = m.hand
     let delay = 0
     if (h.phase === 'claim') delay = 420
@@ -26,7 +29,63 @@ function useDriver(m: M.MatchState) {
     if (!delay) return
     const id = window.setTimeout(step, delay * (fast ? 0.45 : 1))
     return () => window.clearTimeout(id)
-  }, [m, step, fast])
+  }, [m, step, fast, paused])
+}
+
+/** 有人看起來聽牌了（只看公開資訊） */
+function useThreats(m: M.MatchState): number[] {
+  const heard = useUI((s) => s.heardTing)
+  const on = useUI((s) => s.settings.danger)
+  return useMemo(() => (on && m.phase === 'play' ? publicThreats(m.hand, heard) : []), [on, m, heard])
+}
+
+/** 桌機鍵盤：←→ 選牌、Enter 打出、H 胡、P 碰、C 吃、K 槓、X 過 */
+function useKeys(m: M.MatchState) {
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      const st = useUI.getState()
+      if (e.metaKey || e.ctrlKey || e.altKey || st.menu || st.learn || st.prematch || st.records || st.people) return
+      if ((e.target as HTMLElement)?.tagName === 'INPUT') return
+      const k = e.key.toLowerCase()
+      if (k === 'escape') {
+        if (st.mode) useUI.setState({ mode: null })
+        else st.setMenu(true)
+        return
+      }
+      if (!M.waitingForYou(m)) return
+      const h = m.hand
+      if (h.phase === 'claim') {
+        const o = h.options[0]!
+        if (k === 'h' && o.hu) st.claim({ type: 'hu' })
+        else if (k === 'p' && o.pon) st.claim({ type: 'pon' })
+        else if (k === 'k' && o.kong) st.claim({ type: 'kong' })
+        else if (k === 'c' && o.chi.length) (o.chi.length === 1 ? st.claim({ type: 'chi', use: o.chi[0] }) : st.setChiOpen(!st.chiOpen))
+        else if (k === 'x' || k === ' ') st.claim({ type: 'pass' })
+        else return
+        e.preventDefault()
+        return
+      }
+      const hand = h.seats[0].hand
+      const i = hand.findIndex((t) => t.id === st.sel)
+      if (k === 'arrowleft' || k === 'arrowright') {
+        const d = k === 'arrowleft' ? -1 : 1
+        const j = i < 0 ? (d > 0 ? 0 : hand.length - 1) : (i + d + hand.length) % hand.length
+        useUI.setState({ sel: hand[j].id })
+        sfx.select()
+      } else if (k === 'enter' || k === ' ') {
+        if (i >= 0) st.tapTile(hand[i].id)
+        else useUI.setState({ sel: (h.drawn && hand.some((t) => t.id === h.drawn!.id) ? h.drawn : hand[hand.length - 1]).id })
+      } else if (k === 'h' && canTsumo(h, 0)) st.tsumo()
+      else if (k === 'k') {
+        const ks = selfKongs(h, 0)
+        const kind = ks.ankan[0] ?? ks.kakan[0]
+        if (kind) st.kong(kind)
+      } else return
+      e.preventDefault()
+    }
+    window.addEventListener('keydown', on)
+    return () => window.removeEventListener('keydown', on)
+  }, [m])
 }
 
 export function MatchView() {
@@ -40,20 +99,24 @@ export function MatchView() {
 }
 
 function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typeof tableSkin>; back: (typeof BACK)[string] }) {
-  const timer = useTurnTimer(match)
+  const guide = useGuideStep(match)
+  const timer = useTurnTimer(match, !!guide)
+  const threats = useThreats(match)
+  useKeys(match)
   return (
     <div
       className="match"
       style={{ '--table': skin.color, '--table-rim': skin.rim, '--table-edge': skin.edge, '--back': back.bg, '--back-ring': back.ring } as CSSProperties}
     >
-      <Driver m={match} />
+      <Driver m={match} paused={!!guide} />
       <TopStrip m={match} />
       <TableCenter m={match} timer={timer} />
-      <Opponent m={match} seat={2} side="top" />
-      <Opponent m={match} seat={3} side="left" />
-      <Opponent m={match} seat={1} side="right" />
-      <MyArea m={match} />
+      <Opponent m={match} seat={2} side="top" threat={threats.includes(2)} />
+      <Opponent m={match} seat={3} side="left" threat={threats.includes(3)} />
+      <Opponent m={match} seat={1} side="right" threat={threats.includes(1)} />
+      <MyArea m={match} threats={threats} />
       <Actions m={match} />
+      {guide && <Guide key={guide.id} step={guide} />}
       {match.phase === 'handEnd' && <CutIn key={`cut${match.handNo}`} m={match} />}
       {match.phase === 'handEnd' && <HandEnd key={`end${match.handNo}`} m={match} />}
       {match.phase === 'end' && <MatchEnd m={match} />}
@@ -61,8 +124,8 @@ function Table({ m: match, skin, back }: { m: M.MatchState; skin: ReturnType<typ
   )
 }
 
-function Driver({ m }: { m: M.MatchState }) {
-  useDriver(m)
+function Driver({ m, paused }: { m: M.MatchState; paused: boolean }) {
+  useDriver(m, paused)
   return null
 }
 
@@ -189,8 +252,10 @@ function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
   )
 }
 
-function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top' | 'left' | 'right' }) {
+function Opponent({ m, seat, side, threat }: { m: M.MatchState; seat: number; side: 'top' | 'left' | 'right'; threat: boolean }) {
   const ch = CHARACTERS[m.chars[seat]]
+  const progress = useUI((st) => st.progress)
+  const look = useMemo(() => lookFor(progress, m.chars[seat]), [progress, m.chars, seat])
   const h = m.hand
   const s = h.seats[seat]
   const bubble = useUI((st) => st.bubbles[seat])
@@ -230,7 +295,7 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
     <>
       <div className={cls('opp', side, h.turn === seat && h.phase !== 'over' && 'active')}>
         <button type="button" className={cls('avatar', mode === 'peek' && 'pickable')} onClick={() => peekAt(seat)} aria-label={`${ch.name}${mode === 'peek' ? '（點一下偷看）' : ''}`} disabled={mode !== 'peek'}>
-          <Avatar look={ch.look} mood={mood ?? 'normal'} />
+          <Avatar look={look} mood={mood ?? 'normal'} />
           {h.turn === seat && h.phase === 'discard' && (
             <span className="thinking" aria-hidden="true">
               <i />
@@ -240,6 +305,11 @@ function Opponent({ m, seat, side }: { m: M.MatchState; seat: number; side: 'top
           )}
           <span className="seat-wind">{WIND_CHAR[seatWind(h, seat)]}</span>
           {m.dealer === seat && <span className="dealer">莊</span>}
+          {threat && h.phase !== 'over' && (
+            <span className="threat" title="看起來快胡了">
+              聽?
+            </span>
+          )}
         </button>
         <div className="player-info">
           <span className="pname">{ch.name}</span>
@@ -274,11 +344,12 @@ interface TurnTimerState {
 }
 
 /** 出牌倒數：輪到你（打牌或吃碰）才開始；時間到系統幫你打。開選單或教學時暫停 */
-function useTurnTimer(m: M.MatchState): TurnTimerState {
+function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
   const turnTime = useUI((s) => s.settings.turnTime)
-  const paused = useUI((s) => s.menu || s.learn !== null)
+  const paused = useUI((s) => s.menu || s.learn !== null || s.people !== null || s.records) || guide
   const autoPlay = useUI((s) => s.autoPlay)
-  const key = M.waitingForYou(m) ? `${m.handNo}:${m.hand.eventN}:${m.hand.phase}` : ''
+  // 引導局不計時
+  const key = M.waitingForYou(m) && !m.tutorial ? `${m.handNo}:${m.hand.eventN}:${m.hand.phase}` : ''
   const total = turnTime * 1000
   const [left, setLeft] = useState(total)
   useEffect(() => setLeft(total), [key, total])
@@ -346,7 +417,7 @@ function remaining(h: HandState, kinds: number[]): { kind: Kind; left: number }[
   return kinds.map((k) => ({ kind: kindOf(k), left: Math.max(0, 4 - seen[k]) }))
 }
 
-function MyArea({ m }: { m: M.MatchState }) {
+function MyArea({ m, threats }: { m: M.MatchState; threats: number[] }) {
   const h = m.hand
   const me = h.seats[0]
   const sel = useUI((s) => s.sel)
@@ -360,6 +431,7 @@ function MyArea({ m }: { m: M.MatchState }) {
   // 打哪張會聽（提示）
   const after = useMemo(() => (myTurn ? discardShanten(me.hand, n) : null), [myTurn, me.hand, n])
   const best = after ? Math.min(...after.values()) : null
+
   const selTile = me.hand.find((t) => t.id === sel)
 
   const selInfo = useMemo(() => {
@@ -379,6 +451,21 @@ function MyArea({ m }: { m: M.MatchState }) {
     return remaining(h, waits(c, n))
   }, [myTurn, me.hand, n, h])
 
+  // 危險牌提示：輪到你打牌、有人看起來聽了才標
+  const dm = useMemo(() => (myTurn && threats.length ? dangerMap(h, threats) : null), [myTurn, threats, h])
+
+  // 引導局：每一手都標出教練建議打的那張（平常只在打了就聽牌時標）。
+  // 有人快胡、自己還差兩步以上時，跟覆盤一樣建議打安全牌
+  const coachPick = useMemo(() => {
+    if (!m.tutorial || !myTurn) return null
+    const ev = evaluate(me.hand, n)
+    if (dm && ev[0].sh >= 2 && dm.get(ev[0].kind) === 'danger') {
+      const safe = ev.find((e) => dm.get(e.kind) === 'safe')
+      if (safe) return safe.kind
+    }
+    return ev[0]?.kind ?? null
+  }, [m.tutorial, myTurn, me.hand, n, dm])
+
   const drawn = myTurn && h.drawn && me.hand.some((t) => t.id === h.drawn!.id) ? h.drawn : null
   const main = drawn ? me.hand.filter((t) => t.id !== drawn.id) : me.hand
   const meldTiles = me.melds.reduce((s, x) => s + x.tiles.length, 0) + me.flowers.length
@@ -392,7 +479,8 @@ function MyArea({ m }: { m: M.MatchState }) {
       kind={t.kind}
       w={size}
       selected={sel === t.id}
-      mark={hints && best === 0 && after?.get(t.kind) === 0}
+      mark={(hints && best === 0 && after?.get(t.kind) === 0) || (best !== 0 && t.kind === coachPick)}
+      badge={dm ? dm.get(t.kind) : undefined}
       onClick={myTurn ? () => tap(t.id) : undefined}
       label={undefined}
     />
@@ -441,6 +529,11 @@ function MyArea({ m }: { m: M.MatchState }) {
       {ting && (
         <div className="ting" role="status">
           聽
+          {passedWin(h, 0) && (
+            <span className="passed" title="放過能胡的牌，摸牌之前不能胡別人打的">
+              過水
+            </span>
+          )}
           {ting.map((w) => (
             <span key={w.kind} className="wait">
               <Tile kind={w.kind} w={18} />
@@ -499,8 +592,8 @@ function Actions({ m }: { m: M.MatchState }) {
           </button>
         )}
         {o.hu && (
-          <button type="button" className="claim hu" onClick={() => claim({ type: 'hu' })}>
-            胡
+          <button type="button" className={cls('claim hu', h.robbing && 'small-label')} onClick={() => claim({ type: 'hu' })}>
+            {h.robbing ? '搶槓' : '胡'}
           </button>
         )}
       </div>

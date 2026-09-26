@@ -12,3 +12,11 @@
 
 /voice/index.json
   Cache-Control: no-cache
+
+# Service Worker 每次都要問新版
+/sw.js
+  Cache-Control: no-cache
+
+# 字型檔名帶雜湊
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

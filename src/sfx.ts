@@ -4,9 +4,13 @@
 let ctx: AudioContext | null = null
 let master: GainNode | null = null
 let enabled = true
+let volume = 1
 
-export function setSoundEnabled(on: boolean) {
-  enabled = on
+/** 音效音量 0–1（0 = 關） */
+export function setSfxVolume(v: number) {
+  volume = v
+  enabled = v > 0
+  if (master) master.gain.value = 0.55 * v
 }
 
 function ac(): AudioContext | null {
@@ -15,7 +19,7 @@ function ac(): AudioContext | null {
     if (!C) return null
     ctx = new C()
     master = ctx.createGain()
-    master.gain.value = 0.55
+    master.gain.value = 0.55 * volume
     master.connect(ctx.destination)
   }
   if (ctx.state === 'suspended') void ctx.resume()

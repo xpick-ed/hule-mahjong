@@ -1,0 +1,12 @@
+# Cloudflare Pages 設定（npx wrangler pages deploy 會讀這個檔）
+name = "hule"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-09-01"
+
+# 每日挑戰排行榜的資料庫。第一次部署前：
+#   npx wrangler d1 create hule            → 把印出來的 database_id 貼到下面
+#   npx wrangler d1 execute hule --remote --file=schema.sql
+[[d1_databases]]
+binding = "DB"
+database_name = "hule"
+database_id = "00000000-0000-0000-0000-000000000000"

@@ -3,6 +3,7 @@ import * as M from './match'
 import { scoreWin, type Meld, type WinContext } from './scoring'
 import * as T from './table'
 import type { Tile } from './tiles'
+import { shanten, toCounts } from './analysis'
 
 let id = 5000
 const tiles = (s: string): Tile[] => (s ? s.split(' ').map((kind) => ({ id: id++, kind })) : [])
@@ -260,5 +261,130 @@ describe('一場東風圈', () => {
     const r = M.tsumo(m).result!
     expect(r.extras?.[0].label).toBe('尾牙摸彩')
     expect(r.extras?.[0].coins).toBeGreaterThan(0)
+  })
+})
+
+describe('牌桌規則', () => {
+  const junk1 = 'z2 z2 z3 z3 z4 z4 z6 z6 s9 s9 p9 p9 m9 m9 s1 s2'
+  const junk2 = 'p1 z2 z3 z4 z6 z7 s9 p9 m9 m1 m2 p5 p6 s1 s3 s4'
+  const me17 = 'm3 p1 p2 p3 p4 p5 p6 p7 p8 p9 s1 s2 s3 s4 s5 s6 s7'
+  const id = (h: T.HandState, seat: number, kind: string) => h.seats[seat].hand.find((t) => t.kind === kind)!.id
+  const passAll = (h: T.HandState) => {
+    for (let s = 0; s < 4; s++) if (h.options[s] && !h.decisions[s]) T.decide(h, s, { type: 'pass' })
+    T.resolveClaims(h)
+  }
+
+  it('過水：放過能胡的牌，摸牌之前不能胡別人打的', () => {
+    const h = rig([me17, junk1, junk2, hand16], 'm6 s8 p2')
+    T.discardTile(h, 0, id(h, 0, 'm3'))
+    expect(h.options[3]!.hu).toBe(true)
+    passAll(h)
+    expect(h.passedWin![3]).toBe(true)
+    // 下家摸到 m6 打出來：座位 3 聽 m6 但過水中，不能胡
+    T.discardTile(h, 1, id(h, 1, 'm6'))
+    expect(h.options[3]).toBeNull()
+    if (h.phase === 'claim') passAll(h)
+    T.drawTile(h, 3)
+    expect(h.passedWin![3]).toBe(false)
+  })
+  it('過水規則關掉就可以胡', () => {
+    const h = rig([me17, junk1, junk2, hand16], 'm6 s8 p2')
+    h.rules = { ...T.DEFAULT_RULES, passWin: false }
+    T.discardTile(h, 0, id(h, 0, 'm3'))
+    passAll(h)
+    T.discardTile(h, 1, id(h, 1, 'm6'))
+    expect(h.options[3]!.hu).toBe(true)
+  })
+  it('截胡：兩家胡同一張，只有最近的下家胡', () => {
+    const also = 'm1 m2 p2 p3 p4 s5 s6 s7 z1 z1 z1 z5 z5 z5 p9 p9'
+    const h = rig([me17, junk1, also, hand16], 'z7')
+    T.discardTile(h, 0, id(h, 0, 'm3'))
+    T.decide(h, 2, { type: 'hu' })
+    T.decide(h, 3, { type: 'hu' })
+    passAll(h)
+    expect(h.win!.seat).toBe(2)
+    expect(h.also).toBeUndefined()
+  })
+  it('一炮多響：兩家都胡，放槍的人兩家都付', () => {
+    const also = 'm1 m2 p2 p3 p4 s5 s6 s7 z1 z1 z1 z5 z5 z5 p9 p9'
+    let m = M.newMatch('multi', 0, { rules: { ...T.DEFAULT_RULES, multiRon: true } })
+    m.dealer = 0
+    m.hand = rig([junk2, 'm3 ' + me17.slice(3), also, hand16], 'z7', 1)
+    m.hand.rules = m.rules
+    m.hand.dealer = 0
+    T.discardTile(m.hand, 1, id(m.hand, 1, 'm3'))
+    m = M.step(m)
+    const r = m.result!
+    expect(M.winsOf(r).map((w) => w.seat)).toEqual([2, 3])
+    expect(r.payments.every((p) => p.seat === 1)).toBe(true)
+    expect(r.deltas[2]).toBeGreaterThan(0)
+    expect(r.deltas[3]).toBeGreaterThan(0)
+    expect(r.deltas.reduce((s, x) => s + x, 0)).toBe(0)
+  })
+  it('搶槓：加槓那張被別家胡走，槓子變回碰', () => {
+    const h = rig(['m6 p1 p2 p3 p4 p5 p6 p7 p8 p9 s1 s2 s3 z7', hand16, junk2, junk1], 'z7')
+    h.seats[0].melds = [meld('pung', 'm6 m6 m6')]
+    T.selfKong(h, 0, 'm6')
+    expect(h.phase).toBe('claim')
+    expect(h.options[1]).toMatchObject({ hu: true, pon: false, kong: false })
+    T.decide(h, 1, { type: 'hu' })
+    passAll(h)
+    expect(h.win).toMatchObject({ seat: 1, from: 0 })
+    expect(h.win!.score.items.map((x) => x.name)).toContain('搶槓')
+    expect(h.seats[0].melds[0].type).toBe('pung')
+    expect(h.seats[0].melds[0].tiles).toHaveLength(3)
+  })
+  it('搶槓沒人要：槓成功、從牌尾補牌', () => {
+    const h = rig(['m6 p1 p2 p3 p4 p5 p6 p7 p8 p9 s1 s2 s3 z7', hand16, junk2, junk1], 'z7')
+    h.seats[0].melds = [meld('pung', 'm6 m6 m6')]
+    T.selfKong(h, 0, 'm6')
+    T.decide(h, 1, { type: 'pass' })
+    passAll(h)
+    expect(h.phase).toBe('discard')
+    expect(h.turn).toBe(0)
+    expect(h.seats[0].melds[0].tiles).toHaveLength(4)
+    expect(h.afterKong).toBe(true)
+    expect(h.passedWin![1]).toBe(true)
+  })
+  it('七搶一：別人摸到第八張花，有七張花的人直接胡、摸到的人付', () => {
+    const h = rig([hand16 + ' z7', junk1, junk2, 'p1 p2 p3 p4 p5 p6 p7 p8 p9 s1 s2 s3 s4 s5 s6 s7'], 'f8 m2')
+    h.seats[1].flowers = tiles('f1 f2 f3 f4 f5 f6 f7')
+    T.discardTile(h, 0, id(h, 0, 'z7'))
+    if (h.phase === 'claim') passAll(h)
+    // 座位 1 摸到 f8 補花 → 被自己用掉？不，座位 1 自己就是七張花：摸到第八張是八仙過海
+    expect(h.win).toMatchObject({ seat: 1, from: null })
+    expect(h.win!.score.items[0].name).toBe('八仙過海')
+  })
+  it('七搶一：別家摸到第八張花被搶', () => {
+    const h = rig([hand16 + ' z7', junk1, junk2, 'p1 p2 p3 p4 p5 p6 p7 p8 p9 s1 s2 s3 s4 s5 s6 s7'], 'f8 m2')
+    h.seats[3].flowers = tiles('f1 f2 f3 f4 f5 f6 f7')
+    T.discardTile(h, 0, id(h, 0, 'z7'))
+    if (h.phase === 'claim') passAll(h)
+    expect(h.win).toMatchObject({ seat: 3, from: 1 })
+    expect(h.win!.score.items[0]).toEqual({ name: '七搶一', tai: 8 })
+    expect(h.seats[3].flowers).toHaveLength(8)
+    expect(h.seats[1].flowers).toHaveLength(0)
+  })
+  it('連莊上限：連到上限就換莊', () => {
+    let m = M.newMatch('cap', 0, { rules: { ...T.DEFAULT_RULES, streakCap: 2 } })
+    const d0 = m.dealer
+    m.streak = 2
+    m.phase = 'handEnd'
+    m.result = { win: null, dealerItems: null, payments: [], deltas: [0, 0, 0, 0], dealer: d0, streak: 2 }
+    m = M.nextHand(m)
+    expect(m.dealer).toBe((d0 + 1) % 4)
+    expect(m.streak).toBe(0)
+  })
+  it('難度：輕鬆的對手常失誤、不太防守', () => {
+    const m = M.newMatch('easy', 0, { difficulty: 'easy' })
+    const hard = M.newMatch('easy', 0, { difficulty: 'hard' })
+    expect(M.styleOf(m, 1).mistakes).toBeGreaterThan(M.styleOf(hard, 1).mistakes)
+    expect(M.styleOf(m, 1).defense).toBeLessThan(M.styleOf(hard, 1).defense)
+  })
+  it('引導局：你的起手牌差兩步以內', () => {
+    for (const seed of ['a', 'b', 'c']) {
+      const m = M.newMatch(seed, 0, { tutorial: true })
+      expect(shanten(toCounts(m.hand.seats[0].hand), 5)).toBeLessThanOrEqual(2)
+    }
   })
 })

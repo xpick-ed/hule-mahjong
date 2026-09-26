@@ -35,6 +35,10 @@ export interface WinContext {
   heaven: boolean
   earth: boolean
   eightFlowers?: boolean
+  /** 七搶一：搶了別人的第八張花 */
+  robFlower?: boolean
+  /** 搶槓胡：胡別人加槓的那張 */
+  robKong?: boolean
 }
 
 export interface WinScore {
@@ -59,6 +63,7 @@ function common(ctx: WinContext): TaiItem[] {
   if ([1, 2, 3, 4].every((r) => flowers.includes(r))) items.push({ name: '春夏秋冬', tai: 2 })
   if ([5, 6, 7, 8].every((r) => flowers.includes(r))) items.push({ name: '梅蘭竹菊', tai: 2 })
   if (ctx.afterKong && ctx.tsumo) items.push({ name: '槓上開花', tai: 1 })
+  if (ctx.robKong) items.push({ name: '搶槓', tai: 1 })
   if (ctx.lastTile) items.push(ctx.tsumo ? { name: '海底撈月', tai: 1 } : { name: '河底撈魚', tai: 1 })
   if (ctx.heaven) items.push({ name: '天胡', tai: 16 })
   if (ctx.earth) items.push({ name: '地胡', tai: 16 })
@@ -124,7 +129,10 @@ export function scoreWin(ctx: WinContext): WinScore {
   const allKinds = [...ctx.hand, ...ctx.melds.flatMap((m) => m.tiles)].map((t) => t.kind).filter((k) => !isFlower(k))
 
   if (ctx.eightFlowers) {
-    const items = [{ name: '八仙過海', tai: 8 }, ...base.filter((x) => x.name !== '門清' && x.name !== '門清自摸')]
+    const items = [
+      ctx.robFlower ? { name: '七搶一', tai: 8 } : { name: '八仙過海', tai: 8 },
+      ...base.filter((x) => x.name !== '門清' && x.name !== '門清自摸'),
+    ]
     return { items, total: sum(items) }
   }
 

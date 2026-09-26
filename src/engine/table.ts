@@ -36,6 +36,18 @@ export interface WinInfo {
   hand: Tile[]
 }
 
+/** 牌桌規則（每一家的習慣不一樣，設定裡可以改） */
+export interface Rules {
+  /** 一炮多響：同一張牌好幾家都能胡就都胡；關掉是「截胡」，只算最近的下家 */
+  multiRon: boolean
+  /** 過水：放過一張能胡的牌，摸牌之前都不能胡別人打的牌 */
+  passWin: boolean
+  /** 連莊上限（0 = 不限）：連到這麼多次就換莊 */
+  streakCap: number
+}
+
+export const DEFAULT_RULES: Rules = { multiRon: false, passWin: true, streakCap: 0 }
+
 export type HandEvent =
   | { t: 'draw'; seat: number }
   | { t: 'flower'; seat: number; tile: Tile }
@@ -70,7 +82,14 @@ export interface HandState {
   tingSaid: boolean[]
   /** 這一局偷看過你手牌的對手（他們防你防得很準） */
   peekedBy?: boolean[]
+  rules?: Rules
+  /** 過水中的座位（放過胡牌、還沒摸牌） */
+  passedWin?: boolean[]
+  /** 加槓的那張牌，等別家決定要不要搶槓胡 */
+  robbing?: { seat: number; tile: Tile } | null
   win: WinInfo | null
+  /** 一炮多響：同一張牌其他也胡的人 */
+  also?: WinInfo[]
   exhausted: boolean
   events: { n: number; e: HandEvent }[]
   eventN: number
@@ -90,7 +109,7 @@ export function emit(h: HandState, e: HandEvent) {
   if (h.events.length > 40) h.events.splice(0, h.events.length - 40)
 }
 
-export function newHand(rng: HasRng, dealer: number, roundWind: number): HandState {
+export function newHand(rng: HasRng, dealer: number, roundWind: number, rules: Rules = DEFAULT_RULES): HandState {
   const wall = shuffle(
     rng,
     fullSet().map((kind, i) => ({ id: i + 1, kind })),
@@ -111,6 +130,9 @@ export function newHand(rng: HasRng, dealer: number, roundWind: number): HandSta
     discardCount: 0,
     luckySeat: null,
     tingSaid: [false, false, false, false],
+    rules,
+    passedWin: [false, false, false, false],
+    robbing: null,
     win: null,
     exhausted: false,
     events: [],
@@ -138,6 +160,14 @@ function replaceFlowers(h: HandState, seat: number) {
     const [f] = s.hand.splice(i, 1)
     s.flowers.push(f)
     emit(h, { t: 'flower', seat, tile: f })
+    // 七搶一：別家已經有七張花，這張第八張花被他搶走，直接胡
+    const robber = [1, 2, 3].map((k) => (seat + k) % 4).find((o) => h.seats[o].flowers.length === 7)
+    if (robber !== undefined) {
+      s.flowers.pop()
+      h.seats[robber].flowers.push(f)
+      winEightFlowers(h, robber, seat)
+      return
+    }
     if (s.flowers.length === 8) {
       winEightFlowers(h, seat)
       return
@@ -167,6 +197,7 @@ export function drawTile(h: HandState, seat: number) {
   h.drawn = t
   h.turn = seat
   h.phase = 'discard'
+  if (h.passedWin) h.passedWin[seat] = false
   emit(h, { t: 'draw', seat })
   replaceFlowers(h, seat)
   if (!h.win) sortTiles(s.hand)
@@ -181,6 +212,7 @@ function kongDraw(h: HandState, seat: number) {
   h.turn = seat
   h.phase = 'discard'
   h.afterKong = true
+  if (h.passedWin) h.passedWin[seat] = false
   replaceFlowers(h, seat)
   if (!h.win) sortTiles(s.hand)
 }
@@ -242,10 +274,39 @@ export function selfKong(h: HandState, seat: number, kind: Kind) {
     m.type = 'kong'
     m.tiles.push(t)
     emit(h, { t: 'kakan', seat, kind })
+    h.noCalls = false
+    if (openRob(h, seat, t)) return
   } else fail('不能槓這張')
   h.noCalls = false
   kongDraw(h, seat)
 }
+
+/** 搶槓：加槓的那張剛好是別家要胡的牌，先問他們要不要胡 */
+function openRob(h: HandState, seat: number, tile: Tile): boolean {
+  let any = false
+  for (let k = 1; k < 4; k++) {
+    const o = (seat + k) % 4
+    const opts = claimOptions(h, o, tile, seat)
+    const hu = !!opts?.hu
+    h.options[o] = hu ? { hu: true, pon: false, kong: false, chi: [] } : null
+    h.decisions[o] = hu ? null : { type: 'pass' }
+    if (hu) any = true
+  }
+  if (!any) {
+    h.options = [null, null, null, null]
+    h.decisions = [null, null, null, null]
+    return false
+  }
+  h.options[seat] = null
+  h.decisions[seat] = { type: 'pass' }
+  h.robbing = { seat, tile }
+  h.lastDiscard = { tile, from: seat }
+  h.phase = 'claim'
+  return true
+}
+
+/** 過水中：放過胡牌以後、還沒摸牌 */
+export const passedWin = (h: HandState, seat: number) => !!(h.rules ?? DEFAULT_RULES).passWin && !!h.passedWin?.[seat]
 
 export function tsumo(h: HandState, seat: number) {
   if (!canTsumo(h, seat)) fail('還沒胡')
@@ -296,7 +357,7 @@ export function claimOptions(h: HandState, seat: number, tile: Tile, from: numbe
   const i = idx(tile.kind)
   const n = need(h, seat)
   c[i]++
-  const hu = isWin(c, n)
+  const hu = isWin(c, n) && !passedWin(h, seat)
   c[i]--
   const last = h.wall.length <= RESERVE
   const pon = !last && c[i] >= 2
@@ -325,22 +386,43 @@ export function decide(h: HandState, seat: number, d: ClaimDecision) {
     (d.type === 'chi' && o!.chi.some((v) => v[0] === d.use[0] && v[1] === d.use[1]))
   if (!ok) fail('不能這樣做')
   h.decisions[seat] = d
+  // 能胡不胡（碰、吃、過都算）：過水
+  if (o!.hu && d.type !== 'hu' && h.passedWin) h.passedWin[seat] = true
 }
 
 export const allDecided = (h: HandState) => h.decisions.every((d) => d !== null)
 
-/** 大家都決定了：胡 ＞ 碰／槓 ＞ 吃；同時兩家胡，照順序最近的那家（截胡） */
+/**
+ * 大家都決定了：胡 ＞ 碰／槓 ＞ 吃。
+ * 同時好幾家胡：一炮多響就都胡；截胡的話只算照順序最近的那家。
+ */
 export function resolveClaims(h: HandState) {
   if (h.phase !== 'claim') fail('沒有要處理的吃碰')
   if (!allDecided(h)) fail('還有人沒決定')
   const { tile, from } = h.lastDiscard!
   const order = [1, 2, 3].map((k) => (from + k) % 4)
   const pick = (type: ClaimDecision['type']) => order.find((s) => h.decisions[s]!.type === type)
+  const rob = h.robbing ?? null
 
-  const huSeat = pick('hu')
-  if (huSeat !== undefined) {
-    markClaimed(h, from)
-    finishWin(h, huSeat, from, tile)
+  const huSeats = order.filter((s) => h.decisions[s]!.type === 'hu')
+  if (huSeats.length) {
+    if (rob) {
+      // 被搶槓：那張從槓子拿回來，槓子變回碰
+      h.robbing = null
+      const m = h.seats[from].melds.find((x) => x.type === 'kong' && x.tiles.some((t) => t.id === tile.id))!
+      m.tiles = m.tiles.filter((t) => t.id !== tile.id)
+      m.type = 'pung'
+    } else markClaimed(h, from)
+    const winners = (h.rules ?? DEFAULT_RULES).multiRon ? huSeats : huSeats.slice(0, 1)
+    for (const w of winners) finishWin(h, w, from, tile, !!rob)
+    return
+  }
+  if (rob) {
+    // 沒人搶，槓成功，照常補牌
+    h.robbing = null
+    h.options = [null, null, null, null]
+    h.decisions = [null, null, null, null]
+    kongDraw(h, rob.seat)
     return
   }
   const kongSeat = pick('kong')
@@ -389,7 +471,7 @@ function markClaimed(h: HandState, from: number) {
   d[d.length - 1].claimed = true
 }
 
-function finishWin(h: HandState, seat: number, from: number | null, tile: Tile) {
+function finishWin(h: HandState, seat: number, from: number | null, tile: Tile, robKong = false) {
   const s = h.seats[seat]
   const hand = from === null ? [...s.hand] : sortTiles([...s.hand, tile])
   const score = scoreWin({
@@ -404,16 +486,21 @@ function finishWin(h: HandState, seat: number, from: number | null, tile: Tile) 
     afterKong: from === null && h.afterKong,
     heaven: from === null && seat === h.dealer && h.discardCount === 0,
     earth: from === null && seat !== h.dealer && h.noCalls && s.discards.length === 0,
+    robKong,
   })
   if (from !== null) s.hand = hand
-  h.win = { seat, from, tile, score, hand }
+  const info = { seat, from, tile, score, hand }
+  // 一炮多響：第一個胡的放 win，其他的放 also
+  if (h.win) h.also = [...(h.also ?? []), info]
+  else h.win = info
   h.phase = 'over'
   h.options = [null, null, null, null]
   h.decisions = [null, null, null, null]
   emit(h, { t: 'win', seat, from })
 }
 
-function winEightFlowers(h: HandState, seat: number) {
+/** 八仙過海（自己湊滿八張花），或七搶一（from：被搶走第八張花的人，由他付） */
+function winEightFlowers(h: HandState, seat: number, from: number | null = null) {
   const s = h.seats[seat]
   const tile = s.flowers[s.flowers.length - 1]
   const score = scoreWin({
@@ -421,7 +508,7 @@ function winEightFlowers(h: HandState, seat: number) {
     melds: s.melds,
     flowers: s.flowers,
     winTile: tile.kind,
-    tsumo: true,
+    tsumo: from === null,
     seatWind: seatWind(h, seat),
     roundWind: h.roundWind,
     lastTile: false,
@@ -429,10 +516,12 @@ function winEightFlowers(h: HandState, seat: number) {
     heaven: false,
     earth: false,
     eightFlowers: true,
+    robFlower: from !== null,
   })
-  h.win = { seat, from: null, tile, score, hand: [...s.hand] }
+  h.win = { seat, from, tile, score, hand: [...s.hand] }
   h.phase = 'over'
-  emit(h, { t: 'win', seat, from: null })
+  h.drawn = null
+  emit(h, { t: 'win', seat, from })
 }
 
 // ---------- 絕招 ----------

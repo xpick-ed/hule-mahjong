@@ -32,8 +32,11 @@ function Tiles({ ks, w = 24, hot = '' }: { ks: string; w?: number; hot?: string 
 // ---------- 胡牌技巧 ----------
 
 function Tips() {
-  const [ci, setCi] = useState(0)
-  const [li, setLi] = useState(0)
+  // 從覆盤點進來：直接開那一課
+  const focus = useUI((s) => s.learnFocus)
+  const fc = focus ? Math.max(0, CHAPTERS.findIndex((c) => c.id === focus.ch)) : 0
+  const [ci, setCi] = useState(fc)
+  const [li, setLi] = useState(focus ? Math.min(focus.i, CHAPTERS[fc].lessons.length - 1) : 0)
   const ch = CHAPTERS[ci]
   const l = ch.lessons[li]
   const go = (c: number, i: number) => {
@@ -317,6 +320,7 @@ const TAI_RULES: { tai: string; items: TaiRule[] }[] = [
       { name: '門風', tai: '1', when: '自己位置的風牌刻子（南家就是南）', ks: 'z2 z2 z2' },
       { name: '獨聽', tai: '1', when: '只聽一種牌：嵌張、邊張、單吊', ks: 'p3 p5' },
       { name: '槓上開花', tai: '1', when: '開槓補的那張剛好自摸' },
+      { name: '搶槓', tai: '1', when: '別人加槓（碰過再補第四張）的那張剛好是你要胡的，可以搶來胡' },
       { name: '海底撈月', tai: '1', when: '摸最後一張牌自摸' },
       { name: '河底撈魚', tai: '1', when: '胡最後一張打出來的牌' },
     ],
@@ -356,6 +360,7 @@ const TAI_RULES: { tai: string; items: TaiRule[] }[] = [
       { name: '五暗刻', tai: '8', when: '手上藏著五組刻子' },
       { name: '嚦咕嚦咕', tai: '8', when: '七對加一組刻子，沒吃沒碰', ks: 'm1 m1 | m4 m4 | p2 p2 | p6 p6 | s3 s3 | s8 s8 | z2 z2 | z5 z5 z5' },
       { name: '八仙過海', tai: '8', when: '八張花全部到手，直接胡', ks: 'f1 f2 f3 f4 f5 f6 f7 f8' },
+      { name: '七搶一', tai: '8', when: '你有七張花，別人摸到第八張：搶過來直接胡，摸到的人付' },
     ],
   },
   {
@@ -390,6 +395,7 @@ function Rules() {
         </div>
         <p className="note">幾種牌型可以一起算。小三元、大三元取代個別的中發白；小四喜、大四喜取代圈風和門風。同一手牌有好幾種拆法時，算台最多的那種。</p>
       </section>
+      <HouseRules />
       {TAI_RULES.map((g) => (
         <section key={g.tai} className="tai-group">
           <h4>{g.tai}</h4>
@@ -408,6 +414,34 @@ function Rules() {
         </section>
       ))}
     </div>
+  )
+}
+
+/** 每一家習慣不一樣的規則：設定裡可以改 */
+function HouseRules() {
+  const r = useUI((s) => s.settings.rules)
+  return (
+    <section className="money house">
+      <h3>牌桌規則</h3>
+      <ul>
+        <li>
+          <b>截胡／一炮多響</b>：同一張牌兩家以上能胡，截胡只算照打牌順序最近的那家；一炮多響是每家都胡，放槍的人每家都要付。
+          <em>現在：{r.multiRon ? '一炮多響' : '截胡'}</em>
+        </li>
+        <li>
+          <b>過水</b>：別人打出你能胡的牌、你選了不胡（或去碰、吃），在你下一次摸牌之前都不能胡別人打的牌；自摸不受影響。
+          <em>現在：{r.passWin ? '有過水' : '沒有過水'}</em>
+        </li>
+        <li>
+          <b>連莊上限</b>：莊家連莊連到上限就換人當莊，避免一家一直連下去。
+          <em>現在：{r.streakCap ? `連 ${r.streakCap} 就換莊` : '不限'}</em>
+        </li>
+        <li>
+          <b>搶槓胡、七搶一</b>：一定算（見下面的台數）。
+        </li>
+      </ul>
+      <p className="note">在「設定 → 牌桌規則」可以改，下一場開始生效。</p>
+    </section>
   )
 }
 

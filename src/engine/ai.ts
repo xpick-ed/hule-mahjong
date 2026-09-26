@@ -58,7 +58,7 @@ export function threats(h: HandState, seat: number, style?: AiStyle, rng?: HasRn
 }
 
 /** 這張牌對某個對手有多危險（0 安全 … 1 很危險） */
-function danger(h: HandState, target: number, kind: Kind, seen: Counts): number {
+export function danger(h: HandState, target: number, kind: Kind, seen: Counts): number {
   const theirs = h.seats[target].discards.map((d) => d.tile.kind)
   if (theirs.includes(kind)) return 0 // 他自己打過的（現物）
   const i = idx(kind)

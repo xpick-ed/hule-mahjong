@@ -12,3 +12,4 @@ dist-artifact
 voice-audition
 dist-voices
 voice-build
+.wrangler

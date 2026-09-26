@@ -37,6 +37,8 @@ interface TileProps {
   selected?: boolean
   dim?: boolean
   mark?: boolean
+  /** 危險牌提示：安全／有點危險／很危險 */
+  badge?: 'safe' | 'risky' | 'danger'
   fresh?: boolean
   onClick?: () => void
   children?: ReactNode
@@ -44,19 +46,33 @@ interface TileProps {
 }
 
 /** 一張牌。有 onClick 就是按鈕 */
-export function Tile({ kind, w, hot, selected, dim, mark, fresh, onClick, children, label }: TileProps) {
-  const className = cls('mt', hot && 'hot', selected && 'sel', dim && 'dim', mark && 'mark', fresh && 'fresh')
+const BADGE = { safe: '安', risky: '', danger: '危' } as const
+
+export function Tile({ kind, w, hot, selected, dim, mark, badge, fresh, onClick, children, label }: TileProps) {
+  const className = cls('mt', hot && 'hot', selected && 'sel', dim && 'dim', mark && 'mark', fresh && 'fresh', badge && `b-${badge}`)
   const style = { '--w': `${w}px` } as CSSProperties
   const inner = (
     <>
       <span className="mt-face">
         <TileFace kind={kind} />
       </span>
+      {badge && BADGE[badge] && (
+        <span className="mt-badge" aria-hidden="true">
+          {BADGE[badge]}
+        </span>
+      )}
       {children}
     </>
   )
   return onClick ? (
-    <button type="button" className={className} style={style} onClick={onClick} aria-label={label ?? tileName(kind)} aria-pressed={selected}>
+    <button
+      type="button"
+      className={className}
+      style={style}
+      onClick={onClick}
+      aria-label={(label ?? tileName(kind)) + (badge === 'danger' ? '（危險）' : badge === 'safe' ? '（安全）' : '')}
+      aria-pressed={selected}
+    >
       {inner}
     </button>
   ) : (

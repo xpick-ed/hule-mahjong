@@ -1,16 +1,20 @@
 import { create } from 'zustand'
-import { CHARACTERS, TAUNTS, type LineKey } from './engine/characters'
+import { chooseDiscard } from './engine/ai'
+import { CHARACTERS, TAUNTS, type LineKey, type Look } from './engine/characters'
 import * as M from './engine/match'
 import { newSeed } from './engine/rng'
 import { SKINS, STAGES } from './engine/stages'
-import { chooseDiscard } from './engine/ai'
-import { canTsumo, type ClaimDecision, type HandEvent } from './engine/table'
+import { canTsumo, DEFAULT_RULES, type ClaimDecision, type HandEvent, type Rules } from './engine/table'
 import { tileName, type Kind } from './engine/tiles'
-import { buzz, setSoundEnabled, sfx } from './sfx'
-import { goLandscape } from './screen'
-import { preloadVoices, setVoiceEnabled, speak } from './voice'
+import { dailyInfo, dailyOptions, shareText } from './daily'
+import { playMusic, setMusicVolume, type MusicMood } from './music'
 import * as P from './progress'
 import type { Progress } from './progress'
+import { judgeDiscard, pickNotes, type ReviewNote } from './review'
+import { goLandscape } from './screen'
+import { buzz, setSfxVolume, sfx } from './sfx'
+import { STORIES } from './stories'
+import { preloadVoices, setVoiceVolume, speak } from './voice'
 
 const MATCH_KEY = 'hule.match.v2'
 const PROGRESS_KEY = 'hule.progress.v2'
@@ -37,15 +41,22 @@ function save(key: string, v: unknown) {
 export type { Progress } from './progress'
 
 export interface Settings {
-  sound: boolean
-  /** 角色配音（報牌、喊牌、台詞） */
-  voice: boolean
+  /** 音量 0–1（0 = 關）：音效、角色配音（報牌、喊牌、台詞）、背景音樂 */
+  sfxVol: number
+  voiceVol: number
+  musicVol: number
   /** 你自己報牌、喊牌的聲音 */
   myVoice: 'f' | 'm'
   fast: boolean
   hints: boolean
+  /** 有人看起來聽牌時，標出你手上哪些牌危險、哪些安全 */
+  danger: boolean
   /** 你每一步可以想幾秒（10–60） */
   turnTime: number
+  /** 牌桌規則（下一場開始生效） */
+  rules: Rules
+  /** 上次選的難度 */
+  difficulty: M.Difficulty
 }
 
 export const TURN_TIMES = [10, 15, 20, 30, 45, 60] as const
@@ -59,6 +70,21 @@ export interface Bubble {
 }
 
 export type Mood = 'normal' | 'happy' | 'sad'
+
+/** 開打前的確認畫面：選難度、提醒會蓋掉沒打完的那場 */
+export type Prematch = { stage: number; daily?: string } | null
+
+export interface MatchRewards {
+  r: P.Rewards
+  rankBefore: number
+  rankAfter: number
+  finished: P.MissionDef[]
+  unlocked: P.AchDef[]
+  levelUps: { id: string; lv: number }[]
+  gains: Record<string, number>
+  /** 每日挑戰：這一場算不算成績（一天只算第一場） */
+  dailyCounted?: boolean
+}
 
 interface UI {
   screen: 'home' | 'match'
@@ -76,15 +102,31 @@ interface UI {
   callout: { seat: number; text: string; key: number } | null
   menu: boolean
   learn: LearnTab | null
+  /** 從覆盤點進來：直接打開這一課 */
+  learnFocus: { ch: string; i: number } | null
   missions: boolean
   shop: boolean
+  /** 戰績與成就 */
+  records: boolean
+  /** 角色：'list' 是全部，角色 id 是那個人的頁面 */
+  people: string | null
+  prematch: Prematch
   /** 上一場的獎勵（結束畫面用） */
-  rewards: { r: P.Rewards; rankBefore: number; rankAfter: number; finished: P.MissionDef[] } | null
+  rewards: MatchRewards | null
   toast: { msg: string; key: number } | null
   /** 已經處理過的牌局事件編號（台詞、音效） */
   seenEvent: number
+  /** 這一局教練記下來的打牌（還沒挑過） */
+  notes: ReviewNote[]
+  /** 這一局結束時挑出來的覆盤 */
+  review: ReviewNote[]
+  /** 這一局有喊「快了」的對手（危險牌提示會把他算進去） */
+  heardTing: boolean[]
+  /** 引導局：看過的提示 */
+  guideSeen: string[]
 
-  startStage(stage: number): void
+  openStage(p: Prematch): void
+  startStage(stage: number, opt?: { difficulty?: M.Difficulty; daily?: string; tutorial?: boolean }): void
   resume(): void
   toHome(): void
   tapTile(id: number): void
@@ -97,31 +139,73 @@ interface UI {
   step(): void
   nextHand(): void
   setMenu(on: boolean): void
-  setLearn(tab: LearnTab | null): void
+  setLearn(tab: LearnTab | null, focus?: { ch: string; i: number }): void
   /** 時間到：系統幫你打 */
   autoPlay(): void
   setSettings(s: Partial<Settings>): void
   setSkin(id: string): void
   setMissions(on: boolean): void
   setShop(on: boolean): void
+  setRecords(on: boolean): void
+  setPeople(id: string | null): void
+  setOutfit(id: string, on: boolean): void
   claimMission(id: string): void
   taunt(id: string): void
   buyBack(id: string): void
   equipBack(id: string): void
   buySupply(id: M.SkillId): void
   showToast(msg: string): void
+  seeGuide(id: string): void
+  skipTutorial(): void
   /** 讓對手講一句（泡泡＋配音），有講就回傳 true */
   say(seat: number, key: LineKey, chance?: number): boolean
   processEvents(): void
 }
 
-const settings0: Settings = { sound: true, voice: true, myVoice: 'f', fast: false, hints: true, turnTime: 20, ...(load<Settings>(SETTINGS_KEY) ?? {}) }
-setSoundEnabled(settings0.sound)
-setVoiceEnabled(settings0.voice)
+function loadSettings(): Settings {
+  const raw = load<Partial<Settings> & { sound?: boolean; voice?: boolean }>(SETTINGS_KEY) ?? {}
+  // 舊版是「音效／配音 開關」，換成音量
+  const { sound, voice, ...rest } = raw
+  return {
+    sfxVol: sound === false ? 0 : 0.8,
+    voiceVol: voice === false ? 0 : 0.9,
+    musicVol: 0.45,
+    myVoice: 'f',
+    fast: false,
+    hints: true,
+    danger: true,
+    turnTime: 20,
+    difficulty: 'normal',
+    ...rest,
+    rules: { ...DEFAULT_RULES, ...(rest.rules ?? {}) },
+  }
+}
+
+const settings0 = loadSettings()
+setSfxVolume(settings0.sfxVol)
+setVoiceVolume(settings0.voiceVol)
+setMusicVolume(settings0.musicVol)
+
+export function moodFor(stage: number): MusicMood {
+  return (['alley', 'party', 'newyear', 'boss'] as const)[stage] ?? 'alley'
+}
+
+/** 現在畫面該放的音樂（第一次點畫面、聲音解鎖時用） */
+export function currentMood(): MusicMood {
+  const { screen, match } = useUI.getState()
+  return screen === 'match' && match ? moodFor(match.stage) : 'home'
+}
 
 export function savedMatch(): M.MatchState | null {
   const m = load<M.MatchState>(MATCH_KEY)
   return m && m.version === 2 && m.phase !== 'end' ? m : null
+}
+
+/** 角色的樣子：好感度滿級、換上新衣服的話用新的 */
+export function lookFor(p: Progress, id: string): Look {
+  const base = CHARACTERS[id].look
+  const o = STORIES[id]?.outfit
+  return o && p.outfit[id] && P.affinityLevel(p.affinity[id] ?? 0).lv >= 5 ? { ...base, ...o.look } : base
 }
 
 let bubbleKey = 1
@@ -136,21 +220,20 @@ function preloadFor(m: M.MatchState, my: Settings['myVoice']) {
   preloadVoices([0, 1, 2, 3].map((s) => voiceOf(m, s, my)))
 }
 
+/** 你的動作（不含步數），每日挑戰會記下來 */
+type ActBody = M.Act extends [number, ...infer R] ? R : never
+
 export const useUI = create<UI>((set, get) => {
-  const apply = (fn: (m: M.MatchState) => M.MatchState, extra: Partial<UI> = {}): M.MatchState | null => {
+  const apply = (fn: (m: M.MatchState) => M.MatchState, extra: Partial<UI> = {}, act?: ActBody): M.MatchState | null => {
     const { match } = get()
     if (!match) return null
     try {
       const next = fn(match)
+      if (act && next.daily) next.log = [...(match.log ?? []), [match.ticks ?? 0, ...act] as M.Act]
       set({ match: next, sel: null, ...extra })
       save(MATCH_KEY, next)
       get().processEvents()
-      if (next.phase === 'handEnd' && match.phase === 'play') {
-        track(P.handMetrics(next))
-        // 尾牙摸彩的金幣直接進口袋
-        const prize = (next.result?.extras ?? []).reduce((s, x) => s + (x.coins ?? 0), 0)
-        if (prize) setProgress({ ...get().progress, coins: get().progress.coins + prize })
-      }
+      if (next.phase === 'handEnd' && match.phase === 'play') handEnded(next)
       if (next.phase === 'end' && match.phase !== 'end') finishMatch(next)
       return next
     } catch (e) {
@@ -176,35 +259,69 @@ export const useUI = create<UI>((set, get) => {
     return finished
   }
 
+  const announce = (unlocked: P.AchDef[], delay: number) => {
+    unlocked.forEach((a, i) => window.setTimeout(() => get().showToast(`成就解鎖：${a.name}`), delay + i * 1800))
+  }
+
+  /** 你要打這張：教練先記一下 */
+  const note = (m: M.MatchState, tileId: number) => {
+    const turn = m.hand.seats[0].discards.length + 1
+    const n = judgeDiscard(m, tileId, turn, get().heardTing)
+    if (n) set({ notes: [...get().notes, n] })
+  }
+
+  const handEnded = (m: M.MatchState) => {
+    track(P.handMetrics(m))
+    // 尾牙摸彩的金幣直接進口袋
+    const prize = (m.result?.extras ?? []).reduce((s, x) => s + (x.coins ?? 0), 0)
+    if (prize) setProgress({ ...get().progress, coins: get().progress.coins + prize })
+    const rec = P.recordHand(get().progress, m)
+    setProgress(rec.p)
+    announce(rec.unlocked, 2400)
+    set({ review: pickNotes(get().notes, m) })
+  }
+
   const finishMatch = (m: M.MatchState) => {
     let p = { ...get().progress }
     p.matches++
     const first = M.ranking(m)[0] === 0
-    if (first) {
+    if (first && !m.daily) {
       p.wins++
       if (m.stage >= p.cleared) {
         p.cleared = m.stage + 1
         const reward = STAGES[m.stage].reward.id
         if (!p.skins.includes(reward)) p.skins = [...p.skins, reward]
       }
-    }
+    } else if (first) p.wins++
+    if (m.tutorial) p.tutorial = true
     const r = P.matchRewards(m)
     const rankBefore = p.rankPts
     p.coins += r.coins
     p.rankPts = Math.max(0, p.rankPts + r.rankDelta)
     const bumped = P.bump(p, P.matchMetrics(m))
     p = bumped.p
+    const rec = P.recordMatch(p, m, Object.keys(CHARACTERS))
+    p = rec.p
+    // 每日挑戰：一天只算第一場
+    let dailyCounted: boolean | undefined
+    if (m.daily) {
+      dailyCounted = p.dailyBest?.date !== m.daily
+      if (dailyCounted) p.dailyBest = { date: m.daily, place: M.ranking(m).indexOf(0) + 1, points: m.points[0], share: shareText(m) }
+    }
     setProgress(p)
     save(MATCH_KEY, null)
-    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished } })
+    set({ rewards: { r, rankBefore, rankAfter: p.rankPts, finished: bumped.finished, unlocked: rec.unlocked, levelUps: rec.levelUps, gains: rec.gains, dailyCounted } })
+    announce(rec.unlocked, 1800)
     if (first) sfx.win()
     else sfx.lose()
   }
 
+  const newHandState = { notes: [] as ReviewNote[], review: [] as ReviewNote[], heardTing: [false, false, false, false] }
+
   return {
     screen: 'home',
     match: null,
-    progress: P.ensureDaily({ ...P.defaultProgress, ...(load<Progress>(PROGRESS_KEY) ?? {}) }),
+    progress: P.ensureDaily(P.migrate(load<Progress>(PROGRESS_KEY) ?? {})),
     settings: settings0,
     sel: null,
     mode: null,
@@ -214,48 +331,88 @@ export const useUI = create<UI>((set, get) => {
     callout: null,
     menu: false,
     learn: null,
+    learnFocus: null,
     missions: false,
     shop: false,
+    records: false,
+    people: null,
+    prematch: null,
     rewards: null,
     toast: null,
     seenEvent: 0,
+    ...newHandState,
+    guideSeen: [],
 
-    startStage(stage) {
+    openStage(prematch) {
+      set({ prematch })
+    },
+    startStage(stage, opt = {}) {
       void goLandscape()
-      const match = M.newMatch(newSeed(), stage)
-      // 商店買的絕招補給這一場用
-      const { bonus } = get().progress
-      if (bonus.swap || bonus.peek || bonus.lucky) {
-        for (const k of Object.keys(bonus) as M.SkillId[]) match.skills[k] += bonus[k]
-        setProgress({ ...get().progress, bonus: { swap: 0, peek: 0, lucky: 0 } })
+      const { settings, progress } = get()
+      let match: M.MatchState
+      if (opt.daily) {
+        const d = dailyInfo(opt.daily)
+        match = M.newMatch(d.seed, d.stage, dailyOptions(d.date))
+        match.log = []
+      } else {
+        const tutorial = !!opt.tutorial
+        const difficulty = tutorial ? 'easy' : (opt.difficulty ?? settings.difficulty)
+        match = M.newMatch(newSeed(), stage, { rules: settings.rules, difficulty, tutorial })
+        if (!tutorial && opt.difficulty && opt.difficulty !== settings.difficulty) get().setSettings({ difficulty: opt.difficulty })
+        // 商店買的絕招補給這一場用
+        const { bonus } = progress
+        if (bonus.swap || bonus.peek || bonus.lucky) {
+          for (const k of Object.keys(bonus) as M.SkillId[]) match.skills[k] += bonus[k]
+          setProgress({ ...get().progress, bonus: { swap: 0, peek: 0, lucky: 0 } })
+        }
       }
       save(MATCH_KEY, match)
-      set({ match, screen: 'match', sel: null, mode: null, chiOpen: false, bubbles: {}, moods: {}, callout: null, seenEvent: 0, menu: false, rewards: null })
-      preloadFor(match, get().settings.myVoice)
+      set({
+        match,
+        screen: 'match',
+        sel: null,
+        mode: null,
+        chiOpen: false,
+        bubbles: {},
+        moods: {},
+        callout: null,
+        seenEvent: 0,
+        menu: false,
+        rewards: null,
+        prematch: null,
+        guideSeen: [],
+        ...newHandState,
+      })
+      preloadFor(match, settings.myVoice)
+      playMusic(moodFor(match.stage))
       sfx.shuffle()
-      // 開場：隨便一個對手打招呼；有特別規則就提醒一下
+      // 開場：隨便一個對手打招呼（好感度夠的角色會講專屬台詞）；有特別規則就提醒一下
       const seat = 1 + Math.floor(Math.random() * 3)
-      window.setTimeout(() => get().say(seat, 'hello'), 500)
-      const rule = STAGES[stage].ruleText
-      if (rule) window.setTimeout(() => get().showToast(rule), 1200)
+      const friendly = P.affinityLevel(get().progress.affinity[match.chars[seat]] ?? 0).lv >= 3
+      window.setTimeout(() => get().say(seat, friendly && Math.random() < 0.7 ? 'friend' : 'hello'), 500)
+      const rule = STAGES[match.stage].ruleText
+      if (match.daily) window.setTimeout(() => get().showToast(`每日挑戰：今天大家的牌都一樣${rule ? `。${rule}` : ''}`), 1200)
+      else if (rule) window.setTimeout(() => get().showToast(rule), 1200)
       get().processEvents()
     },
     resume() {
       const match = savedMatch()
       if (!match) return
       void goLandscape()
-      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN })
+      set({ match, screen: 'match', sel: null, mode: null, bubbles: {}, moods: {}, seenEvent: match.hand.eventN, prematch: null, ...newHandState })
       preloadFor(match, get().settings.myVoice)
+      playMusic(moodFor(match.stage))
     },
     toHome() {
       set({ screen: 'home', menu: false, mode: null, progress: P.ensureDaily(get().progress) })
+      playMusic('home')
     },
 
     tapTile(id) {
       const { match, sel, mode } = get()
       if (!match || !M.waitingForYou(match) || match.hand.phase !== 'discard') return
       if (mode === 'swap') {
-        if (apply((m) => M.useSkill(m, 'swap', id), { mode: null })) {
+        if (apply((m) => M.useSkill(m, 'swap', id), { mode: null }, ['s', 'swap', id])) {
           sfx.magic()
           get().showToast('換好了')
           track({ skill: 1 })
@@ -263,7 +420,8 @@ export const useUI = create<UI>((set, get) => {
         return
       }
       if (sel === id) {
-        if (apply((m) => M.discard(m, id))) {
+        note(match, id)
+        if (apply((m) => M.discard(m, id), {}, ['d', id])) {
           sfx.discard()
           buzz(10)
         }
@@ -274,14 +432,18 @@ export const useUI = create<UI>((set, get) => {
       set({ sel: id })
     },
     claim(d) {
-      const next = apply((m) => M.claim(m, d), { chiOpen: false })
-      if (next && d.type === 'pass') sfx.click()
+      const next = apply((m) => M.claim(m, d), { chiOpen: false }, ['c', d])
+      if (next && d.type === 'pass') {
+        sfx.click()
+        const m = get().match
+        if (m && M.rulesOf(m).passWin && m.hand.passedWin?.[0]) get().showToast('過水：摸牌之前不能胡別人打的牌')
+      }
     },
     tsumo() {
-      apply((m) => M.tsumo(m))
+      apply((m) => M.tsumo(m), {}, ['t'])
     },
     kong(kind) {
-      apply((m) => M.kong(m, kind))
+      apply((m) => M.kong(m, kind), {}, ['k', kind])
     },
     skill(id) {
       const { mode, match } = get()
@@ -301,7 +463,7 @@ export const useUI = create<UI>((set, get) => {
         get().showToast('點一家的頭像來偷看')
         return
       }
-      if (apply((m) => M.useSkill(m, 'lucky'))) {
+      if (apply((m) => M.useSkill(m, 'lucky'), {}, ['s', 'lucky'])) {
         sfx.magic()
         get().showToast('下一張會摸到好牌')
         track({ skill: 1 })
@@ -309,7 +471,7 @@ export const useUI = create<UI>((set, get) => {
     },
     peekAt(seat) {
       if (get().mode !== 'peek') return
-      if (apply((m) => M.useSkill(m, 'peek', seat), { mode: null })) {
+      if (apply((m) => M.useSkill(m, 'peek', seat), { mode: null }, ['s', 'peek', seat])) {
         sfx.magic()
         track({ skill: 1 })
       }
@@ -321,15 +483,15 @@ export const useUI = create<UI>((set, get) => {
       apply((m) => M.step(m))
     },
     nextHand() {
-      apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null })
+      apply((m) => M.nextHand(m), { bubbles: {}, moods: {}, callout: null, ...newHandState }, ['n'])
       sfx.shuffle()
     },
 
     setMenu(menu) {
       set({ menu })
     },
-    setLearn(learn) {
-      set({ learn, menu: false })
+    setLearn(learn, focus) {
+      set({ learn, menu: false, learnFocus: focus ?? null })
     },
     autoPlay() {
       const m = get().match
@@ -348,16 +510,17 @@ export const useUI = create<UI>((set, get) => {
         return
       }
       // 照電腦建議的打法幫你打一張
-      const t = chooseDiscard(h, 0, { speed: 0.5, defense: 0.5, greed: 0.2, mistakes: 0 }, { rng: (Date.now() >>> 0) || 1 })
-      if (apply((mm) => M.discard(mm, t.id))) {
+      const t = chooseDiscard(h, 0, { speed: 0.5, defense: 0.5, greed: 0.2, mistakes: 0 }, { rng: Date.now() >>> 0 || 1 })
+      if (apply((mm) => M.discard(mm, t.id), {}, ['d', t.id])) {
         sfx.discard()
         get().showToast(`時間到，幫你打了${tileName(t.kind)}`)
       }
     },
     setSettings(s) {
       const settings = { ...get().settings, ...s }
-      setSoundEnabled(settings.sound)
-      setVoiceEnabled(settings.voice)
+      setSfxVolume(settings.sfxVol)
+      setVoiceVolume(settings.voiceVol)
+      setMusicVolume(settings.musicVol)
       save(SETTINGS_KEY, settings)
       set({ settings })
       const m = get().match
@@ -365,6 +528,7 @@ export const useUI = create<UI>((set, get) => {
         preloadFor(m, settings.myVoice)
         window.setTimeout(() => speak(`me-${settings.myVoice}`, 'call.pon'), 300)
       }
+      if (s.musicVol !== undefined && s.musicVol > 0) playMusic(currentMood())
     },
     setSkin(id) {
       setProgress({ ...get().progress, skin: id })
@@ -374,6 +538,15 @@ export const useUI = create<UI>((set, get) => {
     },
     setShop(on) {
       set({ shop: on })
+    },
+    setRecords(on) {
+      set({ records: on })
+    },
+    setPeople(id) {
+      set({ people: id })
+    },
+    setOutfit(id, on) {
+      setProgress({ ...get().progress, outfit: { ...get().progress.outfit, [id]: on } })
     },
     claimMission(id) {
       const before = get().progress.coins
@@ -420,6 +593,18 @@ export const useUI = create<UI>((set, get) => {
     showToast(msg) {
       set({ toast: { msg, key: Date.now() } })
     },
+    seeGuide(id) {
+      if (!get().guideSeen.includes(id)) set({ guideSeen: [...get().guideSeen, id] })
+    },
+    skipTutorial() {
+      setProgress({ ...get().progress, tutorial: true })
+      const m = get().match
+      if (m?.tutorial) {
+        const next = { ...m, tutorial: false }
+        set({ match: next })
+        save(MATCH_KEY, next)
+      }
+    },
 
     say(seat, key, chance = 1) {
       const m = get().match
@@ -430,6 +615,11 @@ export const useUI = create<UI>((set, get) => {
       const text = ls[i]
       speak(m.chars[seat], `line.${key}.${i}`)
       set({ bubbles: { ...get().bubbles, [seat]: { text, key: bubbleKey++ } } })
+      if (key === 'ting') {
+        const heard = [...get().heardTing]
+        heard[seat] = true
+        set({ heardTing: heard })
+      }
       const k = bubbleKey - 1
       window.setTimeout(() => {
         const b = get().bubbles[seat]
@@ -504,6 +694,7 @@ export const useUI = create<UI>((set, get) => {
         buzz(40)
         mood(e.seat, 'happy')
         if (!say(e.seat, e.from === null ? 'tsumo' : 'ron')) voice(e.seat, e.from === null ? 'call.tsumo' : 'call.hu')
+        if (m.hand.robbing === null && m.hand.win?.score.items.some((x) => x.name === '搶槓') && e.seat === m.hand.win.seat) callout(e.seat, '搶槓')
         if (e.from !== null) {
           mood(e.from, 'sad')
           window.setTimeout(() => say(e.from!, 'dealIn', 0.8), 900)
@@ -519,7 +710,6 @@ export const useUI = create<UI>((set, get) => {
         break
       }
     }
-    void m
   }
 })
 

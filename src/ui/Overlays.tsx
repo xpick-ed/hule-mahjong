@@ -2,18 +2,22 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { SKINS, STAGES } from '../engine/stages'
+import { share, shareText } from '../daily'
 import * as P from '../progress'
-import { TURN_TIMES, useUI } from '../store'
+import { lookFor, TURN_TIMES, useUI } from '../store'
+import { LEVEL_UNLOCKS } from '../stories'
 import { Avatar, MeBadge } from './Avatar'
 import { speak } from '../voice'
 import { sfx } from '../sfx'
 import { cls, CountUp, fmt, Tile } from './bits'
 import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
+import { DailyBoard } from './DailyBoard'
 
 const nameOf = (m: M.MatchState, seat: number) => (seat === 0 ? '你' : CHARACTERS[m.chars[seat]].name)
 
-function Face({ m, seat, size = 34 }: { m: M.MatchState; seat: number; size?: number }) {
-  return seat === 0 ? <MeBadge size={size} /> : <Avatar look={CHARACTERS[m.chars[seat]].look} size={size} />
+export function Face({ m, seat, size = 34 }: { m: M.MatchState; seat: number; size?: number }) {
+  const progress = useUI((s) => s.progress)
+  return seat === 0 ? <MeBadge size={size} /> : <Avatar look={lookFor(progress, m.chars[seat])} size={size} />
 }
 
 /** 等胡牌的蓋章播完再出現 */
@@ -28,7 +32,8 @@ function useDelay(ms: number) {
 
 export function HandEnd({ m }: { m: M.MatchState }) {
   const r = m.result
-  const big = r?.win ? bigHand(r.win.score) : null
+  const main = r ? (M.winsOf(r).find((x) => x.seat === 0) ?? r.win) : null
+  const big = main ? bigHand(main.score) : null
   const ready = useDelay(big ? CUT_IN_MS + 200 : 1300)
   if (!ready || !r) return null
   return <HandEndPanel m={m} r={r} />
@@ -38,8 +43,23 @@ const tick = (i: number) => sfx.tick(i)
 
 function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   const next = useUI((s) => s.nextHand)
-  const w = r.win
-  const last = m.passes >= 3 && w && w.seat !== m.dealer
+  const review = useUI((s) => s.review)
+  const [showReview, setShowReview] = useState(false)
+  const wins = M.winsOf(r)
+  // 一炮多響：你有胡就先看你的
+  const w = wins.find((x) => x.seat === 0) ?? r.win
+  const others = wins.filter((x) => x !== w)
+  const keep = !wins.length || wins.some((x) => x.seat === m.dealer)
+  const cap = M.rulesOf(m).streakCap
+  const last = m.passes >= 3 && (!keep || (cap > 0 && m.streak >= cap))
+  const myDiscards = m.hand.seats[0].discards.length
+  useEffect(() => {
+    const on = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.repeat) next()
+    }
+    window.addEventListener('keydown', on)
+    return () => window.removeEventListener('keydown', on)
+  }, [next])
   const seats = [0, 1, 2, 3]
   const items = w ? [...w.score.items, ...(r.dealerItems ?? []).map((x) => ({ ...x, dealer: true }))] : []
   // 台數一項一項亮，亮完再亮每家輸贏
@@ -49,6 +69,8 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   useEffect(() => {
     if (done && r.deltas[0] !== 0) sfx.coin()
   }, [done, r.deltas])
+
+  if (showReview) return <ReviewPanel onBack={() => setShowReview(false)} />
 
   return (
     <div className="overlay" onClick={all}>
@@ -62,7 +84,11 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
                   {nameOf(m, w.seat)}
                   {w.from === null ? ' 自摸！' : ' 胡了！'}
                 </h2>
-                <p>{w.from === null ? '三家都要付' : `${nameOf(m, w.from)}放槍`}</p>
+                <p>
+                  {w.from === null ? (w.score.items.some((x) => x.name === '八仙過海') ? '八張花到齊，三家都要付' : '三家都要付') : `${nameOf(m, w.from)}放槍`}
+                  {w.score.items.some((x) => x.name === '搶槓') ? '（搶槓）' : ''}
+                  {w.score.items.some((x) => x.name === '七搶一') ? '（七搶一：搶了第八張花）' : ''}
+                </p>
               </div>
               <span className="total-tai">
                 <b key={taiSoFar} className="bump">
@@ -97,13 +123,18 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
               ))}
               {items.length === 0 && <li className="none">沒有台（只算底）</li>}
             </ul>
+            {others.length > 0 && (
+              <p className="also-won">
+                一炮多響：{others.map((x) => `${nameOf(m, x.seat)} ${x.score.total} 台`).join('、')}也胡了
+              </p>
+            )}
           </>
         ) : (
           <header className="result-head">
             <span className="stamp-small">流</span>
             <div>
               <h2>流局</h2>
-              <p>牌摸完了，沒人胡。莊家連莊。</p>
+              <p>牌摸完了，沒人胡。{cap > 0 && m.streak >= cap ? `莊家連到上限（連 ${cap}），換莊。` : '莊家連莊。'}</p>
             </div>
           </header>
         )}
@@ -126,9 +157,63 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
             </div>
           ))}
         </div>
-        <button type="button" className="btn primary" onClick={next}>
-          {last || m.points.some((p) => p < 0) ? '看最後結果' : '下一局'}
-        </button>
+        <div className="result-actions">
+          {review.length > 0 ? (
+            <button type="button" className="btn review-btn" onClick={() => setShowReview(true)}>
+              教練覆盤<b>{review.length}</b>
+            </button>
+          ) : (
+            myDiscards >= 4 && <span className="coach-ok">教練：這一局打得很穩</span>
+          )}
+          <button type="button" className="btn primary" onClick={next}>
+            {last || m.points.some((p) => p < 0) ? '看最後結果' : '下一局'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const REASON = { speed: '差一步', uke: '進張少', defense: '危險牌' } as const
+
+/** 教練覆盤：這一局最值得檢討的 1–3 張 */
+function ReviewPanel({ onBack }: { onBack: () => void }) {
+  const review = useUI((s) => s.review)
+  const setLearn = useUI((s) => s.setLearn)
+  return (
+    <div className="overlay">
+      <div className="panel result review" role="dialog" aria-label="教練覆盤">
+        <header className="review-head">
+          <h2>教練覆盤</h2>
+          <p>這一局有 {review.length} 張可以打得更好。紅框是你打的，綠框是教練建議的。</p>
+        </header>
+        <ol className="notes">
+          {review.map((n) => (
+            <li key={n.turn} className={cls(n.dealtIn && 'dealt-in')}>
+              <div className="note-top">
+                <span className="note-turn">第 {n.turn} 張</span>
+                <span className={cls('note-tag', n.reason)}>{n.dealtIn ? '放槍' : REASON[n.reason]}</span>
+                <span className="note-hand">
+                  {n.hand.map((k, i) => (
+                    <Tile key={i} kind={k} w={17} hot={k === n.kind && n.hand.indexOf(k) === i} mark={k === n.better && n.hand.indexOf(k) === i} />
+                  ))}
+                </span>
+              </div>
+              <p>
+                {n.dealtIn ? '這張放槍了。' : ''}
+                {n.text}
+              </p>
+              <button type="button" className="lesson-link" onClick={() => setLearn('tips', { ch: n.lesson.ch, i: n.lesson.i })}>
+                看教學：{n.lesson.title}
+              </button>
+            </li>
+          ))}
+        </ol>
+        <div className="result-actions">
+          <button type="button" className="btn primary" onClick={onBack}>
+            回到結果
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -147,13 +232,34 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
   }, [])
   const stage = STAGES[m.stage]
   const hasNext = m.stage + 1 < STAGES.length
+  const place = order.indexOf(0) + 1
+  const showToast = useUI((s) => s.showToast)
+  const doShare = async () => {
+    const r = await share(shareText(m))
+    if (r === 'copied') showToast('戰績複製好了，貼給朋友吧')
+    else if (r === 'failed') showToast('這個瀏覽器不能分享')
+  }
+  const title = m.daily
+    ? `每日挑戰 ${m.daily.slice(5).replace('-', '/')}：第 ${place} 名`
+    : m.tutorial
+      ? `引導局完成！第 ${place} 名`
+      : first
+        ? hasNext
+          ? `過關！${stage.name}拿第一`
+          : '你就是新的雀神！'
+        : `第 ${place} 名`
+  const sub = m.daily
+    ? `${stage.name}・今天大家的牌都一樣`
+    : m.tutorial
+      ? `你已經會打了！之後每一步會計時、對手也不再放水${first && hasNext ? `。下一關：${STAGES[m.stage + 1].name}` : ''}`
+      : first
+        ? `解鎖桌布「${stage.reward.name}」${hasNext ? `，下一關：${STAGES[m.stage + 1].name}` : ''}`
+        : '拿第一才能過關，再挑戰一次吧'
   return (
     <div className="overlay">
       <div className="panel final" role="dialog" aria-label="這一場的結果">
-        <h2>{first ? (hasNext ? `過關！${stage.name}拿第一` : '你就是新的雀神！') : `第 ${order.indexOf(0) + 1} 名`}</h2>
-        <p className="final-sub">
-          {first ? `解鎖桌布「${stage.reward.name}」${hasNext ? `，下一關：${STAGES[m.stage + 1].name}` : ''}` : '拿第一才能過關，再挑戰一次吧'}
-        </p>
+        <h2>{title}</h2>
+        <p className="final-sub">{sub}</p>
         <div className="final-grid">
           <div>
             <ol className="podium">
@@ -171,22 +277,27 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
                 {nameOf(m, q.seat)}：「{q.text}」
               </p>
             )}
+            <Affinity m={m} />
           </div>
           <div className="final-side">
+            {m.daily && <DailyBoard m={m} />}
             <Rewards />
             <div className="final-actions">
-          <button type="button" className="btn" onClick={toHome}>
-            回首頁
-          </button>
-          {first && hasNext ? (
-            <button type="button" className="btn primary" onClick={() => start(m.stage + 1)}>
-              下一關
-            </button>
-          ) : (
-            <button type="button" className="btn primary" onClick={() => start(m.stage)}>
-              再打一場
-            </button>
-          )}
+              <button type="button" className="btn" onClick={toHome}>
+                回首頁
+              </button>
+              <button type="button" className="btn" onClick={doShare}>
+                分享
+              </button>
+              {m.daily ? null : first && hasNext ? (
+                <button type="button" className="btn primary" onClick={() => start(m.stage + 1)}>
+                  下一關
+                </button>
+              ) : (
+                <button type="button" className="btn primary" onClick={() => start(m.stage)}>
+                  再打一場
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -208,9 +319,11 @@ function Rewards() {
         {rw.r.lines.map((l, i) => (
           <li key={i}>
             {l.label}
-            <b>
-              +<CountUp value={l.coins} ms={700} />
-            </b>
+            {l.coins > 0 && (
+              <b>
+                +<CountUp value={l.coins} ms={700} />
+              </b>
+            )}
           </li>
         ))}
         {rw.finished.map((f) => (
@@ -219,11 +332,41 @@ function Rewards() {
             <small>回首頁領 +{f.reward}</small>
           </li>
         ))}
+        {rw.unlocked.map((a) => (
+          <li key={a.id} className="ach-done">
+            成就：{a.name}
+            <small>{a.desc}</small>
+          </li>
+        ))}
       </ul>
       <p className={cls('rank-change', up && 'up', down && 'down')}>
         段位 {rw.r.rankDelta >= 0 ? `+${rw.r.rankDelta}` : `−${-rw.r.rankDelta}`}
         {up ? `，升上${after.name}！` : down ? `，掉回${after.name}` : `（${after.name}）`}
       </p>
+    </div>
+  )
+}
+
+/** 這一場每個對手加了多少好感度；升級的話說解鎖了什麼 */
+function Affinity({ m }: { m: M.MatchState }) {
+  const rw = useUI((s) => s.rewards)
+  const setPeople = useUI((s) => s.setPeople)
+  if (!rw) return null
+  return (
+    <div className="affinity-gains" aria-label="好感度">
+      {[1, 2, 3].map((seat) => {
+        const id = m.chars[seat]
+        const up = rw.levelUps.find((x) => x.id === id)
+        return (
+          <button key={seat} type="button" className={cls('gain', up && 'up')} onClick={() => setPeople(id)}>
+            <Face m={m} seat={seat} size={24} />
+            <span>
+              <b>好感 +{rw.gains[id] ?? 0}</b>
+              {up && <small>Lv{up.lv} {LEVEL_UNLOCKS[up.lv]}</small>}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -238,7 +381,7 @@ function finalWord(m: M.MatchState): { seat: number; key: 'matchWin' | 'matchLos
   return text ? { seat, key, text } : null
 }
 
-function Sheet({ open, onClose, children, label }: { open: boolean; onClose: () => void; children: ReactNode; label: string }) {
+export function Sheet({ open, onClose, children, label }: { open: boolean; onClose: () => void; children: ReactNode; label: string }) {
   useEffect(() => {
     if (!open) return
     const on = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -255,77 +398,158 @@ function Sheet({ open, onClose, children, label }: { open: boolean; onClose: () 
   )
 }
 
+type MenuTab = 'sound' | 'game' | 'rules'
+
+function Vol({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
+  return (
+    <label className="row vol">
+      <span>{label}</span>
+      <input type="range" min={0} max={100} step={5} value={Math.round(value * 100)} onChange={(e) => onChange(Number(e.target.value) / 100)} aria-label={label} />
+      <small>{value > 0 ? `${Math.round(value * 100)}` : '關'}</small>
+    </label>
+  )
+}
+
 export function Menu() {
   const open = useUI((s) => s.menu)
   const settings = useUI((s) => s.settings)
   const progress = useUI((s) => s.progress)
   const screen = useUI((s) => s.screen)
+  const inMatch = useUI((s) => !!s.match && s.screen === 'match')
   const { setMenu, setSettings, setLearn, toHome, setSkin } = useUI.getState()
+  const [tab, setTab] = useState<MenuTab>('sound')
+  const rules = settings.rules
+  const setRules = (r: Partial<typeof rules>) => setSettings({ rules: { ...rules, ...r } })
+  const desktop = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: fine)').matches
   return (
     <Sheet open={open} onClose={() => setMenu(false)} label="選單">
-      <h3>設定</h3>
-      <div className="settings">
-        <label className="row">
-          <span>音效</span>
-          <button type="button" className="toggle" aria-pressed={settings.sound} onClick={() => setSettings({ sound: !settings.sound })}>
-            {settings.sound ? '開' : '關'}
+      <nav className="menu-tabs" aria-label="設定分類">
+        {(
+          [
+            ['sound', '聲音'],
+            ['game', '遊戲'],
+            ['rules', '牌桌規則'],
+          ] as const
+        ).map(([id, name]) => (
+          <button key={id} type="button" aria-pressed={tab === id} onClick={() => setTab(id)}>
+            {name}
           </button>
-        </label>
-        <label className="row">
-          <span>配音（報牌、喊牌、台詞）</span>
-          <button type="button" className="toggle" aria-pressed={settings.voice} onClick={() => setSettings({ voice: !settings.voice })}>
-            {settings.voice ? '開' : '關'}
-          </button>
-        </label>
-        <label className="row">
-          <span>你的聲音</span>
-          <button type="button" className="toggle on-both" onClick={() => setSettings({ myVoice: settings.myVoice === 'f' ? 'm' : 'f' })}>
-            {settings.myVoice === 'f' ? '女聲' : '男聲'}
-          </button>
-        </label>
-        <div className="row">
-          <span>你的出牌時間</span>
-          <div className="seg" role="group" aria-label="出牌時間">
-            {TURN_TIMES.map((t) => (
-              <button key={t} type="button" aria-pressed={settings.turnTime === t} onClick={() => setSettings({ turnTime: t })}>
-                {t}秒
+        ))}
+      </nav>
+      {tab === 'sound' && (
+        <div className="settings">
+          <Vol label="音效" value={settings.sfxVol} onChange={(v) => setSettings({ sfxVol: v })} />
+          <Vol label="配音（報牌、喊牌、台詞）" value={settings.voiceVol} onChange={(v) => setSettings({ voiceVol: v })} />
+          <Vol label="背景音樂" value={settings.musicVol} onChange={(v) => setSettings({ musicVol: v })} />
+          <label className="row">
+            <span>你的聲音</span>
+            <button type="button" className="toggle on-both" onClick={() => setSettings({ myVoice: settings.myVoice === 'f' ? 'm' : 'f' })}>
+              {settings.myVoice === 'f' ? '女聲' : '男聲'}
+            </button>
+          </label>
+        </div>
+      )}
+      {tab === 'game' && (
+        <div className="settings">
+          <div className="row">
+            <span>你的出牌時間</span>
+            <div className="seg" role="group" aria-label="出牌時間">
+              {TURN_TIMES.map((t) => (
+                <button key={t} type="button" aria-pressed={settings.turnTime === t} onClick={() => setSettings({ turnTime: t })}>
+                  {t}秒
+                </button>
+              ))}
+            </div>
+          </div>
+          <label className="row">
+            <span>電腦出牌速度</span>
+            <button type="button" className="toggle" aria-pressed={settings.fast} onClick={() => setSettings({ fast: !settings.fast })}>
+              {settings.fast ? '快' : '正常'}
+            </button>
+          </label>
+          <label className="row">
+            <span>提示（打哪張會聽）</span>
+            <button type="button" className="toggle" aria-pressed={settings.hints} onClick={() => setSettings({ hints: !settings.hints })}>
+              {settings.hints ? '開' : '關'}
+            </button>
+          </label>
+          <label className="row">
+            <span>危險牌提示（有人快胡時標「危」「安」）</span>
+            <button type="button" className="toggle" aria-pressed={settings.danger} onClick={() => setSettings({ danger: !settings.danger })}>
+              {settings.danger ? '開' : '關'}
+            </button>
+          </label>
+          <div className="row">
+            <span>桌布</span>
+            <div className="skins">
+              {Object.values(SKINS).map((sk) => {
+                const owned = progress.skins.includes(sk.id)
+                return (
+                  <button
+                    key={sk.id}
+                    type="button"
+                    className={cls('skin', progress.skin === sk.id && 'on')}
+                    style={{ background: owned ? sk.color : undefined }}
+                    disabled={!owned}
+                    onClick={() => setSkin(sk.id)}
+                    aria-label={owned ? sk.name : `${sk.name}（還沒解鎖）`}
+                    title={owned ? sk.name : '過關解鎖'}
+                  />
+                )
+              })}
+            </div>
+          </div>
+          {desktop && (
+            <p className="keys-help">
+              鍵盤：<kbd>←</kbd>
+              <kbd>→</kbd> 選牌、<kbd>Enter</kbd> 打出、<kbd>H</kbd> 胡／自摸、<kbd>P</kbd> 碰、<kbd>C</kbd> 吃、<kbd>K</kbd> 槓、<kbd>X</kbd> 過、<kbd>Esc</kbd> 選單
+            </p>
+          )}
+        </div>
+      )}
+      {tab === 'rules' && (
+        <div className="settings">
+          <div className="row">
+            <span>
+              兩家以上胡同一張
+              <small>截胡：只算照順序最近的那家</small>
+            </span>
+            <div className="seg" role="group" aria-label="兩家以上胡同一張">
+              <button type="button" aria-pressed={!rules.multiRon} onClick={() => setRules({ multiRon: false })}>
+                截胡
               </button>
-            ))}
+              <button type="button" aria-pressed={rules.multiRon} onClick={() => setRules({ multiRon: true })}>
+                一炮多響
+              </button>
+            </div>
           </div>
-        </div>
-        <label className="row">
-          <span>電腦出牌速度</span>
-          <button type="button" className="toggle" aria-pressed={settings.fast} onClick={() => setSettings({ fast: !settings.fast })}>
-            {settings.fast ? '快' : '正常'}
-          </button>
-        </label>
-        <label className="row">
-          <span>提示（打哪張會聽）</span>
-          <button type="button" className="toggle" aria-pressed={settings.hints} onClick={() => setSettings({ hints: !settings.hints })}>
-            {settings.hints ? '開' : '關'}
-          </button>
-        </label>
-        <div className="row">
-          <span>桌布</span>
-          <div className="skins">
-            {Object.values(SKINS).map((sk) => {
-              const owned = progress.skins.includes(sk.id)
-              return (
-                <button
-                  key={sk.id}
-                  type="button"
-                  className={cls('skin', progress.skin === sk.id && 'on')}
-                  style={{ background: owned ? sk.color : undefined }}
-                  disabled={!owned}
-                  onClick={() => setSkin(sk.id)}
-                  aria-label={owned ? sk.name : `${sk.name}（還沒解鎖）`}
-                  title={owned ? sk.name : '過關解鎖'}
-                />
-              )
-            })}
+          <label className="row">
+            <span>
+              過水
+              <small>放過能胡的牌，摸牌前都不能胡別人打的</small>
+            </span>
+            <button type="button" className="toggle" aria-pressed={rules.passWin} onClick={() => setRules({ passWin: !rules.passWin })}>
+              {rules.passWin ? '開' : '關'}
+            </button>
+          </label>
+          <div className="row">
+            <span>
+              連莊上限
+              <small>連到上限就換莊</small>
+            </span>
+            <div className="seg" role="group" aria-label="連莊上限">
+              {[0, 3, 5].map((n) => (
+                <button key={n} type="button" aria-pressed={rules.streakCap === n} onClick={() => setRules({ streakCap: n })}>
+                  {n ? `連 ${n}` : '不限'}
+                </button>
+              ))}
+            </div>
           </div>
+          <p className="rules-note">
+            搶槓胡、七搶一一定算。{inMatch ? '改了規則從下一場開始生效；' : ''}每日挑戰固定用預設規則（截胡、過水、不限連莊）。
+          </p>
         </div>
-      </div>
+      )}
       <div className="sheet-actions">
         <button type="button" className="btn" onClick={() => setLearn('rules')}>
           台數規則
@@ -339,7 +563,7 @@ export function Menu() {
           </button>
         )}
         <button type="button" className="btn primary" onClick={() => setMenu(false)}>
-          繼續
+          {screen === 'match' ? '繼續' : '好'}
         </button>
       </div>
     </Sheet>

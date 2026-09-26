@@ -50,10 +50,18 @@ export function preloadVoices(whos: string[]) {
   for (const w of whos) void loadVoice(w)
 }
 
-export function setVoiceEnabled(on: boolean) {
-  enabled = on
-  if (!on) for (const src of playing.values()) src.stop()
+let volume = 1
+
+/** 配音音量 0–1（0 = 關） */
+export function setVoiceVolume(v: number) {
+  volume = v
+  enabled = v > 0
+  if (out) out.gain.value = 0.95 * v
+  if (!enabled) for (const src of playing.values()) src.stop()
 }
+
+/** 有角色正在講話（音樂會稍微降低） */
+export const speaking = () => playing.size > 0
 
 export function hasClip(who: string, key: string): boolean {
   return !!loaded?.voices[who]?.clips[key]
@@ -72,7 +80,7 @@ export function speak(who: string, key: string): number {
   if (!ctx) return 0
   if (!out) {
     out = ctx.createGain()
-    out.gain.value = 0.95
+    out.gain.value = 0.95 * volume
     out.connect(ctx.destination)
   }
   playing.get(who)?.stop()
