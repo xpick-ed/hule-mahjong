@@ -1,12 +1,15 @@
-# Cloudflare Pages 設定（npx wrangler pages deploy 會讀這個檔）
+# Cloudflare Pages 設定（接 GitHub 自動部署、npx wrangler 都會讀這個檔）
+# Pages 專案名稱要叫 hule（網址 hule.pages.dev）
 name = "hule"
 pages_build_output_dir = "dist"
 compatibility_date = "2026-09-01"
 
-# 每日挑戰排行榜的資料庫。第一次部署前：
-#   npx wrangler d1 create hule            → 把印出來的 database_id 貼到下面
-#   npx wrangler d1 execute hule --remote --file=schema.sql
-[[d1_databases]]
-binding = "DB"
-database_name = "hule"
-database_id = "00000000-0000-0000-0000-000000000000"
+# 每日挑戰排行榜的資料庫。建好 D1 之後把下面四行的 # 拿掉、貼上 database_id：
+#   建立：Cloudflare 後台 Storage & Databases → D1 → Create，名字 hule
+#         （或 npx wrangler d1 create hule）
+#   建表：D1 的 Console 貼上 schema.sql 執行（或 npx wrangler d1 execute hule --remote --file=schema.sql）
+# 還沒接之前網站照常能玩，排行榜會顯示「還沒開」。
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "hule"
+# database_id = ""
