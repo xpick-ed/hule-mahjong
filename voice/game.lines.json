@@ -247,6 +247,14 @@
   "who": "meiling",
   "text": "好啦好啦，舅媽讓你"
  },
+ "meiling.line.reply.2": {
+  "who": "meiling",
+  "text": "你再嗆，下次剪頭髮算你貴一點"
+ },
+ "meiling.line.reply.3": {
+  "who": "meiling",
+  "text": "嘴巴這麼壞，小心沒人要喔～"
+ },
  "meiling.line.friend.0": {
   "who": "meiling",
   "text": "欸你又來了！舅媽最喜歡跟你打"
@@ -266,6 +274,22 @@
  "meiling.line.revenged.0": {
   "who": "meiling",
   "text": "唉唷，被你討回去了啦"
+ },
+ "meiling.line.slow.0": {
+  "who": "meiling",
+  "text": "欸～你在想什麼啦，頭髮都要白了"
+ },
+ "meiling.line.slow.1": {
+  "who": "meiling",
+  "text": "快點快點，我客人還在等我染頭髮"
+ },
+ "meiling.line.laugh.0": {
+  "who": "meiling",
+  "text": "哎唷～放槍囉，舅媽都看到了"
+ },
+ "meiling.line.laugh.1": {
+  "who": "meiling",
+  "text": "哈哈，這個我要去巷口講"
  },
  "lin.tile.m1": {
   "who": "lin",
@@ -487,6 +511,14 @@
   "who": "lin",
   "text": "呵呵，好好好"
  },
+ "lin.line.reply.2": {
+  "who": "lin",
+  "text": "年輕人，火氣大傷身"
+ },
+ "lin.line.reply.3": {
+  "who": "lin",
+  "text": "嗆贏了，牌也不會變好"
+ },
  "lin.line.friend.0": {
   "who": "lin",
   "text": "你來啦，茶剛泡好"
@@ -506,6 +538,22 @@
  "lin.line.revenged.0": {
   "who": "lin",
   "text": "好，這下扯平了"
+ },
+ "lin.line.slow.0": {
+  "who": "lin",
+  "text": "慢慢想沒關係，我退休了很有空"
+ },
+ "lin.line.slow.1": {
+  "who": "lin",
+  "text": "想太久，好牌也會跑掉喔"
+ },
+ "lin.line.laugh.0": {
+  "who": "lin",
+  "text": "呵呵，年輕人要多繳點學費"
+ },
+ "lin.line.laugh.1": {
+  "who": "lin",
+  "text": "這張，我早就知道會出事"
  },
  "kai.tile.m1": {
   "who": "kai",
@@ -720,6 +768,14 @@
   "who": "kai",
   "text": "我記下來了"
  },
+ "kai.line.reply.2": {
+  "who": "kai",
+  "text": "你的嘴砲沒有統計顯著性"
+ },
+ "kai.line.reply.3": {
+  "who": "kai",
+  "text": "已記錄，下一把報復"
+ },
  "kai.line.friend.0": {
   "who": "kai",
   "text": "根據紀錄，跟你打我最開心"
@@ -739,6 +795,22 @@
  "kai.line.revenged.0": {
   "who": "kai",
   "text": "……好，這筆我重新計算"
+ },
+ "kai.line.slow.0": {
+  "who": "kai",
+  "text": "你的思考時間已經超過標準差了"
+ },
+ "kai.line.slow.1": {
+  "who": "kai",
+  "text": "要不要我幫你跑個模擬？"
+ },
+ "kai.line.laugh.0": {
+  "who": "kai",
+  "text": "這個放槍機率，我算過了，很高"
+ },
+ "kai.line.laugh.1": {
+  "who": "kai",
+  "text": "哈，完全符合模型預測"
  },
  "wang.tile.m1": {
   "who": "wang",
@@ -953,6 +1025,14 @@
   "who": "wang",
   "text": "這個態度我喜歡"
  },
+ "wang.line.reply.2": {
+  "who": "wang",
+  "text": "這種態度，年終要扣分喔"
+ },
+ "wang.line.reply.3": {
+  "who": "wang",
+  "text": "年輕人，說話要看場合"
+ },
  "wang.line.friend.0": {
   "who": "wang",
   "text": "你來了，今天我請客"
@@ -972,6 +1052,22 @@
  "wang.line.revenged.0": {
   "who": "wang",
   "text": "好，這次算你贏回去"
+ },
+ "wang.line.slow.0": {
+  "who": "wang",
+  "text": "開會都沒你這麼久"
+ },
+ "wang.line.slow.1": {
+  "who": "wang",
+  "text": "時間就是金錢，你在燒我的錢"
+ },
+ "wang.line.laugh.0": {
+  "who": "wang",
+  "text": "這個決策，下次開會要檢討"
+ },
+ "wang.line.laugh.1": {
+  "who": "wang",
+  "text": "哈哈，這筆列入考績"
  },
  "xiaomei.tile.m1": {
   "who": "xiaomei",
@@ -1185,6 +1281,14 @@
   "who": "xiaomei",
   "text": "好啦，我快一點"
  },
+ "xiaomei.line.reply.2": {
+  "who": "xiaomei",
+  "text": "嗚嗚你好兇，我要跟經理講"
+ },
+ "xiaomei.line.reply.3": {
+  "who": "xiaomei",
+  "text": "我、我才不怕你咧！"
+ },
  "xiaomei.line.friend.0": {
   "who": "xiaomei",
   "text": "你又來了～今天也請多指教！"
@@ -1204,6 +1308,22 @@
  "xiaomei.line.revenged.0": {
   "who": "xiaomei",
   "text": "嗚嗚，被你討回去了"
+ },
+ "xiaomei.line.slow.0": {
+  "who": "xiaomei",
+  "text": "那個……輪到你了喔？"
+ },
+ "xiaomei.line.slow.1": {
+  "who": "xiaomei",
+  "text": "要不要我幫你算一下？"
+ },
+ "xiaomei.line.laugh.0": {
+  "who": "xiaomei",
+  "text": "啊，好可憐喔……可是好好笑"
+ },
+ "xiaomei.line.laugh.1": {
+  "who": "xiaomei",
+  "text": "對不起，我不是故意笑的～"
  },
  "jie.tile.m1": {
   "who": "jie",
@@ -1417,6 +1537,14 @@
   "who": "jie",
   "text": "來啊，誰怕誰"
  },
+ "jie.line.reply.2": {
+  "who": "jie",
+  "text": "嗆我？我業績比你好"
+ },
+ "jie.line.reply.3": {
+  "who": "jie",
+  "text": "來啊，看誰先胡！"
+ },
  "jie.line.friend.0": {
   "who": "jie",
   "text": "兄弟！打完一起去續攤"
@@ -1436,6 +1564,22 @@
  "jie.line.revenged.0": {
   "who": "jie",
   "text": "哇，被你反殺！"
+ },
+ "jie.line.slow.0": {
+  "who": "jie",
+  "text": "兄弟，客戶都跑掉了啦"
+ },
+ "jie.line.slow.1": {
+  "who": "jie",
+  "text": "你是在等天亮喔？"
+ },
+ "jie.line.laugh.0": {
+  "who": "jie",
+  "text": "哈哈哈，送分送分！"
+ },
+ "jie.line.laugh.1": {
+  "who": "jie",
+  "text": "這單我幫你記下來了"
  },
  "ama.tile.m1": {
   "who": "ama",
@@ -1657,6 +1801,14 @@
   "who": "ama",
   "text": "哎唷，嘴巴這麼甜"
  },
+ "ama.line.reply.2": {
+  "who": "ama",
+  "text": "阿嬤打麻將的時候，你還沒出生喔"
+ },
+ "ama.line.reply.3": {
+  "who": "ama",
+  "text": "再嗆，今年紅包減半"
+ },
  "ama.line.friend.0": {
   "who": "ama",
   "text": "乖孫來了！阿嬤煮了湯圓"
@@ -1680,6 +1832,22 @@
  "ama.line.revenged.0": {
   "who": "ama",
   "text": "哎唷，乖孫討回去了"
+ },
+ "ama.line.slow.0": {
+  "who": "ama",
+  "text": "乖孫，阿嬤等到都想睡了"
+ },
+ "ama.line.slow.1": {
+  "who": "ama",
+  "text": "想那麼久，阿嬤都可以煮一鍋飯了"
+ },
+ "ama.line.laugh.0": {
+  "who": "ama",
+  "text": "哎唷，阿嬤教過你不要打那張"
+ },
+ "ama.line.laugh.1": {
+  "who": "ama",
+  "text": "呵呵，繳學費囉"
  },
  "erjiu.tile.m1": {
   "who": "erjiu",
@@ -1893,6 +2061,14 @@
   "who": "erjiu",
   "text": "哈哈，有種！"
  },
+ "erjiu.line.reply.2": {
+  "who": "erjiu",
+  "text": "哈哈，二舅嗆人的時候你還在包尿布！"
+ },
+ "erjiu.line.reply.3": {
+  "who": "erjiu",
+  "text": "有種！等一下乾一杯"
+ },
  "erjiu.line.friend.0": {
   "who": "erjiu",
   "text": "來來來，二舅今天跟你同一國！"
@@ -1912,6 +2088,22 @@
  "erjiu.line.revenged.0": {
   "who": "erjiu",
   "text": "好小子，有你的！"
+ },
+ "erjiu.line.slow.0": {
+  "who": "erjiu",
+  "text": "欸，你是睡著了喔？"
+ },
+ "erjiu.line.slow.1": {
+  "who": "erjiu",
+  "text": "快點啦，我的酒都退冰了"
+ },
+ "erjiu.line.laugh.0": {
+  "who": "erjiu",
+  "text": "哈哈哈！這張也敢打喔！"
+ },
+ "erjiu.line.laugh.1": {
+  "who": "erjiu",
+  "text": "來來來，大家拍手！"
  },
  "biaomei.tile.m1": {
   "who": "biaomei",
@@ -2125,6 +2317,14 @@
   "who": "biaomei",
   "text": "你好吵喔"
  },
+ "biaomei.line.reply.2": {
+  "who": "biaomei",
+  "text": "好喔，已讀不回"
+ },
+ "biaomei.line.reply.3": {
+  "who": "biaomei",
+  "text": "你這樣很像我們教授"
+ },
  "biaomei.line.friend.0": {
   "who": "biaomei",
   "text": "欸你來了，我剛好不想寫報告"
@@ -2144,6 +2344,23 @@
  "biaomei.line.revenged.0": {
   "who": "biaomei",
   "text": "蛤，被你討回去了"
+ },
+ "biaomei.line.slow.0": {
+  "who": "biaomei",
+  "text": "我可以先滑一下 IG 嗎？",
+  "tts": "我可以先滑一下 I G 嗎？"
+ },
+ "biaomei.line.slow.1": {
+  "who": "biaomei",
+  "text": "好久喔，我影片都看完了"
+ },
+ "biaomei.line.laugh.0": {
+  "who": "biaomei",
+  "text": "欸這個可以發限動"
+ },
+ "biaomei.line.laugh.1": {
+  "who": "biaomei",
+  "text": "笑死，好慘"
  },
  "queshen.tile.m1": {
   "who": "queshen",
@@ -2357,6 +2574,14 @@
   "who": "queshen",
   "text": "話多的人，牌會亂。"
  },
+ "queshen.line.reply.2": {
+  "who": "queshen",
+  "text": "……無聊。"
+ },
+ "queshen.line.reply.3": {
+  "who": "queshen",
+  "text": "你的嘴，比你的牌快。"
+ },
  "queshen.line.friend.0": {
   "who": "queshen",
   "text": "……你來了。"
@@ -2380,6 +2605,22 @@
  "queshen.line.revenged.0": {
   "who": "queshen",
   "text": "……扯平了。"
+ },
+ "queshen.line.slow.0": {
+  "who": "queshen",
+  "text": "……猶豫，就會敗。"
+ },
+ "queshen.line.slow.1": {
+  "who": "queshen",
+  "text": "牌，不等人。"
+ },
+ "queshen.line.laugh.0": {
+  "who": "queshen",
+  "text": "……果然。"
+ },
+ "queshen.line.laugh.1": {
+  "who": "queshen",
+  "text": "破綻。"
  },
  "longge.tile.m1": {
   "who": "longge",
@@ -2593,6 +2834,14 @@
   "who": "longge",
   "text": "哼，嘴上功夫"
  },
+ "longge.line.reply.2": {
+  "who": "longge",
+  "text": "在我的館子，嗆人要付錢"
+ },
+ "longge.line.reply.3": {
+  "who": "longge",
+  "text": "年輕人，舌頭留著吃飯用"
+ },
  "longge.line.friend.0": {
   "who": "longge",
   "text": "你來了，老位子幫你留著"
@@ -2616,6 +2865,22 @@
  "longge.line.revenged.0": {
   "who": "longge",
   "text": "哼，這筆帳清了"
+ },
+ "longge.line.slow.0": {
+  "who": "longge",
+  "text": "我的館子是算時間收費的"
+ },
+ "longge.line.slow.1": {
+  "who": "longge",
+  "text": "再不打，我要收你包廂費了"
+ },
+ "longge.line.laugh.0": {
+  "who": "longge",
+  "text": "哼，不自量力"
+ },
+ "longge.line.laugh.1": {
+  "who": "longge",
+  "text": "這張，是繳給館子的吧"
  },
  "coco.tile.m1": {
   "who": "coco",
@@ -2829,6 +3094,14 @@
   "who": "coco",
   "text": "欸，這段我要剪起來"
  },
+ "coco.line.reply.2": {
+  "who": "coco",
+  "text": "聊天室都在刷你好嗆欸！"
+ },
+ "coco.line.reply.3": {
+  "who": "coco",
+  "text": "好喔，這段我要做成梗圖"
+ },
  "coco.line.friend.0": {
   "who": "coco",
   "text": "聊天室！我的好朋友來了～"
@@ -2852,6 +3125,22 @@
  "coco.line.revenged.0": {
   "who": "coco",
   "text": "欸欸欸，這段不要播！"
+ },
+ "coco.line.slow.0": {
+  "who": "coco",
+  "text": "聊天室都在刷「快打」喔！"
+ },
+ "coco.line.slow.1": {
+  "who": "coco",
+  "text": "觀眾要睡著了啦～"
+ },
+ "coco.line.laugh.0": {
+  "who": "coco",
+  "text": "聊天室在刷好慘好慘！"
+ },
+ "coco.line.laugh.1": {
+  "who": "coco",
+  "text": "這段精華我剪起來了"
  },
  "captain.tile.m1": {
   "who": "captain",
@@ -3077,6 +3366,14 @@
   "who": "captain",
   "text": "哈哈哈，有膽量"
  },
+ "captain.line.reply.2": {
+  "who": "captain",
+  "text": "少年仔，海上的浪比你嗆多了"
+ },
+ "captain.line.reply.3": {
+  "who": "captain",
+  "text": "哈哈，你這條小魚還蠻會跳"
+ },
  "captain.line.friend.0": {
   "who": "captain",
   "text": "你來了！船長請你喝熱茶"
@@ -3096,6 +3393,22 @@
  "captain.line.revenged.0": {
   "who": "captain",
   "text": "哈哈，這次換我被釣了"
+ },
+ "captain.line.slow.0": {
+  "who": "captain",
+  "text": "你這樣打，船都要擱淺了"
+ },
+ "captain.line.slow.1": {
+  "who": "captain",
+  "text": "颱風都走了，你還沒打"
+ },
+ "captain.line.laugh.0": {
+  "who": "captain",
+  "text": "哈哈，又一條魚上鉤了！"
+ },
+ "captain.line.laugh.1": {
+  "who": "captain",
+  "text": "浪一來，你就翻船了"
  },
  "xiuqin.tile.m1": {
   "who": "xiuqin",
@@ -3317,6 +3630,14 @@
   "who": "xiuqin",
   "text": "再嗆就沒有宵夜吃喔"
  },
+ "xiuqin.line.reply.2": {
+  "who": "xiuqin",
+  "text": "再嗆，明天早餐沒有你的份"
+ },
+ "xiuqin.line.reply.3": {
+  "who": "xiuqin",
+  "text": "好好好，你最厲害～"
+ },
  "xiuqin.line.friend.0": {
   "who": "xiuqin",
   "text": "老客人來了！房間幫你留好了"
@@ -3336,6 +3657,22 @@
  "xiuqin.line.revenged.0": {
   "who": "xiuqin",
   "text": "好啦好啦，宵夜姐姐請"
+ },
+ "xiuqin.line.slow.0": {
+  "who": "xiuqin",
+  "text": "宵夜都要煮好了，你還沒打"
+ },
+ "xiuqin.line.slow.1": {
+  "who": "xiuqin",
+  "text": "慢慢來，姐先去攪一下湯"
+ },
+ "xiuqin.line.laugh.0": {
+  "who": "xiuqin",
+  "text": "哎呀，這樣不行喔～"
+ },
+ "xiuqin.line.laugh.1": {
+  "who": "xiuqin",
+  "text": "呵呵，放槍要罰洗碗喔"
  },
  "leo.tile.m1": {
   "who": "leo",
@@ -3561,6 +3898,14 @@
   "who": "leo",
   "text": "謝謝？"
  },
+ "leo.line.reply.2": {
+  "who": "leo",
+  "text": "我學會一個新的中文：很嗆！"
+ },
+ "leo.line.reply.3": {
+  "who": "leo",
+  "text": "你在說什麼？我只聽懂「碰」"
+ },
  "leo.line.friend.0": {
   "who": "leo",
   "text": "朋友！你又來了！"
@@ -3580,6 +3925,22 @@
  "leo.line.revenged.0": {
   "who": "leo",
   "text": "喔不，你回來了！"
+ },
+ "leo.line.slow.0": {
+  "who": "leo",
+  "text": "在德國，我們打牌比較快"
+ },
+ "leo.line.slow.1": {
+  "who": "leo",
+  "text": "需要我等你嗎？我有很多時間"
+ },
+ "leo.line.laugh.0": {
+  "who": "leo",
+  "text": "哈哈！這個我懂，這叫放槍！"
+ },
+ "leo.line.laugh.1": {
+  "who": "leo",
+  "text": "喔不，好慘，可是好好笑"
  },
  "acai.tile.m1": {
   "who": "acai",
@@ -3801,6 +4162,14 @@
   "who": "acai",
   "text": "呵呵，好膽"
  },
+ "acai.line.reply.2": {
+  "who": "acai",
+  "text": "少年仔，嘴巴甜一點才會贏"
+ },
+ "acai.line.reply.3": {
+  "who": "acai",
+  "text": "阿伯打牌的時候，你還在喝奶"
+ },
  "acai.line.friend.0": {
   "who": "acai",
   "text": "老朋友，今天也好好打"
@@ -3820,6 +4189,22 @@
  "acai.line.revenged.0": {
   "who": "acai",
   "text": "呵呵，被你討回去了"
+ },
+ "acai.line.slow.0": {
+  "who": "acai",
+  "text": "阿伯等到都要睡午覺了"
+ },
+ "acai.line.slow.1": {
+  "who": "acai",
+  "text": "慢是慢，也不要慢到天黑啊"
+ },
+ "acai.line.laugh.0": {
+  "who": "acai",
+  "text": "呵呵，少年仔要多練"
+ },
+ "acai.line.laugh.1": {
+  "who": "acai",
+  "text": "這張阿伯三十年前就不打了"
  },
  "nova.tile.m1": {
   "who": "nova",
@@ -4045,6 +4430,14 @@
   "who": "nova",
   "text": "截圖了喔"
  },
+ "nova.line.reply.2": {
+  "who": "nova",
+  "text": "嘴砲技能點滿了喔？"
+ },
+ "nova.line.reply.3": {
+  "who": "nova",
+  "text": "你是在打麻將還是打嘴砲？"
+ },
  "nova.line.friend.0": {
   "who": "nova",
   "text": "老隊友！這場我們一起衝"
@@ -4064,6 +4457,22 @@
  "nova.line.revenged.0": {
   "who": "nova",
   "text": "被反打了，這波我的"
+ },
+ "nova.line.slow.0": {
+  "who": "nova",
+  "text": "你的反應時間比我阿嬤還慢"
+ },
+ "nova.line.slow.1": {
+  "who": "nova",
+  "text": "掛機了嗎？要不要檢舉？"
+ },
+ "nova.line.laugh.0": {
+  "who": "nova",
+  "text": "這波你送了"
+ },
+ "nova.line.laugh.1": {
+  "who": "nova",
+  "text": "哈，操作失誤"
  },
  "zheng.tile.m1": {
   "who": "zheng",
@@ -4289,6 +4698,14 @@
   "who": "zheng",
   "text": "我記下來了"
  },
+ "zheng.line.reply.2": {
+  "who": "zheng",
+  "text": "你這句話，我會記在筆錄上"
+ },
+ "zheng.line.reply.3": {
+  "who": "zheng",
+  "text": "嗆警察，後果自己負責"
+ },
  "zheng.line.friend.0": {
   "who": "zheng",
   "text": "又見面了，老搭檔"
@@ -4308,6 +4725,22 @@
  "zheng.line.revenged.0": {
   "who": "zheng",
   "text": "好，這次換我被抓"
+ },
+ "zheng.line.slow.0": {
+  "who": "zheng",
+  "text": "你手停在那裡很久了，心虛喔？"
+ },
+ "zheng.line.slow.1": {
+  "who": "zheng",
+  "text": "想那麼久，是在想怎麼湮滅證據嗎？"
+ },
+ "zheng.line.laugh.0": {
+  "who": "zheng",
+  "text": "人贓俱獲"
+ },
+ "zheng.line.laugh.1": {
+  "who": "zheng",
+  "text": "我早就說你有嫌疑"
  },
  "shange.tile.m1": {
   "who": "shange",
@@ -4529,6 +4962,14 @@
   "who": "shange",
   "text": "好好好，唱首歌給你聽"
  },
+ "shange.line.reply.2": {
+  "who": "shange",
+  "text": "嗆我？我唱一首回敬你"
+ },
+ "shange.line.reply.3": {
+  "who": "shange",
+  "text": "你這嗓門，來我們協會唱歌吧"
+ },
  "shange.line.friend.0": {
   "who": "shange",
   "text": "你來了！協會的人都在問你"
@@ -4548,6 +4989,22 @@
  "shange.line.revenged.0": {
   "who": "shange",
   "text": "哎呀，這下換我走音了"
+ },
+ "shange.line.slow.0": {
+  "who": "shange",
+  "text": "我都唱完兩首了，你還沒打"
+ },
+ "shange.line.slow.1": {
+  "who": "shange",
+  "text": "慢慢想，我再唱一段給你聽"
+ },
+ "shange.line.laugh.0": {
+  "who": "shange",
+  "text": "哎喲喂，這要編成山歌了"
+ },
+ "shange.line.laugh.1": {
+  "who": "shange",
+  "text": "哈哈，這一段唱起來一定好聽"
  },
  "daqing.tile.m1": {
   "who": "daqing",
@@ -4769,6 +5226,14 @@
   "who": "daqing",
   "text": "你這樣講，我要漲價喔"
  },
+ "daqing.line.reply.2": {
+  "who": "daqing",
+  "text": "嗆一句，加收十塊"
+ },
+ "daqing.line.reply.3": {
+  "who": "daqing",
+  "text": "少年仔，做生意要和氣生財"
+ },
  "daqing.line.friend.0": {
   "who": "daqing",
   "text": "老主顧來了！今天打折"
@@ -4788,6 +5253,22 @@
  "daqing.line.revenged.0": {
   "who": "daqing",
   "text": "好，帳清了，算你狠"
+ },
+ "daqing.line.slow.0": {
+  "who": "daqing",
+  "text": "你這樣想，我店都要打烊了"
+ },
+ "daqing.line.slow.1": {
+  "who": "daqing",
+  "text": "時間就是錢，我算盤都打好了"
+ },
+ "daqing.line.laugh.0": {
+  "who": "daqing",
+  "text": "這筆帳，我記下了"
+ },
+ "daqing.line.laugh.1": {
+  "who": "daqing",
+  "text": "哈哈，虧本生意喔"
  },
  "chenji.tile.m1": {
   "who": "chenji",
@@ -5009,6 +5490,14 @@
   "who": "chenji",
   "text": "好啦，聽你的"
  },
+ "chenji.line.reply.2": {
+  "who": "chenji",
+  "text": "呵呵，年輕人火氣大，吃塊糕消消火"
+ },
+ "chenji.line.reply.3": {
+  "who": "chenji",
+  "text": "好啦好啦，你說的都對"
+ },
  "chenji.line.friend.0": {
   "who": "chenji",
   "text": "你又來啦，老位子給你坐"
@@ -5028,6 +5517,22 @@
  "chenji.line.revenged.0": {
   "who": "chenji",
   "text": "好，這下扯平了"
+ },
+ "chenji.line.slow.0": {
+  "who": "chenji",
+  "text": "慢慢來沒關係，糕仔也是慢慢蒸的"
+ },
+ "chenji.line.slow.1": {
+  "who": "chenji",
+  "text": "欸，你是不是在發呆？"
+ },
+ "chenji.line.laugh.0": {
+  "who": "chenji",
+  "text": "哎，歹勢，我不是在笑你"
+ },
+ "chenji.line.laugh.1": {
+  "who": "chenji",
+  "text": "這張喔……嘖嘖"
  },
  "xiaoliu.tile.m1": {
   "who": "xiaoliu",
@@ -5249,6 +5754,14 @@
   "who": "xiaoliu",
   "text": "你是不是怕了？"
  },
+ "xiaoliu.line.reply.2": {
+  "who": "xiaoliu",
+  "text": "講那麼多，手快一點啦！"
+ },
+ "xiaoliu.line.reply.3": {
+  "who": "xiaoliu",
+  "text": "嗆完了沒？換我了"
+ },
  "xiaoliu.line.friend.0": {
   "who": "xiaoliu",
   "text": "兄弟！今天一起衝"
@@ -5268,6 +5781,22 @@
  "xiaoliu.line.revenged.0": {
   "who": "xiaoliu",
   "text": "可惡，被你討回去！"
+ },
+ "xiaoliu.line.slow.0": {
+  "who": "xiaoliu",
+  "text": "快點啦，菜都要被搶光了"
+ },
+ "xiaoliu.line.slow.1": {
+  "who": "xiaoliu",
+  "text": "你打牌比找零錢還慢欸"
+ },
+ "xiaoliu.line.laugh.0": {
+  "who": "xiaoliu",
+  "text": "哈，太慢了就是這樣"
+ },
+ "xiaoliu.line.laugh.1": {
+  "who": "xiaoliu",
+  "text": "送上門了，謝啦"
  },
  "xiaohao.tile.m1": {
   "who": "xiaohao",
@@ -5489,6 +6018,14 @@
   "who": "xiaohao",
   "text": "哈，有種來拚大的"
  },
+ "xiaohao.line.reply.2": {
+  "who": "xiaohao",
+  "text": "你那點台數，嗆不動我"
+ },
+ "xiaohao.line.reply.3": {
+  "who": "xiaohao",
+  "text": "有種來拚大的！"
+ },
  "xiaohao.line.friend.0": {
   "who": "xiaohao",
   "text": "好兄弟！今天一起做大牌"
@@ -5508,6 +6045,22 @@
  "xiaohao.line.revenged.0": {
   "who": "xiaohao",
   "text": "嘖，這次換你爽"
+ },
+ "xiaohao.line.slow.0": {
+  "who": "xiaohao",
+  "text": "想那麼久，是在做大牌喔？"
+ },
+ "xiaohao.line.slow.1": {
+  "who": "xiaohao",
+  "text": "要做大牌就快一點啦"
+ },
+ "xiaohao.line.laugh.0": {
+  "who": "xiaohao",
+  "text": "放槍還放這麼小，無聊"
+ },
+ "xiaohao.line.laugh.1": {
+  "who": "xiaohao",
+  "text": "哈！至少放大一點嘛"
  },
  "xiaoyuan.tile.m1": {
   "who": "xiaoyuan",
@@ -5729,6 +6282,14 @@
   "who": "xiaoyuan",
   "text": "嗯。"
  },
+ "xiaoyuan.line.reply.2": {
+  "who": "xiaoyuan",
+  "text": "……吵。"
+ },
+ "xiaoyuan.line.reply.3": {
+  "who": "xiaoyuan",
+  "text": "……記下了。"
+ },
  "xiaoyuan.line.friend.0": {
   "who": "xiaoyuan",
   "text": "……你來了。"
@@ -5748,6 +6309,22 @@
  "xiaoyuan.line.revenged.0": {
   "who": "xiaoyuan",
   "text": "……扯平。"
+ },
+ "xiaoyuan.line.slow.0": {
+  "who": "xiaoyuan",
+  "text": "……你在想什麼？"
+ },
+ "xiaoyuan.line.slow.1": {
+  "who": "xiaoyuan",
+  "text": "……快。"
+ },
+ "xiaoyuan.line.laugh.0": {
+  "who": "xiaoyuan",
+  "text": "……預料之中。"
+ },
+ "xiaoyuan.line.laugh.1": {
+  "who": "xiaoyuan",
+  "text": "……呵。"
  },
  "dushen.tile.m1": {
   "who": "dushen",
@@ -5973,6 +6550,14 @@
   "who": "dushen",
   "text": "心急，是牌桌上的大忌。"
  },
+ "dushen.line.reply.2": {
+  "who": "dushen",
+  "text": "年輕人，要不要來塊巧克力？冷靜一下"
+ },
+ "dushen.line.reply.3": {
+  "who": "dushen",
+  "text": "嗆我的人，最後都輸了"
+ },
  "dushen.line.friend.0": {
   "who": "dushen",
   "text": "又是你。坐吧。"
@@ -5992,6 +6577,22 @@
  "dushen.line.revenged.0": {
   "who": "dushen",
   "text": "……好，你討回去了。"
+ },
+ "dushen.line.slow.0": {
+  "who": "dushen",
+  "text": "猶豫，是賭桌上最貴的東西"
+ },
+ "dushen.line.slow.1": {
+  "who": "dushen",
+  "text": "想太久，運氣就跑了"
+ },
+ "dushen.line.laugh.0": {
+  "who": "dushen",
+  "text": "看吧，心急了"
+ },
+ "dushen.line.laugh.1": {
+  "who": "dushen",
+  "text": "這張，不該打。"
  },
  "duxia.tile.m1": {
   "who": "duxia",
@@ -6217,6 +6818,14 @@
   "who": "duxia",
   "text": "有膽識，我欣賞"
  },
+ "duxia.line.reply.2": {
+  "who": "duxia",
+  "text": "朋友，嘴上功夫贏不了牌"
+ },
+ "duxia.line.reply.3": {
+  "who": "duxia",
+  "text": "好，有膽識，我欣賞"
+ },
  "duxia.line.friend.0": {
   "who": "duxia",
   "text": "朋友！又見面了"
@@ -6236,6 +6845,22 @@
  "duxia.line.revenged.0": {
   "who": "duxia",
   "text": "好！有骨氣，這筆算你的"
+ },
+ "duxia.line.slow.0": {
+  "who": "duxia",
+  "text": "朋友，慢慢想，我等你"
+ },
+ "duxia.line.slow.1": {
+  "who": "duxia",
+  "text": "江湖規矩，出牌要快"
+ },
+ "duxia.line.laugh.0": {
+  "who": "duxia",
+  "text": "朋友，這張太冒險了"
+ },
+ "duxia.line.laugh.1": {
+  "who": "duxia",
+  "text": "這一掌，挨得不輕啊"
  },
  "dusheng.tile.m1": {
   "who": "dusheng",
@@ -6461,6 +7086,14 @@
   "who": "dusheng",
   "text": "哼，看我的特異功能！"
  },
+ "dusheng.line.reply.2": {
+  "who": "dusheng",
+  "text": "你這樣講，我要用特異功能了喔！"
+ },
+ "dusheng.line.reply.3": {
+  "who": "dusheng",
+  "text": "哼！我不理你了！"
+ },
  "dusheng.line.friend.0": {
   "who": "dusheng",
   "text": "好兄弟！你也有特異功能嗎？"
@@ -6480,6 +7113,22 @@
  "dusheng.line.revenged.0": {
   "who": "dusheng",
   "text": "哎呀，特異功能失靈了！"
+ },
+ "dusheng.line.slow.0": {
+  "who": "dusheng",
+  "text": "我用透視眼都看完你的牌了，你還沒打"
+ },
+ "dusheng.line.slow.1": {
+  "who": "dusheng",
+  "text": "快一點啦，我的特異功能要沒電了"
+ },
+ "dusheng.line.laugh.0": {
+  "who": "dusheng",
+  "text": "哈哈哈！我早就感應到了！"
+ },
+ "dusheng.line.laugh.1": {
+  "who": "dusheng",
+  "text": "笑死，特異功能說你會放槍"
  },
  "me-f.tile.m1": {
   "who": "me-f",
@@ -6657,6 +7306,46 @@
   "who": "me-f",
   "text": "你是不是聽了？"
  },
+ "me-f.taunt.dare": {
+  "who": "me-f",
+  "text": "這張你也敢打？"
+ },
+ "me-f.taunt.donate": {
+  "who": "me-f",
+  "text": "你是來送錢的嗎？"
+ },
+ "me-f.taunt.waited": {
+  "who": "me-f",
+  "text": "我等很久了喔～"
+ },
+ "me-f.taunt.teach": {
+  "who": "me-f",
+  "text": "要不要我教你？"
+ },
+ "me-f.taunt.big": {
+  "who": "me-f",
+  "text": "這把我要胡大的！"
+ },
+ "me-f.taunt.luck": {
+  "who": "me-f",
+  "text": "手氣這麼好，有拜拜喔？"
+ },
+ "me-f.taunt.hatch": {
+  "who": "me-f",
+  "text": "你在孵蛋喔？"
+ },
+ "me-f.taunt.face": {
+  "who": "me-f",
+  "text": "看你的表情就知道了"
+ },
+ "me-f.taunt.again": {
+  "who": "me-f",
+  "text": "不好意思，又是我～"
+ },
+ "me-f.taunt.supper": {
+  "who": "me-f",
+  "text": "輸的請宵夜喔！"
+ },
  "me-m.tile.m1": {
   "who": "me-m",
   "text": "一萬"
@@ -6832,6 +7521,46 @@
  "me-m.taunt.ting": {
   "who": "me-m",
   "text": "你是不是聽了？"
+ },
+ "me-m.taunt.dare": {
+  "who": "me-m",
+  "text": "這張你也敢打？"
+ },
+ "me-m.taunt.donate": {
+  "who": "me-m",
+  "text": "你是來送錢的嗎？"
+ },
+ "me-m.taunt.waited": {
+  "who": "me-m",
+  "text": "我等很久了喔～"
+ },
+ "me-m.taunt.teach": {
+  "who": "me-m",
+  "text": "要不要我教你？"
+ },
+ "me-m.taunt.big": {
+  "who": "me-m",
+  "text": "這把我要胡大的！"
+ },
+ "me-m.taunt.luck": {
+  "who": "me-m",
+  "text": "手氣這麼好，有拜拜喔？"
+ },
+ "me-m.taunt.hatch": {
+  "who": "me-m",
+  "text": "你在孵蛋喔？"
+ },
+ "me-m.taunt.face": {
+  "who": "me-m",
+  "text": "看你的表情就知道了"
+ },
+ "me-m.taunt.again": {
+  "who": "me-m",
+  "text": "不好意思，又是我～"
+ },
+ "me-m.taunt.supper": {
+  "who": "me-m",
+  "text": "輸的請宵夜喔！"
  },
  "meiling.banter.0": {
   "who": "meiling",
@@ -7120,5 +7849,149 @@
  "duxia.banter.35": {
   "who": "duxia",
   "text": "感應得到，擋得住嗎？"
+ },
+ "kai.banter.36": {
+  "who": "kai",
+  "text": "大舅媽，你剛剛那個碰，期望值是負的喔。"
+ },
+ "meiling.banter.36": {
+  "who": "meiling",
+  "text": "期望值？舅媽只期望今天贏錢啦！"
+ },
+ "meiling.banter.37": {
+  "who": "meiling",
+  "text": "雀神，你退休金都拿來打牌喔？"
+ },
+ "lin.banter.37": {
+  "who": "lin",
+  "text": "打小的，養老剛好。"
+ },
+ "wang.banter.38": {
+  "who": "wang",
+  "text": "阿傑，你上班有打牌這麼認真就好了。"
+ },
+ "jie.banter.38": {
+  "who": "jie",
+  "text": "經理，我上班也很認真打……打電話！"
+ },
+ "xiaomei.banter.39": {
+  "who": "xiaomei",
+  "text": "經理，胡您的牌，會影響考績嗎？"
+ },
+ "wang.banter.39": {
+  "who": "wang",
+  "text": "……我們下班不談考績。"
+ },
+ "ama.banter.40": {
+  "who": "ama",
+  "text": "兒子啊，少喝一點，你又在亂打了。"
+ },
+ "erjiu.banter.40": {
+  "who": "erjiu",
+  "text": "媽，我這是戰術！"
+ },
+ "biaomei.banter.41": {
+  "who": "biaomei",
+  "text": "阿嬤，你怎麼都知道我要打什麼？"
+ },
+ "ama.banter.41": {
+  "who": "ama",
+  "text": "阿嬤打牌的時候，你媽都還沒出生。"
+ },
+ "coco.banter.42": {
+  "who": "coco",
+  "text": "雀神大大，聊天室問你有沒有女朋友。"
+ },
+ "queshen.banter.42": {
+  "who": "queshen",
+  "text": "……打牌。"
+ },
+ "longge.banter.43": {
+  "who": "longge",
+  "text": "雀神，今天館子的茶還合口嗎？"
+ },
+ "queshen.banter.43": {
+  "who": "queshen",
+  "text": "茶好。牌，還差一點。"
+ },
+ "leo.banter.44": {
+  "who": "leo",
+  "text": "船長，颱風天你們都打麻將嗎？"
+ },
+ "captain.banter.44": {
+  "who": "captain",
+  "text": "不然咧？出海喔？"
+ },
+ "xiuqin.banter.45": {
+  "who": "xiuqin",
+  "text": "Leo，今天輸的錢，明天幫我洗床單抵。"
+ },
+ "leo.banter.45": {
+  "who": "leo",
+  "text": "洗床單？這是台灣的規矩嗎？"
+ },
+ "acai.banter.46": {
+  "who": "acai",
+  "text": "小姐，你一分鐘按四百下，手不會痠喔？"
+ },
+ "nova.banter.46": {
+  "who": "nova",
+  "text": "阿伯，你一張牌想四百秒，頭不會痛喔？"
+ },
+ "zheng.banter.47": {
+  "who": "zheng",
+  "text": "阿伯，你孫子幫你報名，你知道嗎？"
+ },
+ "acai.banter.47": {
+  "who": "acai",
+  "text": "知道啊，獎金他說要分一半。"
+ },
+ "chenji.banter.48": {
+  "who": "chenji",
+  "text": "大慶的，你帶算盤來做什麼？"
+ },
+ "daqing.banter.48": {
+  "who": "daqing",
+  "text": "算你今天輸多少啊！"
+ },
+ "shange.banter.49": {
+  "who": "shange",
+  "text": "陳記的，我幫你的糕仔寫一首廣告歌。"
+ },
+ "chenji.banter.49": {
+  "who": "chenji",
+  "text": "好啊，唱得好聽送你一盒。"
+ },
+ "xiaohao.banter.50": {
+  "who": "xiaohao",
+  "text": "小劉，你快是快，可是胡的都好小。"
+ },
+ "xiaoliu.banter.50": {
+  "who": "xiaoliu",
+  "text": "小的也是錢啊！"
+ },
+ "xiaoliu.banter.51": {
+  "who": "xiaoliu",
+  "text": "小員，你講一句話會怎樣？"
+ },
+ "xiaoyuan.banter.51": {
+  "who": "xiaoyuan",
+  "text": "……會輸。"
+ },
+ "duxia.banter.52": {
+  "who": "duxia",
+  "text": "前輩，你的巧克力是不是有加料？"
+ },
+ "dushen.banter.52": {
+  "who": "dushen",
+  "text": "加了一點……自信。"
+ },
+ "dusheng.banter.53": {
+  "who": "dusheng",
+  "text": "俠哥，你有沒有被我的特異功能嚇到？"
+ },
+ "duxia.banter.53": {
+  "who": "duxia",
+  "text": "有，嚇到我想笑。"
  }
 }

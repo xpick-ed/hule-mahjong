@@ -65,6 +65,7 @@ const CAST: Record<string, { name: string; voice: Voice; calls: Calls }> = {
 const TTS_FIX: [RegExp, string][] = [
   [/\+(\d+)/g, '加$1'],
   [/KPI/g, 'K P I'],
+  [/IG/g, 'I G'],
 ]
 
 // 牌名：數牌照念，字牌念成大家習慣的叫法

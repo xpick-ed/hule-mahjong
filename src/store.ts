@@ -266,6 +266,8 @@ interface UI {
   skipTutorial(): void
   /** 讓對手講一句（泡泡＋配音），有講就回傳 true */
   say(seat: number, key: LineKey, chance?: number): boolean
+  /** 你想太久：隨便一個對手催你（一局最多一次） */
+  nudge(): void
   processEvents(): void
 }
 
@@ -337,6 +339,8 @@ export function lookFor(p: Progress, id: string): Look {
 
 let bubbleKey = 1
 let tauntReady = 0
+/** 上一次催你是哪一局（一局最多催一次） */
+let nudgedHand = ''
 /** 上一次角色鬥嘴的時間（別太常講） */
 let banterAt = 0
 
@@ -1094,6 +1098,17 @@ export const useUI = create<UI>((set, get) => {
       return true
     },
 
+    nudge() {
+      const m = get().match
+      if (!m || m.online || m.tutorial) return
+      const key = `${m.seed}:${m.handNo}`
+      if (nudgedHand === key || Math.random() > 0.6) return
+      nudgedHand = key
+      // 正在講話的不要打斷
+      const seats = [1, 2, 3].filter((s) => !get().bubbles[s])
+      if (seats.length) get().say(seats[Math.floor(Math.random() * seats.length)], 'slow')
+    },
+
     /** 看新的牌局事件：放音效、讓角色講話、換表情 */
     processEvents() {
       const m = get().match
@@ -1194,6 +1209,12 @@ export const useUI = create<UI>((set, get) => {
         if (e.from !== null) {
           mood(e.from, 'sad')
           window.setTimeout(() => say(e.from!, 'dealIn', 0.8), 900)
+          // 旁邊的人幸災樂禍（有時候）
+          const others = [1, 2, 3].filter((s) => s !== e.seat && s !== e.from)
+          if (others.length && Math.random() < 0.4) {
+            const s = others[Math.floor(Math.random() * others.length)]
+            window.setTimeout(() => say(s, 'laugh'), 2300)
+          }
         } else {
           for (const s of [0, 1, 2, 3]) if (s !== e.seat) mood(s, 'sad')
         }

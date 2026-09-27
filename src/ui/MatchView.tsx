@@ -493,6 +493,8 @@ function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
   const out = left <= 0
   useEffect(() => {
     if (key && !paused && secs > 0 && secs <= 5) sfx.timer(secs <= 3)
+    // 想太久：想了 10 秒（時間比較短的話剩 3 秒時），對手會催你
+    if (key && !paused && !online && turnTime >= 10 && secs === (turnTime >= 15 ? turnTime - 10 : 3)) useUI.getState().nudge()
     // 只在秒數變的時候嘀一聲
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [secs])
@@ -504,7 +506,7 @@ function useTurnTimer(m: M.MatchState, guide: boolean): TurnTimerState {
   return { active: !!key, secs, frac: Math.max(0, Math.min(1, left / total)) }
 }
 
-/** 嗆聲：點一下跳出四句話，選一句講，對手會回嘴 */
+/** 嗆聲：點一下跳出一排話，選一句講，對手會回嘴 */
 function TauntButton() {
   const taunt = useUI((s) => s.taunt)
   const [open, setOpen] = useState(false)
@@ -517,19 +519,21 @@ function TauntButton() {
       </button>
       {open && (
         <span className="taunt-menu" role="menu">
-          {TAUNTS.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              role="menuitem"
-              onClick={() => {
-                taunt(t.id)
-                setOpen(false)
-              }}
-            >
-              {t.text}
-            </button>
-          ))}
+          <span className="taunt-grid">
+            {TAUNTS.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  taunt(t.id)
+                  setOpen(false)
+                }}
+              >
+                {t.text}
+              </button>
+            ))}
+          </span>
           <span className="emote-row">
             {EMOTES.map((e) => (
               <button
