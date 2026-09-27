@@ -12,3 +12,10 @@ CREATE TABLE IF NOT EXISTS daily (
   PRIMARY KEY (date, uid)
 );
 CREATE INDEX IF NOT EXISTS daily_rank ON daily (date, points DESC, at);
+
+-- 存檔轉移碼（換手機用）：30 天後失效。worker/save.ts 第一次用到時也會自己建
+CREATE TABLE IF NOT EXISTS saves (
+  code TEXT PRIMARY KEY,
+  data TEXT NOT NULL,
+  at INTEGER NOT NULL
+);

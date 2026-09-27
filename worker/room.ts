@@ -4,11 +4,12 @@
 // - 空位電腦補；電腦出牌照單機版的節奏（M.aiDelay）
 // - 輪到真人：倒數時間到，或他斷線了，就替他打（M.autoMove）；他連回來就接手
 // - 房間狀態存在 Durable Object 的儲存空間：大家都斷線、伺服器重開也能接著打；6 小時沒人就清掉
+// - 已經開打（或滿了）還有人進來：當觀眾，看得到打出來的牌、看不到手牌；打完回到房間時有位子就坐下
 
 import { CHARACTERS, type Look } from '../src/engine/characters'
 import { cleanLook } from '../src/engine/looks'
 import * as M from '../src/engine/match'
-import { newRoomCode, ROOM_RE, viewFor, type ClientMsg, type LobbyPlayer, type RoomSettings, type ServerMsg } from '../src/engine/online'
+import { newRoomCode, ROOM_RE, viewFor, watchBase, watchView, type ClientMsg, type LobbyPlayer, type RoomSettings, type ServerMsg } from '../src/engine/online'
 import { LADDER } from '../src/engine/stages'
 import { DEFAULT_RULES, RuleError } from '../src/engine/table'
 
@@ -64,6 +65,15 @@ const OFFLINE_DELAY = 1500
 /** 一局結束後，最多等大家按「下一局」多久 */
 const HAND_END_WAIT = 30000
 const TURN_TIMES = [10, 15, 20, 30, 45, 60]
+/** 觀眾最多幾個 */
+const MAX_WATCHERS = 8
+
+interface Watcher {
+  ws: CFWebSocket
+  name: string
+  voice: 'f' | 'm'
+  look?: Look
+}
 
 /** 房間裡名字重複（例如兩個都沒填、都叫小明）：後來的加編號 */
 function uniqueName(name: string, others: { name: string }[]): string {
@@ -97,6 +107,8 @@ export class Room {
   private scale: number
   private s: Saved | null = null
   private sockets = new Map<string, CFWebSocket>()
+  /** 觀眾（不存檔：斷了重連就好） */
+  private watchers = new Map<string, Watcher>()
   private timer: ReturnType<typeof setTimeout> | null = null
   private lastTaunt = new Map<string, number>()
 
@@ -147,7 +159,7 @@ export class Room {
 
   async alarm() {
     // 很久沒人：清掉房間
-    if (this.sockets.size === 0) {
+    if (this.sockets.size === 0 && this.watchers.size === 0) {
       this.s = null
       await this.ctx.storage.deleteAll()
     } else await this.ctx.storage.setAlarm(Date.now() + IDLE_MS)
@@ -159,8 +171,8 @@ export class Room {
     const s = this.s!
     let p = s.players.find((x) => x.pid === pid)
     if (!p) {
-      if (s.phase === 'playing') return this.reject(ws, '這一桌已經開打了，等他們打完這場再加入')
-      if (s.players.length >= 4) return this.reject(ws, '房間滿了（最多 4 個人）')
+      // 開打了或滿了：先當觀眾
+      if (s.phase === 'playing' || s.players.length >= 4) return this.watch(ws, pid, name, voice, look)
       p = { pid, name: uniqueName(name, s.players), voice, host: s.players.length === 0 }
       s.players.push(p)
     } else {
@@ -181,12 +193,40 @@ export class Room {
     this.pump()
   }
 
+  private watch(ws: CFWebSocket, pid: string, name: string, voice: 'f' | 'm', look: Look | null) {
+    const old = this.watchers.get(pid)?.ws
+    if (!old && this.watchers.size >= MAX_WATCHERS) return this.reject(ws, '這一桌看的人太多了，等一下再來')
+    if (old && old !== ws) old.close(4000, '在別的地方開了這個房間')
+    this.watchers.set(pid, { ws, name, voice, ...(look ? { look } : {}) })
+    ws.addEventListener('message', (e) => this.onMessage(pid, ws, e.data))
+    // 之後坐下變成玩家的話，onClose 也照玩家處理
+    const gone = () => this.onClose(pid, ws)
+    ws.addEventListener('close', gone)
+    ws.addEventListener('error', gone)
+    this.broadcast()
+  }
+
+  /** 回到房間：觀眾有位子就坐下（照進來的順序） */
+  private seatWatchers() {
+    const s = this.s!
+    for (const [pid, w] of [...this.watchers]) {
+      if (s.players.length >= 4) break
+      this.watchers.delete(pid)
+      s.players.push({ pid, name: uniqueName(w.name, s.players), voice: w.voice, host: s.players.length === 0, ...(w.look ? { look: w.look } : {}) })
+      this.sockets.set(pid, w.ws)
+    }
+  }
+
   private reject(ws: CFWebSocket, msg: string) {
     this.send(ws, { t: 'error', msg, fatal: true })
     ws.close(4001, 'rejected')
   }
 
   private onClose(pid: string, ws: CFWebSocket) {
+    if (this.watchers.get(pid)?.ws === ws) {
+      this.watchers.delete(pid)
+      return this.broadcast()
+    }
     if (this.sockets.get(pid) !== ws) return
     this.sockets.delete(pid)
     const s = this.s
@@ -197,6 +237,12 @@ export class Room {
 
   private leave(pid: string) {
     const s = this.s!
+    const w = this.watchers.get(pid)
+    if (w) {
+      this.watchers.delete(pid)
+      w.ws.close(1000, 'left')
+      return this.broadcast()
+    }
     if (s.phase === 'lobby') {
       const i = s.players.findIndex((x) => x.pid === pid)
       if (i >= 0) {
@@ -223,7 +269,8 @@ export class Room {
       return
     }
     const me = s.players.find((x) => x.pid === pid)
-    if (!me) return
+    // 觀眾只能離開
+    if (!me) return msg.t === 'leave' ? this.leave(pid) : undefined
     const seat = s.seatOf[pid]
     try {
       switch (msg.t) {
@@ -249,8 +296,9 @@ export class Room {
           s.phase = 'lobby'
           s.match = null
           s.seatOf = {}
-          // 離開的人不再佔位子
+          // 離開的人不再佔位子；觀眾有位子就坐下
           s.players = s.players.filter((p) => this.sockets.has(p.pid))
+          this.seatWatchers()
           if (s.players.length && !s.players.some((p) => p.host)) s.players[0].host = true
           break
         case 'taunt': {
@@ -260,6 +308,9 @@ export class Room {
             const os = s.seatOf[other]
             if (other !== pid && os !== undefined) this.send(sock, { t: 'taunt', seat: (seat - os + 4) % 4, id: msg.id })
           }
+          // 觀眾也看得到
+          const base = s.match ? watchBase(this.seatPlayers(s.match)) : 0
+          for (const w of this.watchers.values()) this.send(w.ws, { t: 'taunt', seat: (seat - base + 4) % 4, id: msg.id })
           return
         }
         case 'leave':
@@ -415,27 +466,40 @@ export class Room {
     }
   }
 
-  private broadcast() {
+  /** 每個座位是誰（給畫面顯示） */
+  private seatPlayers(m: M.MatchState): M.SeatPlayer[] {
     const s = this.s!
+    return [0, 1, 2, 3].map((seat) => {
+      const pid = Object.keys(s.seatOf).find((k) => s.seatOf[k] === seat)
+      const p = pid ? s.players.find((x) => x.pid === pid) : undefined
+      return p
+        ? { name: p.name, human: true, voice: p.voice, connected: this.sockets.has(p.pid), ...(p.look ? { look: p.look } : {}) }
+        : { name: CHARACTERS[m.chars[seat]]?.name ?? '電腦', human: false }
+    })
+  }
+
+  private broadcast() {
+    const s = this.s
+    if (!s) return
     const lobby: LobbyPlayer[] = s.players.map((p) => ({ name: p.name, host: p.host, connected: this.sockets.has(p.pid), voice: p.voice, ...(p.look ? { look: p.look } : {}) }))
     const m = s.match
-    const seatPlayers: M.SeatPlayer[] | null = m
-      ? [0, 1, 2, 3].map((seat) => {
-          const pid = Object.keys(s.seatOf).find((k) => s.seatOf[k] === seat)
-          const p = pid ? s.players.find((x) => x.pid === pid) : undefined
-          return p
-            ? { name: p.name, human: true, voice: p.voice, connected: this.sockets.has(p.pid), ...(p.look ? { look: p.look } : {}) }
-            : { name: CHARACTERS[m.chars[seat]]?.name ?? '電腦', human: false }
-        })
-      : null
+    const seatPlayers = m ? this.seatPlayers(m) : null
     const timeLeft = s.deadline ? Math.max(0, s.deadline - Date.now()) : null
+    const watchers = this.watchers.size
     for (const [pid, ws] of this.sockets) {
       const you = s.players.findIndex((p) => p.pid === pid)
-      this.send(ws, { t: 'room', code: s.code, phase: s.phase, players: lobby, you, settings: s.settings })
+      this.send(ws, { t: 'room', code: s.code, phase: s.phase, players: lobby, you, settings: s.settings, watchers })
       const seat = s.seatOf[pid]
       if (m && seatPlayers && seat !== undefined && s.phase === 'playing') {
         this.send(ws, { t: 'state', m: viewFor(m, seat, seatPlayers), timeLeft, ready: s.ready.map((x) => (x - seat + 4) % 4) })
       }
+    }
+    // 觀眾：手牌全部蓋著
+    const view = m && seatPlayers && s.phase === 'playing' ? watchView(m, seatPlayers) : null
+    const base = seatPlayers ? watchBase(seatPlayers) : 0
+    for (const w of this.watchers.values()) {
+      this.send(w.ws, { t: 'room', code: s.code, phase: s.phase, players: lobby, you: -1, settings: s.settings, watchers })
+      if (view) this.send(w.ws, { t: 'state', m: view, timeLeft, ready: s.ready.map((x) => (x - base + 4) % 4) })
     }
   }
 }

@@ -94,6 +94,8 @@ export interface MatchState {
   survival?: Survival
   /** 閃電局：只打 4 局、每一步 5 秒 */
   blitz?: boolean
+  /** 連線觀戰：畫面下方是別人，你只能看 */
+  spectator?: boolean
 }
 
 /** 閃電局：打幾局、每一步幾秒 */
@@ -330,7 +332,7 @@ export function useSkill(m: MatchState, id: SkillId, arg?: number): MatchState {
 
 /** 現在是不是在等這個座位（打牌，或決定要不要吃碰胡） */
 export function waitingFor(m: MatchState, seat: number): boolean {
-  if (m.phase !== 'play') return false
+  if (m.phase !== 'play' || m.spectator) return false
   const h = m.hand
   if (h.phase === 'discard') return h.turn === seat
   if (h.phase === 'claim') return !!h.options[seat] && !h.decisions[seat]

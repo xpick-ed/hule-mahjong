@@ -1,7 +1,8 @@
 // 連線對打的房間伺服器測試：開 N 個機器人玩家連進同一個房間，打完一整場。
 //   先跑 npm run api（本機的 Worker，port 8788），再：
-//   npx tsx scripts/room-test.ts [人數 2] [網址 http://localhost:8788] [--drop]
+//   npx tsx scripts/room-test.ts [人數 2] [網址 http://localhost:8788] [--drop] [--watch]
 // --drop：打到一半讓第二個人斷線 5 秒再連回來，檢查電腦代打和接手。
+// --watch：開打後再進來一個人：要變成觀眾（看不到任何人的手牌），打完房主按再來一場時坐下。
 
 import * as M from '../src/engine/match'
 import { newRoomCode, type ClientMsg, type ServerMsg } from '../src/engine/online'
@@ -10,6 +11,7 @@ import { canTsumo } from '../src/engine/table'
 const N = Number(process.argv[2] ?? 2)
 const BASE = (process.argv[3] ?? 'http://localhost:8788').replace(/^http/, 'ws')
 const DROP = process.argv.includes('--drop')
+const WATCH = process.argv.includes('--watch')
 const code = newRoomCode(Math.random)
 const pid = () => Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('')
 
@@ -85,8 +87,36 @@ if (DROP && bots[1]) {
   }, 8000)
 }
 
+// 觀眾：開打後進來，記下看到的東西
+const watch = { rooms: [] as number[], states: 0, peeked: 0, spectator: true, sawEnd: false, ws: null as WebSocket | null }
+if (WATCH) {
+  await new Promise((r) => setTimeout(r, 1500))
+  const ws = new WebSocket(`${BASE}/api/room/${code}/ws?pid=${pid()}&name=${encodeURIComponent('觀眾')}&voice=m`)
+  watch.ws = ws
+  ws.onmessage = (ev) => {
+    const msg = JSON.parse(String(ev.data)) as ServerMsg
+    if (msg.t === 'room') watch.rooms.push(msg.you)
+    if (msg.t !== 'state') return
+    watch.states++
+    const m = msg.m
+    if (!m.spectator) watch.spectator = false
+    if (m.phase === 'end') watch.sawEnd = true
+    // 還沒結束的局：四家的手牌都要蓋著
+    if (m.hand.phase !== 'over' && m.hand.seats.some((st) => st.hand.some((t) => t.kind !== 'x'))) watch.peeked++
+  }
+}
+
 // 伺服器用一般速度出牌，一場大概要幾分鐘
 while (!bots.every((b) => b.done) && Date.now() - t0 < 20 * 60 * 1000) await new Promise((r) => setTimeout(r, 500))
+if (WATCH) {
+  // 房主按再來一場：觀眾要坐下
+  bots[0].ws!.send(JSON.stringify({ t: 'again' } satisfies ClientMsg))
+  await new Promise((r) => setTimeout(r, 800))
+  const first = watch.rooms.find((x) => x === -1)
+  console.log(`觀眾：收到 ${watch.states} 個畫面，都是觀戰畫面：${watch.spectator ? '是' : '否！'}，偷看到手牌：${watch.peeked ? `${watch.peeked} 次！` : '沒有'}，看到結束：${watch.sawEnd ? '是' : '否'}`)
+  console.log(`觀眾：一開始是觀眾：${first === -1 ? '是' : '否！'}，再來一場時坐下：${(watch.rooms[watch.rooms.length - 1] ?? -1) >= 0 ? '是' : '否！'}`)
+  watch.ws?.close()
+}
 const m = bots[0].last!
 console.log(`結束：${bots.every((b) => b.done) ? '打完了' : '超時！'}，${m.handNo} 局，${((Date.now() - t0) / 1000).toFixed(0)} 秒`)
 for (const b of bots) {

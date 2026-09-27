@@ -107,6 +107,31 @@ export function viewFor(m: MatchState, seat: number, players: SeatPlayer[]): Mat
   return v
 }
 
+/**
+ * 觀眾看得到的牌局：從第一個真人的位子看（他坐在畫面下方），四家的手牌全部蓋著，只看得到打出來、亮出來的牌。
+ * 一局結束時跟大家一樣全部攤開。
+ */
+export function watchView(m: MatchState, players: SeatPlayer[]): MatchState {
+  const base = Math.max(0, players.findIndex((p) => p.human))
+  const v = viewFor(m, base, players)
+  const h = v.hand
+  if (h.phase !== 'over') h.seats[0].hand = h.seats[0].hand.map((_, i) => hidden(0, i))
+  h.options[0] = null
+  h.decisions[0] = null
+  h.drawn = null
+  h.luckySeat = null
+  h.tingSaid[0] = false
+  if (h.passedWin) h.passedWin[0] = false
+  h.events = h.events.filter(({ e }) => !(e.t === 'ting' && v.humans?.[e.seat]))
+  v.skills = {}
+  v.peek = null
+  v.spectator = true
+  return v
+}
+
+/** 觀眾畫面上的座位 0 是第幾個座位 */
+export const watchBase = (players: SeatPlayer[]) => Math.max(0, players.findIndex((p) => p.human))
+
 // ---------- 房間訊息 ----------
 
 export interface RoomSettings {
@@ -146,9 +171,11 @@ export type ServerMsg =
       code: string
       phase: 'lobby' | 'playing'
       players: LobbyPlayer[]
-      /** 你在 players 裡是第幾個 */
+      /** 你在 players 裡是第幾個；-1 是觀眾 */
       you: number
       settings: RoomSettings
+      /** 幾個人在觀戰 */
+      watchers?: number
     }
   | {
       t: 'state'

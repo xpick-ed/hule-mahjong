@@ -239,6 +239,7 @@ function TopStrip({ m }: { m: M.MatchState }) {
         </small>
       </span>
       <MeChip m={m} />
+      {m.online && <WatchChip m={m} />}
       {!m.online && <div className="skills" role="group" aria-label="絕招">
         {(Object.keys(m.skills) as M.SkillId[]).map((id) => {
           // 這一局正在用的（好運、免死金牌、加倍卡）亮起來
@@ -269,16 +270,18 @@ function TopStrip({ m }: { m: M.MatchState }) {
 function MeChip({ m }: { m: M.MatchState }) {
   const myBubble = useUI((s) => s.bubbles[0])
   const myMood = useUI((s) => s.moods[0])
-  const name = useMyName()
+  const myName = useMyName()
+  // 觀戰：畫面下方是別人
+  const name = m.spectator ? seatName(m, 0) : myName
   const h = m.hand
   return (
     <div className={cls('me-chip', h.turn === 0 && h.phase !== 'over' && 'active')}>
       <span className="seat-wind">{WIND_CHAR[seatWind(h, 0)]}</span>
-      <MyFace size={20} mood={myMood} />
+      {m.spectator ? <SeatFace m={m} seat={0} size={20} mood={myMood} /> : <MyFace size={20} mood={myMood} />}
       {name && <span className="me-name">{name}</span>}
       <span className="pscore">{fmt(m.points[0])}</span>
       {m.dealer === 0 && <span className="dealer">莊</span>}
-      <TauntButton />
+      {!m.spectator && <TauntButton />}
       {myBubble && (
         <div key={myBubble.key} className="bubble from-me" role="status">
           {myBubble.text}
@@ -286,6 +289,13 @@ function MeChip({ m }: { m: M.MatchState }) {
       )}
     </div>
   )
+}
+
+/** 連線時：有人在看就顯示幾個觀眾；你自己在觀戰就顯示「觀戰中」 */
+function WatchChip({ m }: { m: M.MatchState }) {
+  const n = useUI((s) => s.online?.room?.watchers ?? 0)
+  if (m.spectator) return <span className="watch-chip self">觀戰中{n > 1 ? `・${n} 人在看` : ''}</span>
+  return n > 0 ? <span className="watch-chip">{n} 人在看</span> : null
 }
 
 function TableCenter({ m, timer }: { m: M.MatchState; timer: TurnTimerState }) {
@@ -548,7 +558,35 @@ function remaining(h: HandState, kinds: number[]): { kind: Kind; left: number }[
   return kinds.map((k) => ({ kind: kindOf(k), left: Math.max(0, 4 - seen[k]) }))
 }
 
+/** 觀戰：畫面下方那位的牌蓋著，只看得到亮出來的 */
+function WatchArea({ m }: { m: M.MatchState }) {
+  const s = m.hand.seats[0]
+  const over = m.hand.phase === 'over'
+  return (
+    <div className="me watching">
+      {(s.melds.length > 0 || s.flowers.length > 0) && (
+        <div className="my-melds">
+          {s.melds.map((mm, i) => (
+            <span key={i} className="meld">
+              {mm.tiles.map((t, j) => (mm.concealed && (j === 0 || j === 3) ? <Back key={t.id} w={28} h={38} /> : <Tile key={t.id} kind={t.kind} w={28} />))}
+            </span>
+          ))}
+          {s.flowers.map((f) => (
+            <Tile key={f.id} kind={f.kind} w={24} />
+          ))}
+        </div>
+      )}
+      <div className="hand">{s.hand.map((t) => (over ? <Tile key={t.id} kind={t.kind} w={34} /> : <Back key={t.id} w={30} h={42} />))}</div>
+    </div>
+  )
+}
+
 function MyArea({ m, threats }: { m: M.MatchState; threats: number[] }) {
+  if (m.spectator) return <WatchArea m={m} />
+  return <MyHand m={m} threats={threats} />
+}
+
+function MyHand({ m, threats }: { m: M.MatchState; threats: number[] }) {
   const h = m.hand
   const me = h.seats[0]
   const sel = useUI((s) => s.sel)

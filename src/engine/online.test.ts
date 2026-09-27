@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 import * as M from './match'
-import { rotateMatch, viewFor } from './online'
+import { rotateMatch, viewFor, watchBase, watchView } from './online'
 
 const HUMANS = [true, false, true, false]
 const players: M.SeatPlayer[] = HUMANS.map((h, i) => ({ name: h ? `玩家${i}` : '電腦', human: h }))
@@ -109,5 +109,25 @@ describe('每個人看到的牌局', () => {
     }
     const v = viewFor(m, 0, players)
     expect(v.hand.seats[1].hand.some((t) => t.kind !== 'x')).toBe(true)
+  })
+})
+
+describe('觀戰', () => {
+  it('觀眾看不到任何人的手牌、沒有剛摸的牌；從第一個真人的位子看；不會輪到他', () => {
+    let m = M.newMatch('watch-1', 0, { humans: HUMANS })
+    for (let g = 0; g < 60; g++) {
+      const pending = M.humansPending(m)
+      m = pending.length ? M.act(m, pending[0], M.autoMove(m, pending[0], { rng: 3 })!) : M.step(m)
+      if (m.phase !== 'play') break
+      const v = watchView(m, players)
+      expect(v.spectator).toBe(true)
+      expect(v.players?.[0].name).toBe('玩家0')
+      if (v.hand.phase !== 'over') for (const s of v.hand.seats) expect(s.hand.every((t) => t.kind === 'x')).toBe(true)
+      expect(v.hand.drawn).toBeNull()
+      expect(v.hand.wall.every((t) => t.kind === 'x')).toBe(true)
+      expect(v.seed).toBe('')
+      expect(M.waitingForYou(v)).toBe(false)
+    }
+    expect(watchBase([{ name: '電腦', human: false }, { name: '阿明', human: true }, ...players.slice(2)])).toBe(1)
   })
 })

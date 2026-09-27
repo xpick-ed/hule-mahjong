@@ -1,6 +1,7 @@
 // 趣味功能：閃電局、擲骰子、宿敵、我的造型、算台幫手、上帝視角回放、家庭牌局記帳。
 
 import { describe, expect, it } from 'vitest'
+import { normalizeCode, SAVE_RE, showCode } from './backup-core'
 import { calculate, canAddMeld, canAddTile, type CalcInput } from './calc'
 import { cleanLook, DEFAULT_LOOK } from './engine/looks'
 import { addHand, ledgerText, newLedger, settleUp, titles, totals, undoHand } from './ledger'
@@ -282,5 +283,15 @@ describe('家庭牌局記帳', () => {
     const ts = titles(l).map((x) => `${x.title}:${l.names[x.who]}`)
     expect(ts).toEqual(['自摸王:小明', '放槍王:舅媽', '最大一手:姨丈'])
     expect(ledgerText(l, 'https://x')).toContain('結帳')
+  })
+})
+
+describe('存檔轉移碼', () => {
+  it('轉移碼：大小寫、橫線、空白都可以；顯示成 ABCD-EFGH', () => {
+    expect(normalizeCode(' abcd-2345 ')).toBe('ABCD2345')
+    expect(SAVE_RE.test(normalizeCode('abcd-2345'))).toBe(true)
+    // 0、O、1、I 容易看錯，不會出現在轉移碼裡
+    expect(SAVE_RE.test('ABCD0O1I')).toBe(false)
+    expect(showCode('ABCD2345')).toBe('ABCD-2345')
   })
 })

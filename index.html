@@ -14,9 +14,17 @@
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>胡了！</title>
+    <style>
+      /* 程式還在下載時先出現的畫面（React 畫好就換掉） */
+      html, body { margin: 0; height: 100%; background: #ffe066; }
+      .boot { position: fixed; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center; font-family: 'PingFang TC', 'Noto Sans TC', system-ui, sans-serif; }
+      .boot b { font-size: 56px; font-weight: 900; color: #ef3d5c; text-shadow: 0 5px 0 #1d2a4a; }
+      .boot small { font-size: 14px; font-weight: 700; color: rgba(29, 42, 74, 0.62); animation: boot 1.2s ease-in-out infinite alternate; }
+      @keyframes boot { from { opacity: 0.35; } }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div class="boot"><b>胡了！</b><small>洗牌中…</small></div></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

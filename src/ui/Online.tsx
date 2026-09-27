@@ -138,7 +138,9 @@ export function RoomView() {
           <section className="room-seats" aria-label="座位">
             <h4>
               玩家 {room.players.length}/4
+              {(room.watchers ?? 0) > 0 && <small className="room-watchers">・{room.watchers} 人在旁邊看</small>}
             </h4>
+            {room.you === -1 && <p className="room-watching">房間滿了，你先在旁邊看；有人離開、房主再開一場時就能坐下。</p>}
             <ul>
               {room.players.map((p, i) => (
                 <li key={i} className={cls(!p.connected && 'gone')}>

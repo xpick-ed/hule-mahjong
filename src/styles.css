@@ -6095,3 +6095,199 @@ kbd {
 .lg-pay .lg-actions {
   margin-top: auto;
 }
+
+
+/* ---------- 有什麼新東西 ---------- */
+
+.sheet:has(.news) {
+  width: min(760px, calc(var(--W) - 40px));
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.news h3 {
+  margin-bottom: 8px;
+}
+
+.news .sheet-actions {
+  margin-top: 10px;
+}
+
+.news-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.news-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 10px 8px 13px;
+  border-radius: 16px;
+  background: #f4f6fa;
+  box-shadow: inset 4px 0 0 var(--tone);
+}
+
+.news-item.red {
+  --tone: var(--red);
+}
+.news-item.blue {
+  --tone: var(--blue);
+}
+.news-item.green {
+  --tone: #13a37f;
+}
+.news-item.purple {
+  --tone: var(--purple);
+}
+.news-item.orange {
+  --tone: var(--orange);
+}
+.news-item.ink {
+  --tone: var(--ink);
+}
+
+.news-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  min-height: 26px;
+}
+
+.news-item b {
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.news-item p {
+  margin: 0;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.news-item .btn.small {
+  min-height: 26px;
+  padding: 1px 10px;
+  font-size: 11.5px;
+  box-shadow: 0 2px 0 rgba(29, 42, 74, 0.15);
+}
+
+
+/* ---------- 設定 → 存檔 ---------- */
+
+.backup {
+  gap: 12px;
+}
+
+.bk-part {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.bk-part h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.bk-part .pm-small {
+  margin: 0;
+}
+
+.bk-code {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.bk-code b {
+  padding: 4px 14px;
+  border-radius: 12px;
+  background: var(--ink);
+  color: var(--bg);
+  font-family: var(--num);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  user-select: all;
+  -webkit-user-select: all;
+}
+
+.bk-code small {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.join-form.bk-form {
+  margin-left: 0;
+}
+
+.bk-form input {
+  width: 190px;
+  letter-spacing: 0.06em;
+}
+
+.bk-found {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: #fff3c4;
+}
+
+.bk-found p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+
+/* ---------- 觀戰 ---------- */
+
+.watch-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.watch-chip.self {
+  background: var(--blue);
+  color: #fff;
+}
+
+.me.watching .hand {
+  gap: 2px;
+}
+
+.room-watchers {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.room-watching {
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: #e6edff;
+  font-size: 12px;
+  font-weight: 800;
+}

@@ -31,7 +31,7 @@ interface Ctx {
   env: Env
 }
 
-const json = (body: unknown, status = 200) =>
+export const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } })
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/
@@ -45,7 +45,7 @@ function dateOk(date: string): boolean {
   return Number.isFinite(t) && Math.abs(Date.now() - t) < 2.5 * 86400_000
 }
 
-type DB = NonNullable<Env['DB']>
+export type DB = NonNullable<Env['DB']>
 
 async function board(db: DB, date: string, uid: string) {
   const top = await db.prepare('SELECT uid, name, points, place, grid FROM daily WHERE date = ? ORDER BY points DESC, at ASC LIMIT 20')

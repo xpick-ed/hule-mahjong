@@ -5,11 +5,11 @@ import type { MatchState } from '../engine/match'
 import { lookFor, myName, useUI, type Mood } from '../store'
 import { Avatar, MyFace } from './Avatar'
 
-/** 連線的朋友（不是你） */
-export const isFriend = (m: MatchState, seat: number) => seat !== 0 && !!m.players?.[seat]?.human
+/** 連線的朋友（不是你）；觀戰時畫面下方那位也是 */
+export const isFriend = (m: MatchState, seat: number) => (seat !== 0 || !!m.spectator) && !!m.players?.[seat]?.human
 
 export function seatName(m: MatchState, seat: number): string {
-  if (seat === 0) return myName()
+  if (seat === 0 && !m.spectator) return myName()
   return m.players?.[seat]?.name ?? CHARACTERS[m.chars[seat]]?.name ?? '電腦'
 }
 
@@ -33,7 +33,7 @@ export function PlayerBadge({ name, seat, size = 30, look, mood }: { name: strin
 /** 任何座位的頭像 */
 export function SeatFace({ m, seat, size = 34, mood }: { m: MatchState; seat: number; size?: number; mood?: Mood }) {
   const progress = useUI((s) => s.progress)
-  if (seat === 0) return <MyFace size={size} mood={mood} />
+  if (seat === 0 && !m.spectator) return <MyFace size={size} mood={mood} />
   if (isFriend(m, seat)) return <PlayerBadge name={seatName(m, seat)} seat={seat} size={size} look={m.players?.[seat]?.look} mood={mood} />
   const id = m.chars[seat]
   if (!CHARACTERS[id]) return <PlayerBadge name={seatName(m, seat)} seat={seat} size={size} />

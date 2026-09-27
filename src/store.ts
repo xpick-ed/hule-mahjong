@@ -18,6 +18,7 @@ import { goLandscape } from './screen'
 import { buzz, setSfxVolume, sfx } from './sfx'
 import { STORIES } from './stories'
 import { costOf } from './wardrobe'
+import { NEWS_VERSION } from './news'
 import { preloadVoices, setVoiceVolume, speak } from './voice'
 
 const MATCH_KEY = 'hule.match.v2'
@@ -66,6 +67,8 @@ export interface Settings {
   difficulty: M.Difficulty
   /** 你的名字（空的就叫「你」） */
   name: string
+  /** 看過第幾版的「有什麼新東西」 */
+  seenNews?: number
   /** 第一次打開時問過名字了（填了或跳過） */
   nameAsked: boolean
   /** 存檔版本 */
@@ -73,6 +76,9 @@ export interface Settings {
 }
 
 export const TURN_TIMES = [10, 15, 20, 30, 45, 60] as const
+
+/** 設定的分頁 */
+export type MenuTab = 'sound' | 'game' | 'rules' | 'save'
 
 /** 學習中心的分頁 */
 export type LearnTab = 'tips' | 'practice' | 'rules'
@@ -156,6 +162,12 @@ interface UI {
   /** 大字特效（碰！吃！槓！） */
   callout: { seat: number; text: string; key: number } | null
   menu: boolean
+  /** 設定打開在哪一頁 */
+  menuTab: MenuTab
+  /** 有什麼新東西 */
+  news: boolean
+  /** 從轉移連結進來：預先填好的轉移碼 */
+  restoreCode: string | null
   learn: LearnTab | null
   /** 從覆盤點進來：直接打開這一課 */
   learnFocus: { ch: string; i: number } | null
@@ -221,7 +233,10 @@ interface UI {
   rollDice(): void
   /** 骰子看完了（或點一下跳過） */
   endDice(): void
-  setMenu(on: boolean): void
+  setMenu(on: boolean, tab?: MenuTab): void
+  setMenuTab(tab: MenuTab): void
+  /** 關掉「有什麼新東西」就記成看過了 */
+  setNews(on: boolean): void
   setLearn(tab: LearnTab | null, focus?: { ch: string; i: number }): void
   /** 時間到：系統幫你打 */
   autoPlay(): void
@@ -327,7 +342,7 @@ let banterAt = 0
 
 /** 這個座位用哪個聲音：你是 me-f／me-m，連線的朋友照他選的，電腦是角色 id */
 function voiceOf(m: M.MatchState, seat: number, my: Settings['myVoice']): string {
-  if (seat === 0) return `me-${my}`
+  if (seat === 0 && !m.spectator) return `me-${my}`
   const p = m.players?.[seat]
   return p?.human ? `me-${p.voice ?? 'f'}` : m.chars[seat]
 }
@@ -583,6 +598,11 @@ export const useUI = create<UI>((set, get) => {
     const o = get().online
     if (!o) return
     if (msg.t === 'room') {
+      // 當觀眾（開打了或滿了）、或輪到你坐下：說一聲
+      const was = o.room ? o.room.you : null
+      if (msg.you === -1 && was !== -1)
+        get().showToast(msg.phase === 'playing' ? '這一桌已經開打了，你先在旁邊看；下一場有位子就一起打' : '房間滿了，你先在旁邊看；有人離開就能加入')
+      else if (msg.you >= 0 && was === -1) get().showToast('有位子了，你坐下來了！')
       set({ online: { ...o, room: msg } })
       // 回到房間（打完一場，房主按了再來一場）
       if (msg.phase === 'lobby' && get().screen === 'match') set({ screen: 'room', match: null })
@@ -620,7 +640,7 @@ export const useUI = create<UI>((set, get) => {
     } else if (m.handNo !== prev.handNo) Object.assign(extra, { bubbles: {}, moods: {}, callout: null, ...newHandState })
     set({ match: m, screen: 'match', online: { ...o, deadline, ready: msg.ready }, ...extra })
     get().processEvents()
-    if (prev?.phase === 'play' && m.phase === 'handEnd' && prev.handNo === m.handNo) {
+    if (prev?.phase === 'play' && m.phase === 'handEnd' && prev.handNo === m.handNo && !m.spectator) {
       set({ review: pickNotes(get().notes, m) })
       collect(m)
     }
@@ -640,6 +660,10 @@ export const useUI = create<UI>((set, get) => {
     moods: {},
     callout: null,
     menu: false,
+    menuTab: 'sound',
+    // 更新之後第一次打開：打過牌的人跳「有什麼新東西」（第一次打開的人先問名字）
+    news: !!(settings0.nameAsked || settings0.name) && (load<Progress>(PROGRESS_KEY)?.matches ?? 0) > 0 && (settings0.seenNews ?? 0) < NEWS_VERSION,
+    restoreCode: null,
     learn: null,
     learnFocus: null,
     missions: false,
@@ -684,8 +708,8 @@ export const useUI = create<UI>((set, get) => {
       clearRoomFromUrl()
       const code = fromUrl ?? savedRoom()
       if (!code || get().online) return
-      // 點邀請連結進來：直接加入（沒填名字就用預設的「小明」，之後可以在設定改），不先問名字
-      if (fromUrl) set({ nameSheet: false })
+      // 點邀請連結進來：直接加入（沒填名字就用預設的「小明」，之後可以在設定改），不先問名字；新東西下次再說
+      if (fromUrl) set({ nameSheet: false, news: false })
       get().joinRoom(code)
     },
     openStage(prematch) {
@@ -886,8 +910,15 @@ export const useUI = create<UI>((set, get) => {
       if (get().dice) set({ dice: null })
     },
 
-    setMenu(menu) {
-      set({ menu })
+    setMenu(menu, tab) {
+      set({ menu, ...(tab ? { menuTab: tab } : {}) })
+    },
+    setMenuTab(menuTab) {
+      set({ menuTab })
+    },
+    setNews(news) {
+      set({ news })
+      if (!news && (get().settings.seenNews ?? 0) < NEWS_VERSION) get().setSettings({ seenNews: NEWS_VERSION })
     },
     setLearn(learn, focus) {
       set({ learn, menu: false, learnFocus: focus ?? null })

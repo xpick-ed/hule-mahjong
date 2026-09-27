@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { CHARACTERS } from '../engine/characters'
 import * as M from '../engine/match'
 import { LADDER, SKINS, STAGES, TOURNEY } from '../engine/stages'
@@ -11,10 +11,13 @@ import { sfx } from '../sfx'
 import { cls, CountUp, fmt, Tile } from './bits'
 import { bigHand, CUT_IN_MS, useStagger } from './Celebrate'
 import { DailyBoard } from './DailyBoard'
-import { ReplayPanel } from './Replay'
+import { BackupTab } from './Backup'
 import { isFriend, SeatFace, seatName } from './seat'
 
 const nameOf = seatName
+
+// 回放不常用：按了才下載
+const ReplayPanel = lazy(() => import('./Replay').then((m) => ({ default: m.ReplayPanel })))
 
 export function Face({ m, seat, size = 34 }: { m: M.MatchState; seat: number; size?: number }) {
   return <SeatFace m={m} seat={seat} size={size} />
@@ -79,7 +82,12 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
   }, [done, r.deltas])
 
   if (showReview) return <ReviewPanel onBack={() => setShowReview(false)} />
-  if (showReplay) return <ReplayPanel m={m} onBack={() => setShowReplay(false)} />
+  if (showReplay)
+    return (
+      <Suspense fallback={null}>
+        <ReplayPanel m={m} onBack={() => setShowReplay(false)} />
+      </Suspense>
+    )
 
   return (
     <div className="overlay" onClick={all}>
@@ -177,7 +185,7 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
           ))}
         </div>
         <div className="result-actions">
-          {w && w.seat === 0 && (
+          {w && w.seat === 0 && !m.spectator && (
             <button type="button" className={cls('btn', 'brag-btn', w.score.total >= 4 && 'big')} onClick={() => useUI.getState().brag(P.snapOf(m, w))}>
               炫耀卡
             </button>
@@ -192,9 +200,13 @@ function HandEndPanel({ m, r }: { m: M.MatchState; r: M.HandResult }) {
               教練覆盤<b>{review.length}</b>
             </button>
           ) : (
-            myDiscards >= 4 && <span className="coach-ok">教練：這一局打得很穩</span>
+            myDiscards >= 4 && !m.spectator && <span className="coach-ok">教練：這一局打得很穩</span>
           )}
-          {m.online && waiting ? (
+          {m.spectator ? (
+            <button type="button" className="btn primary" disabled>
+              觀戰中：等大家按下一局
+            </button>
+          ) : m.online && waiting ? (
             <button type="button" className="btn primary" disabled>
               等其他人按下一局
             </button>
@@ -292,6 +304,8 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
     ? sv.out
       ? `生存模式結束：撐過 ${sv.stages} 關`
       : `撐過第 ${sv.stages} 關！`
+    : m.spectator
+    ? `${nameOf(m, order[0])}拿第一！`
     : m.online
     ? first
       ? '你是這一桌的贏家！'
@@ -323,6 +337,8 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
         ? '新紀錄！'
         : `最佳紀錄：撐過 ${svBest?.stages ?? 0} 關`
       : `本錢 ×${sv.ratio.toFixed(2)} 帶到下一關：${svNext ? STAGES[svNext.stage].name : ''}${svNext && svNext.loop > 1 ? '（高手難度）' : ''}`
+    : m.spectator
+    ? `觀戰・${stage.name}・${m.handNo} 局。房主再開一場時，有位子你就能一起打`
     : m.online
     ? `跟朋友連線・${stage.name}・${m.handNo} 局`
     : m.daily
@@ -404,7 +420,7 @@ export function MatchEnd({ m }: { m: M.MatchState }) {
                 <button type="button" className="btn" onClick={leaveRoom}>
                   離開房間
                 </button>
-                {isHost ? (
+                {isHost && !m.spectator ? (
                   <button type="button" className="btn primary" onClick={() => roomSend({ t: 'again' })}>
                     再來一場
                   </button>
@@ -591,8 +607,6 @@ export function NameSheet() {
   )
 }
 
-type MenuTab = 'sound' | 'game' | 'rules'
-
 function Vol({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
   return (
     <label className="row vol">
@@ -611,7 +625,9 @@ export function Menu() {
   const inMatch = useUI((s) => !!s.match && s.screen === 'match')
   const { setMenu, setSettings, setLearn, toHome, setSkin } = useUI.getState()
   const inRoom = useUI((s) => !!s.online)
-  const [tab, setTab] = useState<MenuTab>('sound')
+  const watching = useUI((s) => s.online?.room?.you === -1)
+  const tab = useUI((s) => s.menuTab)
+  const setTab = useUI((s) => s.setMenuTab)
   const rules = settings.rules
   const setRules = (r: Partial<typeof rules>) => setSettings({ rules: { ...rules, ...r } })
   const desktop = typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: fine)').matches
@@ -623,6 +639,7 @@ export function Menu() {
             ['sound', '聲音'],
             ['game', '遊戲'],
             ['rules', '牌桌規則'],
+            ['save', '存檔'],
           ] as const
         ).map(([id, name]) => (
           <button key={id} type="button" aria-pressed={tab === id} onClick={() => setTab(id)}>
@@ -718,6 +735,7 @@ export function Menu() {
           )}
         </div>
       )}
+      {tab === 'save' && <BackupTab />}
       {tab === 'rules' && (
         <div className="settings">
           <div className="row">
@@ -768,6 +786,18 @@ export function Menu() {
         <button type="button" className="btn" onClick={() => setLearn('tips')}>
           胡牌技巧
         </button>
+        {screen === 'home' && (
+          <button
+            type="button"
+            className="btn"
+            onClick={() => {
+              setMenu(false)
+              useUI.getState().setNews(true)
+            }}
+          >
+            有什麼新東西
+          </button>
+        )}
         <button
           type="button"
           className="btn"
@@ -785,7 +815,7 @@ export function Menu() {
         )}
         {inRoom && (
           <button type="button" className="btn" onClick={() => useUI.getState().leaveRoom()}>
-            離開房間（電腦幫你打完）
+            {watching ? '離開觀戰' : '離開房間（電腦幫你打完）'}
           </button>
         )}
         <button type="button" className="btn primary" onClick={() => setMenu(false)}>
